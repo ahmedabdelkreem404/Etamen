@@ -122,9 +122,9 @@ public function getsitecurrenttime(){
      }
        
     public function create_session(){
-        $application_id = 7223;
-        $auth_key = "9dEWjERBVa5umN6";
-        $authSecret = "T5Kx3CYsGKyMjLC";
+        $application_id = env('CONNECTYCUBE_APP_ID', '');
+        $auth_key = env('CONNECTYCUBE_AUTH_KEY', '');
+        $authSecret = env('CONNECTYCUBE_AUTH_SECRET', '');
         $nonce = rand();
         $timestamp = time();
         $stringForSignature = "application_id=".$application_id."&auth_key=".$auth_key."&nonce=".$nonce."&timestamp=".$timestamp;

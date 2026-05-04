@@ -3,6 +3,9 @@
 __MACOSX/
 ._*
 .vscode/
+.idea/
+*.iml
+hs_err_pid*.log
 
 # Local environment and secrets
 .env

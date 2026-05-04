@@ -1,0 +1,115 @@
+————————————————————————————————————————————
+v8.0 - 30th December, 2023
+————————————————————————————————————————————
+1) Prescription and Medical Reports 
+   - Doctor can add Medicine for patient
+   - Doctor can add Reports of patient 
+   - Medicine and reports is saved electronically in system
+————————————————————————————————————————————
+v7.0 - 1st July, 2023
+————————————————————————————————————————————
+1) Add Video Calling & Chat option 
+   - Video calling between doctor and patient
+   - Audio calling between doctor and patient
+   - Chat calling between doctor and patient
+
+————————————————————————————————————————————
+v6.3 - 02nd October, 2023
+————————————————————————————————————————————
+1) Add Reports on Admin panel
+   - Number of Register Doctor Reports
+   - Number of Register User Reports
+   - Number of Purchase subscription Reports
+————————————————————————————————————————————
+v6.3 - 02nd October, 2023
+————————————————————————————————————————————
+1) Add Reports on Admin panel
+   - Number of Register Doctor Reports
+   - Number of Register User Reports
+   - Number of Purchase subscription Reports
+————————————————————————————————————————————
+v6.3 - 02nd October, 2023
+————————————————————————————————————————————
+1) Add Reports on Admin panel
+   - Number of Register Doctor Reports
+   - Number of Register User Reports
+   - Number of Purchase subscription Reports
+   - Number of Appointment booked Reports
+2) Resolved Cookie issue on website
+3) Resolved Demo mode issue
+————————————————————————————————————————————
+v6.2 - 29th August, 2023
+————————————————————————————————————————————
+- admin panel in demo mode resolved
+- Added Migration folder
+- add service file
+————————————————————————————————————————————
+v6.1 - 2nd August, 2023
+————————————————————————————————————————————
+- Added Doctor earning reports in app
+- Resolved login and register issue
+
+————————————————————————————————————————————
+v6.1 - 27th July, 2023
+————————————————————————————————————————————
+1) Add firebase chat between patient and doctor
+2) Add video calling for online consultation
+————————————————————————————————————————————
+v6.0 - 3rd July, 2023
+————————————————————————————————————————————
+1) add website for doctor finder
+2) Updated flutter version 3.10.5
+————————————————————————————————————————————
+v5.1 - 25th May, 2023
+————————————————————————————————————————————
+1) update flutter & Dart version 
+-> Flutter : 3.7.7
+-> Dart : 2.19.4
+
+————————————————————————————————————————————
+v5.0 - 7th March, 2023
+————————————————————————————————————————————
+- Added Banner on home page
+- add categories list on home page
+
+————————————————————————————————————————————
+v4.0 - 7th September, 2022
+————————————————————————————————————————————
+1) update code in 3.0.5
+2) Added Subscription plan for doctors
+   - Monthly
+   - Quarterly (3 months)
+   - Half Year (6 Month)
+   - Yearly (12 Month)
+3) Added New Payment Gateway
+   - Paytm
+   - Razorpay
+   - Paystrack
+   - Rave
+
+————————————————————————————————————————————
+v3.0 - 15th May, 2022
+————————————————————————————————————————————
+1) set holiday Features
+2) added Braintree and Stripe
+————————————————————————————————————————————
+v2.1 - 8th April, 2022
+————————————————————————————————————————————
+Updated code to flutter 2.10.4
+</pre>
+
+<pre class="brush: html">
+————————————————————————————————————————————
+v2.0 - 19th January, 2022
+————————————————————————————————————————————
+Added Option to set holiday from doctor side
+user can not book appointment on holidays
+</pre>
+<pre class="brush: html">
+————————————————————————————————————————————
+v1.1 - 22nd September, 2021
+————————————————————————————————————————————
+Added Payment gateway to book appointment
+1) Cash on board option 
+2) Braintree or PayPal added
+3) Stripe (pay using Debit or credit card)
