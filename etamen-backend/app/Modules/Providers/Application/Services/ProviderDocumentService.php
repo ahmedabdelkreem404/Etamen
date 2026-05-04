@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Modules\AuditLogs\Application\Services\AuditLogService;
 use App\Modules\MedicalFiles\Application\Services\FileStorageService;
 use App\Modules\MedicalFiles\Domain\Enums\FileCategory;
+use App\Modules\Providers\Domain\Enums\ProviderDocumentStatus;
 use App\Modules\Providers\Infrastructure\Models\ProviderDocument;
 use Illuminate\Http\UploadedFile;
 
@@ -31,6 +32,7 @@ class ProviderDocumentService
             'file_id' => $uploadedFile->id,
             'uploaded_by' => $user->id,
             'document_type' => $documentType,
+            'status' => ProviderDocumentStatus::Pending,
             'notes' => $notes,
         ]);
 

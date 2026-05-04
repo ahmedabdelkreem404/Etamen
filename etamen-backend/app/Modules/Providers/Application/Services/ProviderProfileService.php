@@ -20,7 +20,7 @@ class ProviderProfileService
             ->first();
 
         if (! $provider) {
-            throw (new ModelNotFoundException())->setModel(Provider::class);
+            throw (new ModelNotFoundException)->setModel(Provider::class);
         }
 
         return $provider;

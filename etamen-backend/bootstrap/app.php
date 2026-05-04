@@ -1,5 +1,7 @@
 <?php
 
+use App\Core\Http\Middleware\EnsureAdmin;
+use App\Core\Http\Middleware\EnsureProviderUser;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -20,7 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'admin' => EnsureAdmin::class,
+            'provider.user' => EnsureProviderUser::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $shouldRenderJson = static fn (Request $request): bool => $request->is('api/*') || $request->expectsJson();
