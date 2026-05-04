@@ -2,6 +2,18 @@
 
 namespace App\Providers;
 
+use App\Modules\Appointments\Infrastructure\Models\Appointment;
+use App\Modules\Appointments\Infrastructure\Models\AppointmentReview;
+use App\Modules\Appointments\Infrastructure\Models\AppointmentSlot;
+use App\Modules\Appointments\Infrastructure\Models\DoctorHoliday;
+use App\Modules\Appointments\Infrastructure\Models\DoctorSchedule;
+use App\Modules\Appointments\Infrastructure\Models\DoctorScheduleDay;
+use App\Modules\Appointments\Policies\AppointmentPolicy;
+use App\Modules\Appointments\Policies\AppointmentReviewPolicy;
+use App\Modules\Appointments\Policies\AppointmentSlotPolicy;
+use App\Modules\Appointments\Policies\DoctorHolidayPolicy;
+use App\Modules\Appointments\Policies\DoctorScheduleDayPolicy;
+use App\Modules\Appointments\Policies\DoctorSchedulePolicy;
 use App\Modules\Providers\Infrastructure\Models\DoctorProfile;
 use App\Modules\Providers\Infrastructure\Models\LabProfile;
 use App\Modules\Providers\Infrastructure\Models\PharmacyProfile;
@@ -43,5 +55,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(PharmacyProfile::class, PharmacyProfilePolicy::class);
         Gate::policy(LabProfile::class, LabProfilePolicy::class);
         Gate::policy(Specialty::class, SpecialtyPolicy::class);
+        Gate::policy(DoctorSchedule::class, DoctorSchedulePolicy::class);
+        Gate::policy(DoctorScheduleDay::class, DoctorScheduleDayPolicy::class);
+        Gate::policy(DoctorHoliday::class, DoctorHolidayPolicy::class);
+        Gate::policy(AppointmentSlot::class, AppointmentSlotPolicy::class);
+        Gate::policy(Appointment::class, AppointmentPolicy::class);
+        Gate::policy(AppointmentReview::class, AppointmentReviewPolicy::class);
     }
 }

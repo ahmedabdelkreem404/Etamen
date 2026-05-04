@@ -3,9 +3,14 @@
 namespace App\Modules\Providers\Infrastructure\Models;
 
 use App\Models\User;
+use App\Modules\Appointments\Infrastructure\Models\Appointment;
+use App\Modules\Appointments\Infrastructure\Models\AppointmentSlot;
+use App\Modules\Appointments\Infrastructure\Models\DoctorHoliday;
+use App\Modules\Appointments\Infrastructure\Models\DoctorSchedule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DoctorProfile extends Model
 {
@@ -40,5 +45,25 @@ class DoctorProfile extends Model
     public function specialties(): BelongsToMany
     {
         return $this->belongsToMany(Specialty::class, 'doctor_specialties')->withTimestamps();
+    }
+
+    public function schedules(): HasMany
+    {
+        return $this->hasMany(DoctorSchedule::class);
+    }
+
+    public function holidays(): HasMany
+    {
+        return $this->hasMany(DoctorHoliday::class);
+    }
+
+    public function slots(): HasMany
+    {
+        return $this->hasMany(AppointmentSlot::class);
+    }
+
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class);
     }
 }
