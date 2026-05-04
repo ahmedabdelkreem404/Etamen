@@ -1,0 +1,58 @@
+# OS/editor noise
+.DS_Store
+__MACOSX/
+._*
+.vscode/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+!**/.env.example
+*.key
+*.pem
+*.p12
+*.jks
+key.properties
+google-services.json
+GoogleService-Info.plist
+
+# Laravel
+**/Website/PHPScript/vendor/
+**/Website/PHPScript/node_modules/
+**/Website/PHPScript/public/hot
+**/Website/PHPScript/public/storage
+**/Website/PHPScript/storage/*.key
+**/Website/PHPScript/storage/logs/
+**/Website/PHPScript/storage/framework/cache/data/
+**/Website/PHPScript/storage/framework/sessions/
+**/Website/PHPScript/storage/framework/views/
+**/Website/PHPScript/bootstrap/cache/*.php
+**/Website/PHPScript/.phpunit.result.cache
+**/Website/PHPScript/npm-debug.log
+**/Website/PHPScript/yarn-error.log
+**/Website/PHPScript/error_log
+
+# Flutter / Android / iOS generated files
+**/doctorfinder_timeslot-main/.dart_tool/
+**/doctorfinder_timeslot-main/.flutter-plugins
+**/doctorfinder_timeslot-main/.flutter-plugins-dependencies
+**/doctorfinder_timeslot-main/.packages
+**/doctorfinder_timeslot-main/build/
+**/doctorfinder_timeslot-main/.gradle/
+**/doctorfinder_timeslot-main/.gradle-home/
+**/doctorfinder_timeslot-main/android/.gradle/
+**/doctorfinder_timeslot-main/android/app/build/
+**/doctorfinder_timeslot-main/ios/Pods/
+**/doctorfinder_timeslot-main/ios/.symlinks/
+**/doctorfinder_timeslot-main/ios/Flutter/Flutter.framework
+**/doctorfinder_timeslot-main/ios/Flutter/Flutter.podspec
+**/doctorfinder_timeslot-main/ios/Flutter/Generated.xcconfig
+**/doctorfinder_timeslot-main/ios/Flutter/flutter_export_environment.sh
+
+# Local generated artifacts from this setup
+gradle-build*.log
+gradle-test.jar
+kotlin-test.jar
+Downloaded from CODELIST.CC.url
+codelist.cc.txt
