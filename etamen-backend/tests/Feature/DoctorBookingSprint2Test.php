@@ -114,9 +114,83 @@ class DoctorBookingSprint2Test extends TestCase
 
         $this->postJson('/api/v1/provider/doctor/slots/generate', $payload)
             ->assertOk()
-            ->assertJsonPath('data.created', 0);
+            ->assertJsonPath('data.created', 0)
+            ->assertJsonPath('data.skipped', 2);
 
         $this->assertSame(2, AppointmentSlot::query()->where('generated_from_schedule_id', $schedule->id)->count());
+    }
+
+    public function test_generate_slots_clamps_end_date_to_sixty_days_from_start_date(): void
+    {
+        ['user' => $doctorUser, 'doctor' => $doctor] = $this->createDoctorProvider();
+        $startDate = now()->addDay()->startOfDay();
+        $this->createDailySchedule($doctor, maxDaysAhead: 90);
+
+        Sanctum::actingAs($doctorUser);
+
+        $this->postJson('/api/v1/provider/doctor/slots/generate', [
+            'start_date' => $startDate->toDateString(),
+            'end_date' => $startDate->copy()->addDays(90)->toDateString(),
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.end_date', $startDate->copy()->addDays(60)->toDateString());
+
+        $this->assertFalse(
+            AppointmentSlot::query()
+                ->where('doctor_profile_id', $doctor->id)
+                ->where('starts_at', '>', $startDate->copy()->addDays(60)->endOfDay())
+                ->exists(),
+        );
+    }
+
+    public function test_generate_slots_respects_schedule_max_days_ahead(): void
+    {
+        ['user' => $doctorUser, 'doctor' => $doctor] = $this->createDoctorProvider();
+        $startDate = now()->addDay()->startOfDay();
+        $this->createDailySchedule($doctor, maxDaysAhead: 3);
+
+        Sanctum::actingAs($doctorUser);
+
+        $this->postJson('/api/v1/provider/doctor/slots/generate', [
+            'start_date' => $startDate->toDateString(),
+            'end_date' => $startDate->copy()->addDays(20)->toDateString(),
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.created', 8);
+
+        $this->assertFalse(
+            AppointmentSlot::query()
+                ->where('doctor_profile_id', $doctor->id)
+                ->where('starts_at', '>', $startDate->copy()->addDays(3)->endOfDay())
+                ->exists(),
+        );
+    }
+
+    public function test_slot_generation_counts_preexisting_duplicates_as_skipped_without_crashing(): void
+    {
+        ['user' => $doctorUser, 'doctor' => $doctor] = $this->createDoctorProvider();
+        $date = now()->addDays(3)->startOfDay();
+        $this->createScheduleWithDay($doctor, $date->dayOfWeek);
+
+        AppointmentSlot::query()->create([
+            'doctor_profile_id' => $doctor->id,
+            'provider_id' => $doctor->provider_id,
+            'starts_at' => $date->copy()->setTime(9, 0),
+            'ends_at' => $date->copy()->setTime(9, 30),
+            'status' => AppointmentSlotStatus::Available,
+        ]);
+
+        Sanctum::actingAs($doctorUser);
+
+        $this->postJson('/api/v1/provider/doctor/slots/generate', [
+            'start_date' => $date->toDateString(),
+            'end_date' => $date->toDateString(),
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.created', 1)
+            ->assertJsonPath('data.skipped', 1);
+
+        $this->assertSame(2, AppointmentSlot::query()->where('doctor_profile_id', $doctor->id)->count());
     }
 
     public function test_holiday_blocks_generated_slots(): void
@@ -161,6 +235,45 @@ class DoctorBookingSprint2Test extends TestCase
 
         $this->getJson('/api/v1/doctors/'.$pendingProvider->id.'/slots')
             ->assertNotFound();
+    }
+
+    public function test_public_slots_endpoint_defaults_to_fourteen_days_and_clamps_query_to_sixty_days(): void
+    {
+        ['provider' => $provider, 'doctor' => $doctor] = $this->createDoctorProvider();
+        $day20Slot = $this->createSlot($doctor, days: 20);
+        $day70Slot = $this->createSlot($doctor, days: 70);
+
+        $this->getJson('/api/v1/doctors/'.$provider->id.'/slots')
+            ->assertOk()
+            ->assertJsonCount(0, 'data');
+
+        $response = $this->getJson('/api/v1/doctors/'.$provider->id.'/slots?start_date='.now()->toDateString().'&end_date='.now()->addDays(90)->toDateString())
+            ->assertOk();
+
+        $slotIds = collect($response->json('data'))->pluck('id');
+
+        $this->assertTrue($slotIds->contains($day20Slot->id));
+        $this->assertFalse($slotIds->contains($day70Slot->id));
+    }
+
+    public function test_public_slots_endpoint_does_not_return_unbounded_data(): void
+    {
+        ['provider' => $provider, 'doctor' => $doctor] = $this->createDoctorProvider();
+        $startsAt = now()->addDay()->setTime(9, 0);
+
+        for ($index = 0; $index < 120; $index++) {
+            AppointmentSlot::query()->create([
+                'doctor_profile_id' => $doctor->id,
+                'provider_id' => $doctor->provider_id,
+                'starts_at' => $startsAt->copy()->addMinutes($index * 30),
+                'ends_at' => $startsAt->copy()->addMinutes(($index + 1) * 30),
+                'status' => AppointmentSlotStatus::Available,
+            ]);
+        }
+
+        $this->getJson('/api/v1/doctors/'.$provider->id.'/slots')
+            ->assertOk()
+            ->assertJsonCount(100, 'data');
     }
 
     public function test_suspended_doctor_slots_are_hidden(): void
@@ -278,6 +391,8 @@ class DoctorBookingSprint2Test extends TestCase
         $this->postJson('/api/v1/appointments/'.$appointment->id.'/cancel', ['reason' => 'Cannot attend'])
             ->assertOk()
             ->assertJsonPath('data.status', AppointmentStatus::CancelledByPatient->value);
+
+        $this->assertSame(AppointmentSlotStatus::Available, $appointment->slot->refresh()->status);
     }
 
     public function test_patient_cannot_cancel_completed_appointment_or_manually_set_status(): void
@@ -341,6 +456,23 @@ class DoctorBookingSprint2Test extends TestCase
         $this->postJson('/api/v1/provider/appointments/'.$confirmed->id.'/complete')
             ->assertOk()
             ->assertJsonPath('data.status', AppointmentStatus::Completed->value);
+    }
+
+    public function test_doctor_rejecting_appointment_releases_slot(): void
+    {
+        ['user' => $doctorUser, 'doctor' => $doctor] = $this->createDoctorProvider(fee: 0);
+        $patient = $this->patientUser();
+        $appointment = $this->createAppointment($patient, $doctor, AppointmentStatus::Confirmed);
+
+        Sanctum::actingAs($doctorUser);
+
+        $this->postJson('/api/v1/provider/appointments/'.$appointment->id.'/reject', [
+            'reason' => 'Doctor unavailable.',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.status', AppointmentStatus::Rejected->value);
+
+        $this->assertSame(AppointmentSlotStatus::Available, $appointment->slot->refresh()->status);
     }
 
     public function test_admin_can_view_all_and_force_cancel_with_reason(): void
@@ -512,6 +644,28 @@ class DoctorBookingSprint2Test extends TestCase
             'start_time' => '09:00',
             'end_time' => '10:00',
         ]);
+
+        return $schedule;
+    }
+
+    private function createDailySchedule(DoctorProfile $doctor, int $maxDaysAhead): DoctorSchedule
+    {
+        $schedule = DoctorSchedule::query()->create([
+            'doctor_profile_id' => $doctor->id,
+            'provider_id' => $doctor->provider_id,
+            'slot_duration_minutes' => 30,
+            'buffer_minutes' => 0,
+            'max_days_ahead' => $maxDaysAhead,
+        ]);
+
+        for ($day = 0; $day <= 6; $day++) {
+            DoctorScheduleDay::query()->create([
+                'doctor_schedule_id' => $schedule->id,
+                'day_of_week' => $day,
+                'start_time' => '09:00',
+                'end_time' => '10:00',
+            ]);
+        }
 
         return $schedule;
     }

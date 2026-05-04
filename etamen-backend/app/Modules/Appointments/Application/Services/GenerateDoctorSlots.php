@@ -22,11 +22,9 @@ class GenerateDoctorSlots
     public function generate(User $user, array $data): array
     {
         $doctor = $this->contextService->doctorForUser($user, $data['doctor_profile_id'] ?? null);
-        $daysAhead = min((int) ($data['days_ahead'] ?? 14), 60);
-        $startDate = isset($data['start_date']) ? CarbonImmutable::parse($data['start_date'])->startOfDay() : now()->toImmutable()->startOfDay();
-        $endDate = isset($data['end_date']) ? CarbonImmutable::parse($data['end_date'])->endOfDay() : $startDate->addDays($daysAhead)->endOfDay();
+        [$startDate, $endDate, $requestedEndDate] = $this->resolveDateRange($data);
 
-        return DB::transaction(function () use ($doctor, $startDate, $endDate, $user): array {
+        return DB::transaction(function () use ($doctor, $startDate, $endDate, $requestedEndDate, $user): array {
             $created = 0;
             $skipped = 0;
 
@@ -35,8 +33,10 @@ class GenerateDoctorSlots
                 ->with(['days' => fn ($query) => $query->where('is_active', true)])
                 ->get();
 
-            for ($date = $startDate; $date->lessThanOrEqualTo($endDate); $date = $date->addDay()) {
-                foreach ($schedules as $schedule) {
+            foreach ($schedules as $schedule) {
+                $scheduleEndDate = $this->scheduleEndDate($schedule, $startDate, $endDate);
+
+                for ($date = $startDate; $date->lessThanOrEqualTo($scheduleEndDate); $date = $date->addDay()) {
                     foreach ($schedule->days->where('day_of_week', $date->dayOfWeek) as $day) {
                         [$dayCreated, $daySkipped] = $this->generateForDay($doctor, $schedule, $day, $date);
                         $created += $dayCreated;
@@ -50,10 +50,45 @@ class GenerateDoctorSlots
                 'skipped' => $skipped,
                 'start_date' => $startDate->toDateString(),
                 'end_date' => $endDate->toDateString(),
+                'requested_end_date' => $requestedEndDate->toDateString(),
             ]);
 
-            return ['created' => $created, 'skipped' => $skipped];
+            return [
+                'created' => $created,
+                'skipped' => $skipped,
+                'start_date' => $startDate->toDateString(),
+                'end_date' => $endDate->toDateString(),
+            ];
         });
+    }
+
+    private function resolveDateRange(array $data): array
+    {
+        $daysAhead = min((int) ($data['days_ahead'] ?? 14), 60);
+        $startDate = isset($data['start_date'])
+            ? CarbonImmutable::parse($data['start_date'])->startOfDay()
+            : now()->toImmutable()->startOfDay();
+
+        $requestedEndDate = isset($data['end_date'])
+            ? CarbonImmutable::parse($data['end_date'])->endOfDay()
+            : $startDate->addDays($daysAhead)->endOfDay();
+
+        $maxEndDate = $startDate->addDays(60)->endOfDay();
+        $endDate = $requestedEndDate->lessThanOrEqualTo($maxEndDate)
+            ? $requestedEndDate
+            : $maxEndDate;
+
+        return [$startDate, $endDate, $requestedEndDate];
+    }
+
+    private function scheduleEndDate(DoctorSchedule $schedule, CarbonImmutable $startDate, CarbonImmutable $requestedEndDate): CarbonImmutable
+    {
+        $scheduleMaxDaysAhead = min(max((int) $schedule->max_days_ahead, 0), 60);
+        $scheduleEndDate = $startDate->addDays($scheduleMaxDaysAhead)->endOfDay();
+
+        return $scheduleEndDate->lessThanOrEqualTo($requestedEndDate)
+            ? $scheduleEndDate
+            : $requestedEndDate;
     }
 
     private function generateForDay(DoctorProfile $doctor, DoctorSchedule $schedule, $day, CarbonImmutable $date): array
@@ -75,22 +110,19 @@ class GenerateDoctorSlots
                 continue;
             }
 
-            $exists = AppointmentSlot::query()
-                ->where('doctor_profile_id', $doctor->id)
-                ->where('starts_at', $cursor)
-                ->where('ends_at', $slotEnd)
-                ->exists();
+            $inserted = AppointmentSlot::query()->insertOrIgnore([
+                'doctor_profile_id' => $doctor->id,
+                'provider_id' => $doctor->provider_id,
+                'branch_id' => $schedule->branch_id,
+                'starts_at' => $cursor,
+                'ends_at' => $slotEnd,
+                'status' => AppointmentSlotStatus::Available->value,
+                'generated_from_schedule_id' => $schedule->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-            if (! $exists) {
-                AppointmentSlot::query()->create([
-                    'doctor_profile_id' => $doctor->id,
-                    'provider_id' => $doctor->provider_id,
-                    'branch_id' => $schedule->branch_id,
-                    'starts_at' => $cursor,
-                    'ends_at' => $slotEnd,
-                    'status' => AppointmentSlotStatus::Available,
-                    'generated_from_schedule_id' => $schedule->id,
-                ]);
+            if ($inserted === 1) {
                 $created++;
             } else {
                 $skipped++;
