@@ -1,0 +1,1125 @@
+openapi: 3.0.3
+info:
+  title: Etamen Mobile MVP API
+  version: 1.0.0
+  description: >
+    Focused mobile API contract for Flutter integration. It documents the
+    stable MVP endpoints and common DTO shapes. Admin monitoring endpoints are
+    intentionally minimized here and remain documented in API_ROUTE_INVENTORY.md.
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development
+security:
+  - bearerAuth: []
+tags:
+  - name: Auth
+  - name: Providers
+  - name: Appointments
+  - name: Payments
+  - name: Pharmacy
+  - name: Labs
+  - name: Health
+  - name: Medications
+  - name: CarePlans
+  - name: AI
+  - name: Notifications
+  - name: System
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Register a patient account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthEnvelope'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /auth/login:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Login and issue Sanctum token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthEnvelope'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Revoke current token
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessEmpty'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+  /me:
+    get:
+      tags: [Auth]
+      summary: Current authenticated user
+      responses:
+        '200':
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEnvelope'
+  /doctors:
+    get:
+      tags: [Providers]
+      security: []
+      summary: Public doctors list
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - name: specialty_id
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Bounded doctor list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderListEnvelope'
+  /doctors/{doctor}:
+    get:
+      tags: [Providers]
+      security: []
+      summary: Doctor profile
+      parameters:
+        - $ref: '#/components/parameters/DoctorId'
+      responses:
+        '200':
+          description: Doctor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderEnvelope'
+  /doctors/{doctor}/slots:
+    get:
+      tags: [Appointments]
+      security: []
+      summary: Public available appointment slots
+      parameters:
+        - $ref: '#/components/parameters/DoctorId'
+        - name: start_date
+          in: query
+          schema: { type: string, format: date }
+        - name: end_date
+          in: query
+          schema: { type: string, format: date }
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Available slots
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentSlotListEnvelope'
+  /appointments:
+    get:
+      tags: [Appointments]
+      summary: Patient appointments
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Own appointments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentListEnvelope'
+    post:
+      tags: [Appointments]
+      summary: Book appointment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookAppointmentRequest'
+      responses:
+        '201':
+          description: Appointment booked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentEnvelope'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /appointments/{appointment}/cancel:
+    post:
+      tags: [Appointments]
+      summary: Cancel own appointment if allowed
+      parameters:
+        - $ref: '#/components/parameters/AppointmentId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string, maxLength: 1000 }
+      responses:
+        '200':
+          description: Cancelled appointment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentEnvelope'
+  /payment-methods:
+    get:
+      tags: [Payments]
+      security: []
+      summary: Active payment methods
+      responses:
+        '200':
+          description: Payment methods
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethodListEnvelope'
+  /payments/{payment}/status:
+    get:
+      tags: [Payments]
+      summary: Safe payment status
+      parameters:
+        - $ref: '#/components/parameters/PaymentId'
+      responses:
+        '200':
+          description: Payment status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentEnvelope'
+  /payments/{payment}/manual/select:
+    post:
+      tags: [Payments]
+      summary: Select manual Vodafone Cash or InstaPay
+      parameters:
+        - $ref: '#/components/parameters/PaymentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [payment_method_id]
+              properties:
+                payment_method_id: { type: integer }
+      responses:
+        '200':
+          description: Awaiting proof
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentEnvelope'
+  /payments/{payment}/proofs:
+    post:
+      tags: [Payments]
+      summary: Upload manual payment proof
+      parameters:
+        - $ref: '#/components/parameters/PaymentId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary }
+                reference_number: { type: string }
+                sender_phone: { type: string }
+                notes: { type: string }
+      responses:
+        '201':
+          description: Proof uploaded
+  /payments/{payment}/paymob/create-session:
+    post:
+      tags: [Payments]
+      summary: Create Paymob checkout session
+      parameters:
+        - $ref: '#/components/parameters/PaymentId'
+      responses:
+        '200':
+          description: Safe checkout data only
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  message: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      checkout_url: { type: string, nullable: true }
+                      client_secret: { type: string, nullable: true }
+  /pharmacies:
+    get:
+      tags: [Pharmacy]
+      security: []
+      summary: Public pharmacies
+      responses:
+        '200':
+          description: Pharmacies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderListEnvelope'
+  /pharmacies/{pharmacy}/products:
+    get:
+      tags: [Pharmacy]
+      security: []
+      summary: Active pharmacy products
+      parameters:
+        - name: pharmacy
+          in: path
+          required: true
+          schema: { type: integer }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Products
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PharmacyProductListEnvelope'
+  /pharmacy/prescriptions:
+    post:
+      tags: [Pharmacy]
+      summary: Upload private prescription
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [pharmacy_provider_id, file]
+              properties:
+                pharmacy_provider_id: { type: integer }
+                file: { type: string, format: binary }
+                notes: { type: string }
+      responses:
+        '201':
+          description: Prescription metadata, no raw path
+  /pharmacy/orders:
+    get:
+      tags: [Pharmacy]
+      summary: Patient pharmacy orders
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Orders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PharmacyOrderListEnvelope'
+    post:
+      tags: [Pharmacy]
+      summary: Create pharmacy order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePharmacyOrderRequest'
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PharmacyOrderEnvelope'
+  /pharmacy/orders/{order}/pay:
+    post:
+      tags: [Pharmacy]
+      summary: Create payment for accepted pharmacy order
+      parameters:
+        - name: order
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Order moved to awaiting payment
+  /labs:
+    get:
+      tags: [Labs]
+      security: []
+      summary: Public labs
+      responses:
+        '200':
+          description: Labs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderListEnvelope'
+  /labs/{lab}/tests:
+    get:
+      tags: [Labs]
+      security: []
+      summary: Active lab tests
+      parameters:
+        - name: lab
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Lab tests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabTestListEnvelope'
+  /labs/{lab}/packages:
+    get:
+      tags: [Labs]
+      security: []
+      summary: Active lab packages
+      parameters:
+        - name: lab
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Lab packages
+  /lab/orders:
+    get:
+      tags: [Labs]
+      summary: Patient lab orders
+      responses:
+        '200':
+          description: Orders
+    post:
+      tags: [Labs]
+      summary: Create lab order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLabOrderRequest'
+      responses:
+        '201':
+          description: Lab order created
+  /lab/orders/{order}/pay:
+    post:
+      tags: [Labs]
+      summary: Create payment for accepted lab order
+      parameters:
+        - name: order
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Order moved to awaiting payment
+  /lab/results/{result}/download:
+    get:
+      tags: [Labs]
+      summary: Secure lab result download
+      parameters:
+        - name: result
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: File stream
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /health/profile:
+    get:
+      tags: [Health]
+      summary: Own health profile
+      responses:
+        '200':
+          description: Health profile
+    put:
+      tags: [Health]
+      summary: Update own health profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthProfileInput'
+      responses:
+        '200':
+          description: Updated profile
+  /health/vitals:
+    get:
+      tags: [Health]
+      summary: Own vital records
+      parameters:
+        - name: vital_type
+          in: query
+          schema: { type: string }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Vitals
+    post:
+      tags: [Health]
+      summary: Create vital record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VitalRecordInput'
+      responses:
+        '201':
+          description: Vital created
+  /health/vitals/trends:
+    get:
+      tags: [Health]
+      summary: Vital trends, bounded range
+      parameters:
+        - name: vital_type
+          in: query
+          required: true
+          schema: { type: string }
+        - name: from
+          in: query
+          schema: { type: string, format: date }
+        - name: to
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Trend data
+  /health/summary:
+    get:
+      tags: [Health]
+      summary: Safe non-diagnostic health summary
+      responses:
+        '200':
+          description: Health summary
+  /medications/reminders:
+    get:
+      tags: [Medications]
+      summary: Own medication reminders
+      responses:
+        '200':
+          description: Reminders
+    post:
+      tags: [Medications]
+      summary: Create medication reminder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MedicationReminderInput'
+      responses:
+        '201':
+          description: Reminder created
+  /medications/reminders/{reminder}/taken:
+    post:
+      tags: [Medications]
+      summary: Mark reminder as taken
+      parameters:
+        - name: reminder
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Log created or updated
+  /medications/today:
+    get:
+      tags: [Medications]
+      summary: Today's scheduled reminders
+      responses:
+        '200':
+          description: Today schedule
+  /medications/adherence:
+    get:
+      tags: [Medications]
+      summary: Adherence summary
+      responses:
+        '200':
+          description: Adherence summary
+  /care-plans:
+    get:
+      tags: [CarePlans]
+      summary: Own care plans
+      responses:
+        '200':
+          description: Care plans
+    post:
+      tags: [CarePlans]
+      summary: Create patient-owned care plan
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CarePlanInput'
+      responses:
+        '201':
+          description: Care plan created
+  /care-plans/{plan}/checkins:
+    post:
+      tags: [CarePlans]
+      summary: Upsert daily check-in
+      parameters:
+        - name: plan
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Check-in created or updated
+  /care-plans/{plan}/meal-logs:
+    post:
+      tags: [CarePlans]
+      summary: Log meal with optional private photo
+      parameters:
+        - name: plan
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [logged_at, status]
+              properties:
+                logged_at: { type: string, format: date-time }
+                status: { type: string }
+                photo: { type: string, format: binary }
+      responses:
+        '201':
+          description: Meal log created
+  /care-plans/{plan}/progress:
+    get:
+      tags: [CarePlans]
+      summary: Safe progress summary
+      parameters:
+        - name: plan
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Progress summary
+  /ai/conversations:
+    get:
+      tags: [AI]
+      summary: Own AI conversations
+      responses:
+        '200':
+          description: Conversations
+    post:
+      tags: [AI]
+      summary: Create AI conversation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string, nullable: true }
+                language: { type: string, enum: [ar, en] }
+                context_enabled: { type: boolean }
+      responses:
+        '201':
+          description: Conversation created
+  /ai/conversations/{conversation}/messages:
+    get:
+      tags: [AI]
+      summary: Own AI messages
+      parameters:
+        - name: conversation
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Messages
+    post:
+      tags: [AI]
+      summary: Send AI message with backend safety guard
+      parameters:
+        - name: conversation
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content: { type: string, maxLength: 4000 }
+                language: { type: string, enum: [ar, en] }
+      responses:
+        '200':
+          description: Assistant response
+  /ai/ask:
+    post:
+      tags: [AI]
+      summary: Quick AI ask
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content: { type: string, maxLength: 4000 }
+      responses:
+        '200':
+          description: Assistant response
+  /ai/context-preview:
+    get:
+      tags: [AI]
+      summary: Safe current patient context preview
+      responses:
+        '200':
+          description: Safe context only
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: Own notifications
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Notifications
+  /notifications/unread-count:
+    get:
+      tags: [Notifications]
+      summary: Unread notification count
+      responses:
+        '200':
+          description: Count
+  /notification-tokens:
+    post:
+      tags: [Notifications]
+      summary: Register device token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationTokenInput'
+      responses:
+        '201':
+          description: Token registered
+  /notification-preferences:
+    get:
+      tags: [Notifications]
+      summary: Own notification preferences
+      responses:
+        '200':
+          description: Preferences
+    put:
+      tags: [Notifications]
+      summary: Update notification preferences
+      responses:
+        '200':
+          description: Updated preferences
+  /system/health:
+    get:
+      tags: [System]
+      security: []
+      summary: Public minimal health
+      responses:
+        '200':
+          description: App health
+  /system/readiness:
+    get:
+      tags: [System]
+      summary: Admin readiness checks
+      responses:
+        '200':
+          description: Operational readiness
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1, default: 1 }
+    PerPage:
+      name: per_page
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 15 }
+    DoctorId:
+      name: doctor
+      in: path
+      required: true
+      schema: { type: integer }
+    AppointmentId:
+      name: appointment
+      in: path
+      required: true
+      schema: { type: integer }
+    PaymentId:
+      name: payment
+      in: path
+      required: true
+      schema: { type: integer }
+  responses:
+    SuccessEmpty:
+      description: Success with null data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardEnvelope'
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    Unauthenticated:
+      description: Missing or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+  schemas:
+    StandardEnvelope:
+      type: object
+      required: [success, message, data]
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        data: { nullable: true }
+    ErrorEnvelope:
+      type: object
+      required: [success, message, data, errors]
+      properties:
+        success: { type: boolean, example: false }
+        message: { type: string }
+        data: { nullable: true, example: null }
+        errors:
+          type: object
+          additionalProperties: true
+    RegisterRequest:
+      type: object
+      required: [name, email, password, password_confirmation]
+      properties:
+        name: { type: string }
+        email: { type: string, format: email }
+        phone: { type: string, nullable: true }
+        password: { type: string, format: password }
+        password_confirmation: { type: string, format: password }
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, format: password }
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string, nullable: true }
+        email: { type: string }
+        phone: { type: string, nullable: true }
+        roles:
+          type: array
+          items: { type: string }
+    AuthEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/StandardEnvelope'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                user: { $ref: '#/components/schemas/User' }
+                token: { type: string }
+                token_type: { type: string, example: Bearer }
+    UserEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/StandardEnvelope'
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/User' }
+    Provider:
+      type: object
+      properties:
+        id: { type: integer }
+        type: { type: string, enum: [doctor, pharmacy, lab] }
+        name_ar: { type: string, nullable: true }
+        name_en: { type: string, nullable: true }
+        is_active: { type: boolean }
+        status: { type: string }
+    ProviderEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/StandardEnvelope'
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/Provider' }
+    ProviderListEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/StandardEnvelope'
+        - type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: '#/components/schemas/Provider' }
+    Appointment:
+      type: object
+      properties:
+        id: { type: integer }
+        appointment_number: { type: string }
+        status:
+          type: string
+          enum: [draft, pending_payment, pending_payment_review, confirmed, accepted, rejected, cancelled_by_patient, cancelled_by_doctor, completed, no_show, expired]
+        payment_id: { type: integer, nullable: true }
+        price: { type: string }
+        currency: { type: string, example: EGP }
+    AppointmentEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/StandardEnvelope'
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/Appointment' }
+    AppointmentListEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/StandardEnvelope'
+        - type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: '#/components/schemas/Appointment' }
+    AppointmentSlotListEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/StandardEnvelope'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  id: { type: integer }
+                  starts_at: { type: string, format: date-time }
+                  ends_at: { type: string, format: date-time }
+                  status: { type: string, example: available }
+    BookAppointmentRequest:
+      type: object
+      required: [doctor_profile_id, appointment_slot_id, consultation_type]
+      properties:
+        doctor_profile_id: { type: integer }
+        appointment_slot_id: { type: integer }
+        consultation_type: { type: string, enum: [clinic, online] }
+        problem_description: { type: string, nullable: true }
+    Payment:
+      type: object
+      properties:
+        id: { type: integer }
+        amount: { type: string }
+        currency: { type: string, example: EGP }
+        status:
+          type: string
+          enum: [draft, awaiting_method, awaiting_proof, pending_review, pending_gateway, verified, rejected, failed, expired, cancelled, refunded]
+        method_type: { type: string, nullable: true }
+        invoice: { type: object, nullable: true }
+    PaymentEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/StandardEnvelope'
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/Payment' }
+    PaymentMethodListEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/StandardEnvelope'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  id: { type: integer }
+                  type: { type: string, enum: [paymob, manual_vodafone_cash, manual_instapay] }
+                  name_ar: { type: string }
+                  name_en: { type: string, nullable: true }
+    PharmacyProductListEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/StandardEnvelope'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  id: { type: integer }
+                  name_en: { type: string }
+                  price: { type: string }
+                  requires_prescription: { type: boolean }
+    CreatePharmacyOrderRequest:
+      type: object
+      required: [pharmacy_provider_id, delivery_method, items]
+      properties:
+        pharmacy_provider_id: { type: integer }
+        prescription_id: { type: integer, nullable: true }
+        delivery_method: { type: string, enum: [pickup, delivery] }
+        delivery_address: { type: string, nullable: true }
+        items:
+          type: array
+          items:
+            type: object
+            required: [product_id, quantity]
+            properties:
+              product_id: { type: integer }
+              quantity: { type: integer, minimum: 1 }
+    PharmacyOrderEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/StandardEnvelope'
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/PharmacyOrder' }
+    PharmacyOrderListEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/StandardEnvelope'
+        - type: object
+          properties:
+            data:
+              type: array
+              items: { $ref: '#/components/schemas/PharmacyOrder' }
+    PharmacyOrder:
+      type: object
+      properties:
+        id: { type: integer }
+        order_number: { type: string }
+        subtotal: { type: string }
+        discount_total: { type: string }
+        grand_total: { type: string }
+        currency: { type: string, example: EGP }
+        payment_status: { type: string }
+        order_status: { type: string }
+    LabTestListEnvelope:
+      allOf:
+        - $ref: '#/components/schemas/StandardEnvelope'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  id: { type: integer }
+                  name_en: { type: string }
+                  price: { type: string }
+    CreateLabOrderRequest:
+      type: object
+      required: [lab_provider_id, sample_collection_method, items]
+      properties:
+        lab_provider_id: { type: integer }
+        sample_collection_method: { type: string, enum: [branch_visit, home_collection] }
+        collection_address: { type: string, nullable: true }
+        items:
+          type: array
+          items:
+            type: object
+            required: [item_type, quantity]
+            properties:
+              item_type: { type: string, enum: [test, package] }
+              test_id: { type: integer, nullable: true }
+              package_id: { type: integer, nullable: true }
+              quantity: { type: integer, minimum: 1 }
+    HealthProfileInput:
+      type: object
+      properties:
+        date_of_birth: { type: string, format: date, nullable: true }
+        gender: { type: string, nullable: true }
+        height_cm: { type: number, nullable: true }
+        weight_kg: { type: number, nullable: true }
+        blood_type: { type: string, nullable: true }
+    VitalRecordInput:
+      type: object
+      required: [vital_type, measured_at]
+      properties:
+        vital_type: { type: string }
+        measured_at: { type: string, format: date-time }
+        value_decimal: { type: number, nullable: true }
+        value_secondary_decimal: { type: number, nullable: true }
+        unit: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+        metadata: { type: object, nullable: true }
+    MedicationReminderInput:
+      type: object
+      required: [medication_name, frequency_type, start_date]
+      properties:
+        medication_name: { type: string }
+        dosage: { type: string, nullable: true }
+        frequency_type: { type: string }
+        start_date: { type: string, format: date }
+        end_date: { type: string, format: date, nullable: true }
+        times:
+          type: array
+          items:
+            type: object
+            properties:
+              time_of_day: { type: string, example: '08:00' }
+    CarePlanInput:
+      type: object
+      required: [plan_type, title, start_date]
+      properties:
+        plan_type: { type: string }
+        title: { type: string }
+        start_date: { type: string, format: date }
+        end_date: { type: string, format: date, nullable: true }
+        goal_text: { type: string, nullable: true }
+    NotificationTokenInput:
+      type: object
+      required: [token, provider, device_type]
+      properties:
+        token: { type: string }
+        provider: { type: string, enum: [fcm, apns, web_push, local] }
+        device_type: { type: string, enum: [android, ios, web, unknown] }
+        locale: { type: string, enum: [ar, en], nullable: true }
