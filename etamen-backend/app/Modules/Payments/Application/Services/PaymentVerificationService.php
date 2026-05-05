@@ -53,7 +53,10 @@ class PaymentVerificationService
             $payment = Payment::query()->whereKey($payment->id)->lockForUpdate()->firstOrFail();
 
             if ($payment->status === PaymentStatus::Verified) {
+                $this->confirmAppointmentIfNeeded($payment, $actor, $metadata, strict: false);
+                $this->markPharmacyOrderPaidIfNeeded($payment, $actor, $metadata, strict: false);
                 $this->invoiceService->createForPayment($payment);
+                $this->walletPostingService->postVerifiedPayment($payment, $actor);
 
                 return $payment->refresh()->load(['invoice', 'paymentMethod']);
             }
@@ -82,8 +85,8 @@ class PaymentVerificationService
                 'metadata' => $metadata,
             ]);
 
-            $this->confirmAppointmentIfNeeded($payment, $actor, $metadata);
-            $this->markPharmacyOrderPaidIfNeeded($payment, $actor, $metadata);
+            $this->confirmAppointmentIfNeeded($payment, $actor, $metadata, strict: true);
+            $this->markPharmacyOrderPaidIfNeeded($payment, $actor, $metadata, strict: true);
 
             $this->invoiceService->createForPayment($payment);
             $this->walletPostingService->postVerifiedPayment($payment, $actor);
@@ -129,7 +132,7 @@ class PaymentVerificationService
         });
     }
 
-    private function confirmAppointmentIfNeeded(Payment $payment, ?User $actor, array $metadata): void
+    private function confirmAppointmentIfNeeded(Payment $payment, ?User $actor, array $metadata, bool $strict): void
     {
         if ($payment->payable_type !== Appointment::class || ! $payment->payable_id) {
             return;
@@ -139,6 +142,12 @@ class PaymentVerificationService
 
         if ($appointment->status === AppointmentStatus::Confirmed) {
             return;
+        }
+
+        if (! in_array($appointment->status, [AppointmentStatus::PendingPayment, AppointmentStatus::PendingPaymentReview], true)) {
+            if (! $strict) {
+                return;
+            }
         }
 
         $this->appointmentStatusService->assertStatus($appointment, [
@@ -156,7 +165,7 @@ class PaymentVerificationService
         );
     }
 
-    private function markPharmacyOrderPaidIfNeeded(Payment $payment, ?User $actor, array $metadata): void
+    private function markPharmacyOrderPaidIfNeeded(Payment $payment, ?User $actor, array $metadata, bool $strict): void
     {
         if ($payment->payable_type !== PharmacyOrder::class || ! $payment->payable_id) {
             return;
@@ -169,8 +178,22 @@ class PaymentVerificationService
         }
 
         if (! in_array($order->payment_status, [PharmacyOrderPaymentStatus::PendingPayment, PharmacyOrderPaymentStatus::PendingPaymentReview], true)) {
+            if (! $strict) {
+                return;
+            }
+
             throw ValidationException::withMessages([
                 'payment_status' => ['The pharmacy order cannot be paid from its current payment status.'],
+            ]);
+        }
+
+        if (! in_array($order->order_status, [PharmacyOrderStatus::Accepted, PharmacyOrderStatus::AwaitingPayment], true)) {
+            if (! $strict) {
+                return;
+            }
+
+            throw ValidationException::withMessages([
+                'order_status' => ['The pharmacy order cannot be marked paid from its current status.'],
             ]);
         }
 

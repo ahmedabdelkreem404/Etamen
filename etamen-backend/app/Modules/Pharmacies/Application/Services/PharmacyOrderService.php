@@ -174,6 +174,11 @@ class PharmacyOrderService
     {
         $this->assertTransitionAllowed($order, $to, $admin);
 
+        if ($to === PharmacyOrderStatus::Accepted) {
+            $this->reserveStockIfNeeded($order, $actor);
+            $order->refresh();
+        }
+
         $order = $this->statusService->transition(
             $order,
             $to,
@@ -181,6 +186,11 @@ class PharmacyOrderService
             $admin ? 'admin.pharmacy_order.status_updated' : 'pharmacy_order.status_updated',
             $reason,
         );
+
+        if ($to === PharmacyOrderStatus::Cancelled) {
+            $this->releaseReservedStockIfNeeded($order, $actor);
+            $order->refresh();
+        }
 
         if ($to === PharmacyOrderStatus::Delivered) {
             $this->walletPostingService->releasePharmacyOrder($order, $actor);
@@ -197,14 +207,14 @@ class PharmacyOrderService
 
         $allowed = match ($to) {
             PharmacyOrderStatus::Accepted => [PharmacyOrderStatus::Pending, PharmacyOrderStatus::PharmacyReview],
-            PharmacyOrderStatus::Rejected => [PharmacyOrderStatus::Pending, PharmacyOrderStatus::PharmacyReview, PharmacyOrderStatus::Accepted],
+            PharmacyOrderStatus::Rejected => [PharmacyOrderStatus::Pending, PharmacyOrderStatus::PharmacyReview],
             PharmacyOrderStatus::Preparing => [PharmacyOrderStatus::Paid],
             PharmacyOrderStatus::ReadyForPickup => [PharmacyOrderStatus::Preparing, PharmacyOrderStatus::Paid],
             PharmacyOrderStatus::OutForDelivery => [PharmacyOrderStatus::Preparing, PharmacyOrderStatus::ReadyForPickup, PharmacyOrderStatus::Paid],
             PharmacyOrderStatus::Delivered => [PharmacyOrderStatus::Preparing, PharmacyOrderStatus::ReadyForPickup, PharmacyOrderStatus::OutForDelivery, PharmacyOrderStatus::Paid],
             PharmacyOrderStatus::Cancelled => $admin
                 ? [PharmacyOrderStatus::Pending, PharmacyOrderStatus::PharmacyReview, PharmacyOrderStatus::Accepted, PharmacyOrderStatus::AwaitingPayment]
-                : [PharmacyOrderStatus::Pending, PharmacyOrderStatus::PharmacyReview, PharmacyOrderStatus::Accepted],
+                : [PharmacyOrderStatus::Pending, PharmacyOrderStatus::PharmacyReview, PharmacyOrderStatus::Accepted, PharmacyOrderStatus::AwaitingPayment],
             default => [],
         };
 
@@ -220,6 +230,75 @@ class PharmacyOrderService
                 'payment_status' => ['This pharmacy order must be paid before fulfillment.'],
             ]);
         }
+
+        if ($to === PharmacyOrderStatus::Cancelled && $order->payment_status === PharmacyOrderPaymentStatus::Paid) {
+            throw ValidationException::withMessages([
+                'payment_status' => ['Paid pharmacy orders need a controlled refund flow before cancellation.'],
+            ]);
+        }
+    }
+
+    private function reserveStockIfNeeded(PharmacyOrder $order, User $actor): void
+    {
+        $order = PharmacyOrder::query()->with('items')->whereKey($order->id)->lockForUpdate()->firstOrFail();
+
+        if ($order->stock_reserved_at) {
+            return;
+        }
+
+        foreach ($order->items as $item) {
+            $product = PharmacyProduct::query()
+                ->whereKey($item->product_id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($product->stock_quantity < $item->quantity) {
+                throw ValidationException::withMessages([
+                    'stock' => ['One or more selected products no longer have enough stock.'],
+                ]);
+            }
+
+            $product->decrement('stock_quantity', $item->quantity);
+        }
+
+        $metadata = $order->metadata ?? [];
+        $metadata['stock_reserved'] = true;
+
+        $before = $order->getAttributes();
+        $order->forceFill([
+            'stock_reserved_at' => now(),
+            'metadata' => $metadata,
+        ])->save();
+
+        $this->auditLogService->log('pharmacy_order.stock_reserved', $order, $actor, before: $before, after: $order->getAttributes());
+    }
+
+    private function releaseReservedStockIfNeeded(PharmacyOrder $order, User $actor): void
+    {
+        $order = PharmacyOrder::query()->with('items')->whereKey($order->id)->lockForUpdate()->firstOrFail();
+
+        if (! $order->stock_reserved_at || $order->stock_released_at || $order->order_status === PharmacyOrderStatus::Delivered) {
+            return;
+        }
+
+        foreach ($order->items as $item) {
+            PharmacyProduct::query()
+                ->whereKey($item->product_id)
+                ->lockForUpdate()
+                ->firstOrFail()
+                ->increment('stock_quantity', $item->quantity);
+        }
+
+        $metadata = $order->metadata ?? [];
+        $metadata['stock_released'] = true;
+
+        $before = $order->getAttributes();
+        $order->forceFill([
+            'stock_released_at' => now(),
+            'metadata' => $metadata,
+        ])->save();
+
+        $this->auditLogService->log('pharmacy_order.stock_released', $order, $actor, before: $before, after: $order->getAttributes());
     }
 
     private function buildItems(array $requestedItems, Provider $pharmacy, ?PharmacyPrescription $prescription): array

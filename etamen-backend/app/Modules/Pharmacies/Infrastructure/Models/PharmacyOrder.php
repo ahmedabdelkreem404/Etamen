@@ -36,6 +36,8 @@ class PharmacyOrder extends Model
         'rejected_at',
         'delivered_at',
         'cancelled_at',
+        'stock_reserved_at',
+        'stock_released_at',
         'metadata',
     ];
 
@@ -55,6 +57,8 @@ class PharmacyOrder extends Model
             'rejected_at' => 'datetime',
             'delivered_at' => 'datetime',
             'cancelled_at' => 'datetime',
+            'stock_reserved_at' => 'datetime',
+            'stock_released_at' => 'datetime',
             'metadata' => 'array',
         ];
     }

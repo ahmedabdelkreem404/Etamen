@@ -30,6 +30,8 @@ class PharmacyOrderResource extends JsonResource
             'notes' => $this->notes,
             'paid_at' => $this->paid_at?->toISOString(),
             'delivered_at' => $this->delivered_at?->toISOString(),
+            'stock_reserved_at' => $this->stock_reserved_at?->toISOString(),
+            'stock_released_at' => $this->stock_released_at?->toISOString(),
             'items' => PharmacyOrderItemResource::collection($this->whenLoaded('items')),
             'prescription' => new PharmacyPrescriptionResource($this->whenLoaded('prescription')),
             'payment' => new PaymentStatusResource($this->whenLoaded('payment')),

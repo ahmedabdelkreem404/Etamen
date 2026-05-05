@@ -8,6 +8,7 @@ use App\Modules\Identity\Domain\Enums\UserRole;
 use App\Modules\Payments\Database\Seeders\PaymentMethodSeeder;
 use App\Modules\Payments\Domain\Enums\PaymentMethodType;
 use App\Modules\Payments\Domain\Enums\PaymentStatus;
+use App\Modules\Payments\Infrastructure\Gateways\PaymobGateway;
 use App\Modules\Payments\Infrastructure\Models\Invoice;
 use App\Modules\Payments\Infrastructure\Models\Payment;
 use App\Modules\Payments\Infrastructure\Models\PaymentMethod;
@@ -32,6 +33,7 @@ use App\Modules\Wallets\Infrastructure\Models\Wallet;
 use App\Modules\Wallets\Infrastructure\Models\WalletTransaction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
@@ -257,10 +259,13 @@ class PharmacyMarketplaceSprint5Test extends TestCase
         $this->assertSame('175.00', $hold->net_amount);
         $this->assertSame('25.00', $commission->commission_amount);
 
+        $paidHistoryCount = $order->statusHistories()->where('to_status', PharmacyOrderStatus::Paid->value)->count();
+
         Sanctum::actingAs($this->adminUser());
         $this->postJson('/api/v1/admin/payments/'.$payment->id.'/accept')->assertOk();
         $this->assertSame(1, $wallet->transactions()->where('type', WalletTransactionType::Hold)->count());
         $this->assertSame(1, Invoice::query()->where('payment_id', $payment->id)->count());
+        $this->assertSame($paidHistoryCount, $order->statusHistories()->where('to_status', PharmacyOrderStatus::Paid->value)->count());
 
         Sanctum::actingAs($context['pharmacy_user']);
         $this->getJson('/api/v1/provider/wallet')
@@ -288,6 +293,53 @@ class PharmacyMarketplaceSprint5Test extends TestCase
         $this->assertDatabaseHas('audit_logs', ['action' => 'wallet.pharmacy_order_earning_released']);
     }
 
+    public function test_verified_paymob_payment_marks_pharmacy_order_paid_and_posts_wallet_idempotently(): void
+    {
+        $this->createCommissionRule(percentage: 10);
+        $context = $this->createAcceptedOrderWithPayment(grandTotalProductPrice: 200);
+        $payment = $this->makePaymentPendingPaymob($context['payment']);
+        $payload = $this->paymobPayload($payment);
+        $payload['hmac'] = app(PaymobGateway::class)->calculateHmac($payload);
+
+        $this->postJson('/api/v1/payments/paymob/callback', $payload)
+            ->assertOk()
+            ->assertJsonPath('data.status', PaymentStatus::Verified->value)
+            ->assertJsonPath('data.pharmacy_order.payment_status', PharmacyOrderPaymentStatus::Paid->value)
+            ->assertJsonPath('data.pharmacy_order.order_status', PharmacyOrderStatus::Paid->value);
+
+        $order = $context['order']->refresh();
+        $wallet = $this->walletForProvider($context['provider']);
+        $paidHistoryCount = $order->statusHistories()->where('to_status', PharmacyOrderStatus::Paid->value)->count();
+
+        $this->postJson('/api/v1/payments/paymob/callback', $payload)->assertOk();
+
+        $this->assertSame(PharmacyOrderPaymentStatus::Paid, $order->refresh()->payment_status);
+        $this->assertSame(1, $wallet->transactions()->where('type', WalletTransactionType::Hold)->count());
+        $this->assertSame(1, $wallet->transactions()->where('type', WalletTransactionType::Commission)->count());
+        $this->assertSame($paidHistoryCount, $order->statusHistories()->where('to_status', PharmacyOrderStatus::Paid->value)->count());
+        $this->assertSame(1, Invoice::query()->where('payment_id', $payment->id)->count());
+    }
+
+    public function test_rejected_or_cancelled_pharmacy_order_cannot_be_marked_paid_by_payment_verification(): void
+    {
+        foreach ([PharmacyOrderStatus::Rejected, PharmacyOrderStatus::Cancelled] as $blockedStatus) {
+            $context = $this->createAcceptedOrderWithPayment(grandTotalProductPrice: 200);
+            $this->prepareManualPaymentProofForOrder($context['patient'], $context['payment']);
+
+            $context['order']->forceFill([
+                'order_status' => $blockedStatus,
+                'payment_status' => PharmacyOrderPaymentStatus::PendingPaymentReview,
+            ])->save();
+
+            Sanctum::actingAs($this->adminUser());
+            $this->postJson('/api/v1/admin/payments/'.$context['payment']->id.'/accept')->assertUnprocessable();
+
+            $this->assertNotSame(PaymentStatus::Verified, $context['payment']->refresh()->status);
+            $this->assertNotSame(PharmacyOrderPaymentStatus::Paid, $context['order']->refresh()->payment_status);
+            $this->assertSame(0, WalletTransaction::query()->count());
+        }
+    }
+
     public function test_rejected_unpaid_order_does_not_create_wallet_transactions(): void
     {
         $patient = $this->patientUser();
@@ -302,6 +354,145 @@ class PharmacyMarketplaceSprint5Test extends TestCase
         ])->assertOk();
 
         $this->assertSame(0, WalletTransaction::query()->count());
+    }
+
+    public function test_pharmacy_accept_decrements_stock_once(): void
+    {
+        $patient = $this->patientUser();
+        ['user' => $pharmacyUser, 'provider' => $provider] = $this->createPharmacyProvider();
+        $product = $this->createProduct($provider, ['stock_quantity' => 5]);
+        $order = $this->createOrder($patient, $provider, [['product_id' => $product->id, 'quantity' => 2]]);
+
+        Sanctum::actingAs($pharmacyUser);
+        $this->patchJson('/api/v1/provider/pharmacy/orders/'.$order->id.'/status', [
+            'status' => PharmacyOrderStatus::Accepted->value,
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.stock_released_at', null);
+
+        $this->assertSame(3, $product->refresh()->stock_quantity);
+        $this->assertNotNull($order->refresh()->stock_reserved_at);
+
+        $this->patchJson('/api/v1/provider/pharmacy/orders/'.$order->id.'/status', [
+            'status' => PharmacyOrderStatus::Accepted->value,
+        ])->assertOk();
+
+        $this->assertSame(3, $product->refresh()->stock_quantity);
+    }
+
+    public function test_pharmacy_accept_fails_if_stock_became_insufficient_after_order_creation(): void
+    {
+        $patient = $this->patientUser();
+        ['user' => $pharmacyUser, 'provider' => $provider] = $this->createPharmacyProvider();
+        $product = $this->createProduct($provider, ['stock_quantity' => 2]);
+        $order = $this->createOrder($patient, $provider, [['product_id' => $product->id, 'quantity' => 2]]);
+        $product->update(['stock_quantity' => 1]);
+
+        Sanctum::actingAs($pharmacyUser);
+        $this->patchJson('/api/v1/provider/pharmacy/orders/'.$order->id.'/status', [
+            'status' => PharmacyOrderStatus::Accepted->value,
+        ])->assertUnprocessable();
+
+        $this->assertSame(1, $product->refresh()->stock_quantity);
+        $this->assertNull($order->refresh()->stock_reserved_at);
+    }
+
+    public function test_cancelling_accepted_unpaid_order_restores_stock_once(): void
+    {
+        $patient = $this->patientUser();
+        ['user' => $pharmacyUser, 'provider' => $provider] = $this->createPharmacyProvider();
+        $product = $this->createProduct($provider, ['stock_quantity' => 5]);
+        $order = $this->createOrder($patient, $provider, [['product_id' => $product->id, 'quantity' => 2]]);
+
+        Sanctum::actingAs($pharmacyUser);
+        $this->patchJson('/api/v1/provider/pharmacy/orders/'.$order->id.'/status', [
+            'status' => PharmacyOrderStatus::Accepted->value,
+        ])->assertOk();
+        $this->assertSame(3, $product->refresh()->stock_quantity);
+
+        $this->patchJson('/api/v1/provider/pharmacy/orders/'.$order->id.'/status', [
+            'status' => PharmacyOrderStatus::Cancelled->value,
+            'reason' => 'Patient cancelled before payment.',
+        ])->assertOk();
+        $this->assertSame(5, $product->refresh()->stock_quantity);
+        $this->assertNotNull($order->refresh()->stock_released_at);
+
+        $this->patchJson('/api/v1/provider/pharmacy/orders/'.$order->id.'/status', [
+            'status' => PharmacyOrderStatus::Cancelled->value,
+            'reason' => 'Retry same cancellation.',
+        ])->assertOk();
+        $this->assertSame(5, $product->refresh()->stock_quantity);
+    }
+
+    public function test_rejecting_pharmacy_review_order_does_not_change_stock(): void
+    {
+        $patient = $this->patientUser();
+        ['user' => $pharmacyUser, 'provider' => $provider] = $this->createPharmacyProvider();
+        $product = $this->createProduct($provider, ['stock_quantity' => 5]);
+        $order = $this->createOrder($patient, $provider, [['product_id' => $product->id, 'quantity' => 2]]);
+
+        Sanctum::actingAs($pharmacyUser);
+        $this->patchJson('/api/v1/provider/pharmacy/orders/'.$order->id.'/status', [
+            'status' => PharmacyOrderStatus::Rejected->value,
+            'reason' => 'Not available.',
+        ])->assertOk();
+
+        $this->assertSame(5, $product->refresh()->stock_quantity);
+        $this->assertNull($order->refresh()->stock_reserved_at);
+    }
+
+    public function test_delivered_order_does_not_restore_stock_and_cannot_be_cancelled(): void
+    {
+        $this->createCommissionRule(percentage: 10);
+        $context = $this->createAcceptedOrderWithPayment(grandTotalProductPrice: 200);
+        $product = $context['product'];
+        $this->verifyManualPaymentForOrder($context['patient'], $context['payment']);
+
+        Sanctum::actingAs($context['pharmacy_user']);
+        $this->patchJson('/api/v1/provider/pharmacy/orders/'.$context['order']->id.'/status', [
+            'status' => PharmacyOrderStatus::Delivered->value,
+        ])->assertOk();
+
+        $stockAfterDelivery = $product->refresh()->stock_quantity;
+
+        $this->patchJson('/api/v1/provider/pharmacy/orders/'.$context['order']->id.'/status', [
+            'status' => PharmacyOrderStatus::Cancelled->value,
+            'reason' => 'Cannot undo delivery.',
+        ])->assertUnprocessable();
+
+        $this->assertSame($stockAfterDelivery, $product->refresh()->stock_quantity);
+        $this->assertNull($context['order']->refresh()->stock_released_at);
+    }
+
+    public function test_order_creation_rejects_frontend_stock_and_price_fields(): void
+    {
+        $patient = $this->patientUser();
+        ['provider' => $provider] = $this->createPharmacyProvider();
+        $product = $this->createProduct($provider, ['stock_quantity' => 5]);
+        Sanctum::actingAs($patient);
+
+        $this->postJson('/api/v1/pharmacy/orders', [
+            'pharmacy_provider_id' => $provider->id,
+            'delivery_method' => PharmacyDeliveryMethod::Pickup->value,
+            'items' => [
+                [
+                    'product_id' => $product->id,
+                    'quantity' => 1,
+                    'stock_quantity' => 999,
+                    'unit_price' => 1,
+                    'line_total' => 1,
+                ],
+            ],
+        ])->assertUnprocessable();
+    }
+
+    public function test_public_cannot_mutate_pharmacy_orders_or_payments(): void
+    {
+        $this->postJson('/api/v1/pharmacy/orders', [])->assertUnauthorized();
+        $this->postJson('/api/v1/pharmacy/orders/1/pay')->assertUnauthorized();
+        $this->patchJson('/api/v1/provider/pharmacy/orders/1/status', [
+            'status' => PharmacyOrderStatus::Accepted->value,
+        ])->assertUnauthorized();
     }
 
     public function test_pharmacy_release_can_be_settled_once(): void
@@ -336,7 +527,7 @@ class PharmacyMarketplaceSprint5Test extends TestCase
 
     private function createAcceptedOrderWithPayment(int|float $grandTotalProductPrice): array
     {
-        $patient = $this->patientUser();
+        $patient = $this->patientUser('patient-'.Str::random(10).'@example.com');
         ['user' => $pharmacyUser, 'provider' => $provider] = $this->createPharmacyProvider();
         $product = $this->createProduct($provider, ['price' => $grandTotalProductPrice, 'stock_quantity' => 10]);
         $order = $this->createOrder($patient, $provider, [['product_id' => $product->id, 'quantity' => 1]]);
@@ -356,12 +547,27 @@ class PharmacyMarketplaceSprint5Test extends TestCase
             'patient' => $patient,
             'pharmacy_user' => $pharmacyUser,
             'provider' => $provider,
+            'product' => $product->refresh(),
             'order' => $order->refresh(),
             'payment' => $order->refresh()->payment,
         ];
     }
 
     private function verifyManualPaymentForOrder(User $patient, Payment $payment): Payment
+    {
+        $this->prepareManualPaymentProofForOrder($patient, $payment);
+
+        $admin = $this->adminUser();
+        Sanctum::actingAs($admin);
+        $this->postJson('/api/v1/admin/payments/'.$payment->id.'/accept')
+            ->assertOk()
+            ->assertJsonPath('data.status', PaymentStatus::Verified->value)
+            ->assertJsonPath('data.pharmacy_order.payment_status', PharmacyOrderPaymentStatus::Paid->value);
+
+        return $payment->refresh();
+    }
+
+    private function prepareManualPaymentProofForOrder(User $patient, Payment $payment): Payment
     {
         Storage::fake('medical_private');
 
@@ -377,14 +583,58 @@ class PharmacyMarketplaceSprint5Test extends TestCase
             'sender_phone' => '01012345678',
         ])->assertCreated();
 
-        $admin = $this->adminUser();
-        Sanctum::actingAs($admin);
-        $this->postJson('/api/v1/admin/payments/'.$payment->id.'/accept')
-            ->assertOk()
-            ->assertJsonPath('data.status', PaymentStatus::Verified->value)
-            ->assertJsonPath('data.pharmacy_order.payment_status', PharmacyOrderPaymentStatus::Paid->value);
+        return $payment->refresh();
+    }
+
+    private function makePaymentPendingPaymob(Payment $payment): Payment
+    {
+        $method = $this->paymentMethod(PaymentMethodType::Paymob);
+
+        $payment->update([
+            'payment_method_id' => $method->id,
+            'status' => PaymentStatus::PendingGateway,
+        ]);
+
+        $payment->attempts()->create([
+            'method_type' => PaymentMethodType::Paymob,
+            'gateway_reference' => 'paymob-txn-'.$payment->id,
+            'status' => 'created',
+        ]);
+
+        Config::set('paymob.hmac_secret', 'test-hmac-secret');
 
         return $payment->refresh();
+    }
+
+    private function paymobPayload(Payment $payment, bool $success = true): array
+    {
+        return [
+            'amount_cents' => (string) ((int) round((float) $payment->amount * 100)),
+            'created_at' => '2026-05-05T12:00:00',
+            'currency' => 'EGP',
+            'error_occured' => $success ? 'false' : 'true',
+            'has_parent_transaction' => 'false',
+            'id' => 'paymob-txn-'.$payment->id,
+            'integration_id' => '123456',
+            'is_3d_secure' => 'true',
+            'is_auth' => 'false',
+            'is_capture' => 'false',
+            'is_refunded' => 'false',
+            'is_standalone_payment' => 'true',
+            'is_voided' => 'false',
+            'order' => [
+                'id' => 'order-'.$payment->id,
+                'merchant_order_id' => 'ETAMEN-PAY-'.$payment->id,
+            ],
+            'owner' => '1',
+            'pending' => 'false',
+            'source_data' => [
+                'pan' => '2346',
+                'sub_type' => 'MasterCard',
+                'type' => 'card',
+            ],
+            'success' => $success ? 'true' : 'false',
+        ];
     }
 
     private function createOrder(User $patient, Provider $provider, array $items): PharmacyOrder
