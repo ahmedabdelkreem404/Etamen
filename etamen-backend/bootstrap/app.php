@@ -1,6 +1,7 @@
 <?php
 
 use App\Core\Http\Middleware\EnsureAdmin;
+use App\Core\Http\Middleware\EnsurePatient;
 use App\Core\Http\Middleware\EnsureProviderUser;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => EnsureAdmin::class,
+            'patient' => EnsurePatient::class,
             'provider.user' => EnsureProviderUser::class,
         ]);
     })

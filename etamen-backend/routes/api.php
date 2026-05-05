@@ -11,5 +11,6 @@ Route::prefix('v1')->group(function (): void {
     require app_path('Modules/Appointments/Http/routes.php');
     require app_path('Modules/Pharmacies/Http/routes.php');
     require app_path('Modules/Labs/Http/routes.php');
+    require app_path('Modules/Health/Http/routes.php');
     require app_path('Modules/Wallets/Http/routes.php');
 });
