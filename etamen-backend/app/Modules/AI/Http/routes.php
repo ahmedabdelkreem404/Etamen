@@ -14,10 +14,10 @@ Route::prefix('ai')->middleware(['auth:sanctum', 'patient'])->group(function ():
     Route::put('/conversations/{conversation}', [AiConversationController::class, 'update']);
     Route::delete('/conversations/{conversation}', [AiConversationController::class, 'destroy']);
 
-    Route::post('/conversations/{conversation}/messages', [AiMessageController::class, 'store']);
+    Route::post('/conversations/{conversation}/messages', [AiMessageController::class, 'store'])->middleware('throttle:ai-message');
     Route::get('/conversations/{conversation}/messages', [AiMessageController::class, 'index']);
 
-    Route::post('/ask', AiQuickAskController::class);
+    Route::post('/ask', AiQuickAskController::class)->middleware('throttle:ai-message');
 
     Route::get('/context-preview', [AiContextController::class, 'preview']);
     Route::post('/conversations/{conversation}/toggle-context', [AiContextController::class, 'toggle']);

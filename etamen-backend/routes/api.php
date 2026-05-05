@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
+    require app_path('Modules/System/Http/routes.php');
     require app_path('Modules/Identity/Http/routes.php');
     require app_path('Modules/Patients/Http/routes.php');
     require app_path('Modules/Providers/Http/routes.php');

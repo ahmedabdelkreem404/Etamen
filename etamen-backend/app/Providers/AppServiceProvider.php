@@ -120,7 +120,10 @@ use App\Modules\Wallets\Policies\SettlementPolicy;
 use App\Modules\Wallets\Policies\WalletPolicy;
 use App\Modules\Wallets\Policies\WalletTransactionPolicy;
 use App\Modules\Wallets\Policies\WithdrawalRequestPolicy;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -139,6 +142,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(glob(app_path('Modules/*/Database/Migrations'), GLOB_ONLYDIR));
+        $this->configureRateLimiters();
 
         Gate::policy(Provider::class, ProviderPolicy::class);
         Gate::policy(ProviderBranch::class, ProviderBranchPolicy::class);
@@ -199,5 +203,17 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(CommissionRule::class, CommissionRulePolicy::class);
         Gate::policy(WithdrawalRequest::class, WithdrawalRequestPolicy::class);
         Gate::policy(Settlement::class, SettlementPolicy::class);
+    }
+
+    private function configureRateLimiters(): void
+    {
+        RateLimiter::for('auth-sensitive', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
+        RateLimiter::for('sensitive-action', fn (Request $request) => Limit::perMinute(30)->by($request->user()?->id ?: $request->ip()));
+        RateLimiter::for('file-upload', fn (Request $request) => Limit::perMinute(12)->by($request->user()?->id ?: $request->ip()));
+        RateLimiter::for('booking', fn (Request $request) => Limit::perMinute(20)->by($request->user()?->id ?: $request->ip()));
+        RateLimiter::for('health-write', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
+        RateLimiter::for('ai-message', fn (Request $request) => Limit::perMinute(30)->by($request->user()?->id ?: $request->ip()));
+        RateLimiter::for('notification-write', fn (Request $request) => Limit::perMinute(30)->by($request->user()?->id ?: $request->ip()));
+        RateLimiter::for('admin-sensitive', fn (Request $request) => Limit::perMinute(120)->by($request->user()?->id ?: $request->ip()));
     }
 }

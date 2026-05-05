@@ -36,7 +36,7 @@ class ProviderWalletController extends ApiController
         $wallet = $this->currentWallet($request);
 
         return $this->success(
-            WalletTransactionResource::collection($wallet->transactions()->orderByDesc('id')->get()),
+            WalletTransactionResource::collection($wallet->transactions()->orderByDesc('id')->limit($this->perPage($request, 50))->get()),
             'Wallet transactions.',
         );
     }
@@ -54,7 +54,7 @@ class ProviderWalletController extends ApiController
         $wallet = $this->currentWallet($request);
 
         return $this->success(
-            WithdrawalRequestResource::collection($wallet->withdrawalRequests()->orderByDesc('id')->get()),
+            WithdrawalRequestResource::collection($wallet->withdrawalRequests()->orderByDesc('id')->limit($this->perPage($request, 50))->get()),
             'Provider withdrawals.',
         );
     }

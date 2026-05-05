@@ -17,7 +17,7 @@ class AdminPaymentController extends ApiController
 
     public function index(Request $request)
     {
-        $payments = $this->paymentQuery($request)->get();
+        $payments = $this->paymentQuery($request)->paginate($this->perPage($request, 50));
 
         return $this->success(PaymentStatusResource::collection($payments), 'Payments.');
     }
@@ -30,13 +30,13 @@ class AdminPaymentController extends ApiController
         );
     }
 
-    public function pendingReview()
+    public function pendingReview(Request $request)
     {
         $payments = Payment::query()
             ->where('status', 'pending_review')
             ->with(['paymentMethod', 'payable', 'invoice'])
             ->orderByDesc('created_at')
-            ->get();
+            ->paginate($this->perPage($request, 50));
 
         return $this->success(PaymentStatusResource::collection($payments), 'Pending-review payments.');
     }
@@ -55,12 +55,12 @@ class AdminPaymentController extends ApiController
         return $this->success(new PaymentStatusResource($payment->load(['paymentMethod', 'payable', 'invoice'])), 'Payment rejected.');
     }
 
-    public function invoices()
+    public function invoices(Request $request)
     {
         $invoices = Invoice::query()
             ->with('payment.paymentMethod')
             ->orderByDesc('issued_at')
-            ->get();
+            ->paginate($this->perPage($request, 50));
 
         return $this->success(InvoiceResource::collection($invoices), 'Invoices.');
     }

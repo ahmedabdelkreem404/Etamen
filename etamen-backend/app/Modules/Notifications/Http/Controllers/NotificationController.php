@@ -17,7 +17,7 @@ class NotificationController extends ApiController
         $notifications = Notification::query()
             ->where('user_id', $request->user()->id)
             ->latest('id')
-            ->paginate(30);
+            ->paginate($this->perPage($request, 30));
 
         return $this->success(NotificationResource::collection($notifications), 'Notifications.');
     }

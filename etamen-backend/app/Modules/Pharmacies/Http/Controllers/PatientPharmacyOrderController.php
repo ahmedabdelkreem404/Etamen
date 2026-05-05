@@ -26,6 +26,7 @@ class PatientPharmacyOrderController extends ApiController
             ->where('patient_user_id', $request->user()->id)
             ->with(['items', 'pharmacy', 'payment'])
             ->orderByDesc('id')
+            ->limit($this->perPage($request))
             ->get();
 
         return $this->success(PharmacyOrderResource::collection($orders), 'Patient pharmacy orders.');

@@ -25,6 +25,7 @@ class AdminAppointmentController extends ApiController
             ->when($request->query('date_from'), fn ($query, $date) => $query->whereDate('created_at', '>=', $date))
             ->when($request->query('date_to'), fn ($query, $date) => $query->whereDate('created_at', '<=', $date))
             ->orderByDesc('created_at')
+            ->limit($this->perPage($request, 50))
             ->get();
 
         return $this->success(AppointmentResource::collection($appointments), 'All appointments.');

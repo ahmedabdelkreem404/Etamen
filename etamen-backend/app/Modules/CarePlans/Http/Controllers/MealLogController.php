@@ -14,11 +14,11 @@ class MealLogController extends ApiController
 {
     public function __construct(private readonly MealLogService $mealLogs) {}
 
-    public function index(CarePlan $plan)
+    public function index(Request $request, CarePlan $plan)
     {
         $this->authorize('view', $plan);
 
-        return $this->success(MealLogResource::collection($plan->mealLogs()->with('photo')->orderByDesc('logged_at')->get()), 'Meal logs.');
+        return $this->success(MealLogResource::collection($plan->mealLogs()->with('photo')->orderByDesc('logged_at')->limit($this->perPage($request))->get()), 'Meal logs.');
     }
 
     public function store(MealLogRequest $request, CarePlan $plan)

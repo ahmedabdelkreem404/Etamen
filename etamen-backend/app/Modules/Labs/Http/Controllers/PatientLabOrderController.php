@@ -28,6 +28,7 @@ class PatientLabOrderController extends ApiController
             ->where('patient_user_id', $request->user()->id)
             ->with(['items', 'lab', 'payment'])
             ->orderByDesc('id')
+            ->limit($this->perPage($request))
             ->get();
 
         return $this->success(LabOrderResource::collection($orders), 'Patient lab orders.');

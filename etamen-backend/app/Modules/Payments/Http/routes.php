@@ -16,17 +16,21 @@ Route::post('/payments/paymob/webhook', [PaymobPaymentController::class, 'webhoo
     ->middleware('throttle:120,1');
 
 Route::middleware('auth:sanctum')->group(function (): void {
-    Route::get('/payments/{payment}/status', [PaymentStatusController::class, 'show']);
-    Route::post('/payments/{payment}/paymob/create-session', [PaymobPaymentController::class, 'createSession']);
-    Route::post('/payments/{payment}/manual/select', [ManualPaymentController::class, 'select']);
-    Route::post('/payments/{payment}/proofs', [ManualPaymentController::class, 'uploadProof']);
+    Route::get('/payments/{payment}/status', [PaymentStatusController::class, 'show'])
+        ->middleware('throttle:60,1');
+    Route::post('/payments/{payment}/paymob/create-session', [PaymobPaymentController::class, 'createSession'])
+        ->middleware('throttle:sensitive-action');
+    Route::post('/payments/{payment}/manual/select', [ManualPaymentController::class, 'select'])
+        ->middleware('throttle:sensitive-action');
+    Route::post('/payments/{payment}/proofs', [ManualPaymentController::class, 'uploadProof'])
+        ->middleware('throttle:file-upload');
 });
 
 Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function (): void {
     Route::get('/payments', [AdminPaymentController::class, 'index']);
     Route::get('/payments/pending-review', [AdminPaymentController::class, 'pendingReview']);
     Route::get('/payments/{payment}', [AdminPaymentController::class, 'show']);
-    Route::post('/payments/{payment}/accept', [AdminPaymentController::class, 'accept']);
-    Route::post('/payments/{payment}/reject', [AdminPaymentController::class, 'reject']);
+    Route::post('/payments/{payment}/accept', [AdminPaymentController::class, 'accept'])->middleware('throttle:admin-sensitive');
+    Route::post('/payments/{payment}/reject', [AdminPaymentController::class, 'reject'])->middleware('throttle:admin-sensitive');
     Route::get('/invoices', [AdminPaymentController::class, 'invoices']);
 });

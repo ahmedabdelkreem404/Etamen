@@ -25,18 +25,18 @@ Route::prefix('provider')->middleware(['auth:sanctum', 'provider.user'])->group(
     Route::get('/me', [ProviderAccountController::class, 'me']);
     Route::put('/profile', [ProviderAccountController::class, 'updateProfile']);
     Route::get('/branches', [ProviderAccountController::class, 'branches']);
-    Route::post('/branches', [ProviderAccountController::class, 'createBranch']);
-    Route::put('/branches/{branch}', [ProviderAccountController::class, 'updateBranch']);
-    Route::post('/documents', [ProviderAccountController::class, 'uploadDocument']);
+    Route::post('/branches', [ProviderAccountController::class, 'createBranch'])->middleware('throttle:sensitive-action');
+    Route::put('/branches/{branch}', [ProviderAccountController::class, 'updateBranch'])->middleware('throttle:sensitive-action');
+    Route::post('/documents', [ProviderAccountController::class, 'uploadDocument'])->middleware('throttle:file-upload');
 });
 
 Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function (): void {
     Route::get('/providers', [AdminProviderController::class, 'index']);
     Route::get('/providers/pending-approvals', [AdminProviderController::class, 'pendingApprovals']);
-    Route::post('/providers/{provider}/approve', [AdminProviderController::class, 'approve']);
-    Route::post('/providers/{provider}/reject', [AdminProviderController::class, 'reject']);
-    Route::post('/providers/{provider}/suspend', [AdminProviderController::class, 'suspend']);
-    Route::post('/providers/{provider}/reactivate', [AdminProviderController::class, 'reactivate']);
+    Route::post('/providers/{provider}/approve', [AdminProviderController::class, 'approve'])->middleware('throttle:admin-sensitive');
+    Route::post('/providers/{provider}/reject', [AdminProviderController::class, 'reject'])->middleware('throttle:admin-sensitive');
+    Route::post('/providers/{provider}/suspend', [AdminProviderController::class, 'suspend'])->middleware('throttle:admin-sensitive');
+    Route::post('/providers/{provider}/reactivate', [AdminProviderController::class, 'reactivate'])->middleware('throttle:admin-sensitive');
 
     Route::post('/specialties', [AdminSpecialtyController::class, 'store']);
     Route::put('/specialties/{specialty}', [AdminSpecialtyController::class, 'update']);

@@ -15,27 +15,27 @@ Route::middleware(['auth:sanctum', 'patient'])->prefix('health')->group(function
     Route::put('/profile', [HealthProfileController::class, 'update']);
 
     Route::get('/chronic-diseases', [ChronicDiseaseController::class, 'index']);
-    Route::post('/chronic-diseases', [ChronicDiseaseController::class, 'store']);
+    Route::post('/chronic-diseases', [ChronicDiseaseController::class, 'store'])->middleware('throttle:health-write');
     Route::put('/chronic-diseases/{disease}', [ChronicDiseaseController::class, 'update']);
     Route::delete('/chronic-diseases/{disease}', [ChronicDiseaseController::class, 'destroy']);
 
     Route::get('/allergies', [AllergyController::class, 'index']);
-    Route::post('/allergies', [AllergyController::class, 'store']);
+    Route::post('/allergies', [AllergyController::class, 'store'])->middleware('throttle:health-write');
     Route::put('/allergies/{allergy}', [AllergyController::class, 'update']);
     Route::delete('/allergies/{allergy}', [AllergyController::class, 'destroy']);
 
     Route::get('/current-medications', [CurrentMedicationController::class, 'index']);
-    Route::post('/current-medications', [CurrentMedicationController::class, 'store']);
+    Route::post('/current-medications', [CurrentMedicationController::class, 'store'])->middleware('throttle:health-write');
     Route::put('/current-medications/{medication}', [CurrentMedicationController::class, 'update']);
     Route::delete('/current-medications/{medication}', [CurrentMedicationController::class, 'destroy']);
 
     Route::get('/surgeries', [SurgeryController::class, 'index']);
-    Route::post('/surgeries', [SurgeryController::class, 'store']);
+    Route::post('/surgeries', [SurgeryController::class, 'store'])->middleware('throttle:health-write');
     Route::put('/surgeries/{surgery}', [SurgeryController::class, 'update']);
     Route::delete('/surgeries/{surgery}', [SurgeryController::class, 'destroy']);
 
     Route::get('/goals', [HealthGoalController::class, 'index']);
-    Route::post('/goals', [HealthGoalController::class, 'store']);
+    Route::post('/goals', [HealthGoalController::class, 'store'])->middleware('throttle:health-write');
     Route::put('/goals/{goal}', [HealthGoalController::class, 'update']);
     Route::delete('/goals/{goal}', [HealthGoalController::class, 'destroy']);
 
@@ -43,7 +43,7 @@ Route::middleware(['auth:sanctum', 'patient'])->prefix('health')->group(function
     Route::get('/vitals/latest', [VitalRecordController::class, 'latest']);
     Route::get('/summary', [VitalRecordController::class, 'summary']);
     Route::get('/vitals', [VitalRecordController::class, 'index']);
-    Route::post('/vitals', [VitalRecordController::class, 'store']);
+    Route::post('/vitals', [VitalRecordController::class, 'store'])->middleware('throttle:health-write');
     Route::get('/vitals/{vital}', [VitalRecordController::class, 'show']);
     Route::put('/vitals/{vital}', [VitalRecordController::class, 'update']);
     Route::delete('/vitals/{vital}', [VitalRecordController::class, 'destroy']);

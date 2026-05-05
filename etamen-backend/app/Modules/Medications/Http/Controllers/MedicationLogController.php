@@ -24,6 +24,7 @@ class MedicationLogController extends ApiController
             ->when($request->query('from'), fn ($query, $date) => $query->whereDate('scheduled_for', '>=', $date))
             ->when($request->query('to'), fn ($query, $date) => $query->whereDate('scheduled_for', '<=', $date))
             ->orderByDesc('scheduled_for')
+            ->limit($this->perPage($request))
             ->get();
 
         return $this->success(MedicationLogResource::collection($logs), 'Medication logs.');

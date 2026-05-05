@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'patient'])->prefix('medications')->group(function (): void {
     Route::get('/reminders', [MedicationReminderController::class, 'index']);
-    Route::post('/reminders', [MedicationReminderController::class, 'store']);
+    Route::post('/reminders', [MedicationReminderController::class, 'store'])->middleware('throttle:health-write');
     Route::get('/reminders/{reminder}', [MedicationReminderController::class, 'show']);
     Route::put('/reminders/{reminder}', [MedicationReminderController::class, 'update']);
     Route::delete('/reminders/{reminder}', [MedicationReminderController::class, 'destroy']);
@@ -25,11 +25,11 @@ Route::middleware(['auth:sanctum', 'patient'])->prefix('medications')->group(fun
     Route::delete('/reminders/{reminder}/times/{time}', [MedicationReminderTimeController::class, 'destroy']);
 
     Route::get('/logs', [MedicationLogController::class, 'index']);
-    Route::post('/reminders/{reminder}/logs', [MedicationLogController::class, 'store']);
+    Route::post('/reminders/{reminder}/logs', [MedicationLogController::class, 'store'])->middleware('throttle:health-write');
     Route::put('/logs/{log}', [MedicationLogController::class, 'update']);
 
-    Route::post('/reminders/{reminder}/taken', [MedicationLogController::class, 'taken']);
-    Route::post('/reminders/{reminder}/skipped', [MedicationLogController::class, 'skipped']);
+    Route::post('/reminders/{reminder}/taken', [MedicationLogController::class, 'taken'])->middleware('throttle:health-write');
+    Route::post('/reminders/{reminder}/skipped', [MedicationLogController::class, 'skipped'])->middleware('throttle:health-write');
 
     Route::get('/reminders/{reminder}/schedule', [MedicationScheduleController::class, 'reminderSchedule']);
     Route::get('/today', [MedicationScheduleController::class, 'today']);

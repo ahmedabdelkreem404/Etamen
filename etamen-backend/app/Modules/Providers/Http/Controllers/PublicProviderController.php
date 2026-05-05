@@ -8,12 +8,13 @@ use App\Modules\Providers\Http\Resources\ProviderResource;
 use App\Modules\Providers\Http\Resources\SpecialtyResource;
 use App\Modules\Providers\Infrastructure\Models\Provider;
 use App\Modules\Providers\Infrastructure\Models\Specialty;
+use Illuminate\Http\Request;
 
 class PublicProviderController extends ApiController
 {
-    public function doctors()
+    public function doctors(Request $request)
     {
-        return $this->success($this->publicProviders(ProviderType::Doctor), 'Approved doctors.');
+        return $this->success($this->publicProviders($request, ProviderType::Doctor), 'Approved doctors.');
     }
 
     public function doctor(Provider $doctor)
@@ -21,9 +22,9 @@ class PublicProviderController extends ApiController
         return $this->showPublicProvider($doctor, ProviderType::Doctor, 'Doctor details.');
     }
 
-    public function pharmacies()
+    public function pharmacies(Request $request)
     {
-        return $this->success($this->publicProviders(ProviderType::Pharmacy), 'Approved pharmacies.');
+        return $this->success($this->publicProviders($request, ProviderType::Pharmacy), 'Approved pharmacies.');
     }
 
     public function pharmacy(Provider $pharmacy)
@@ -31,9 +32,9 @@ class PublicProviderController extends ApiController
         return $this->showPublicProvider($pharmacy, ProviderType::Pharmacy, 'Pharmacy details.');
     }
 
-    public function labs()
+    public function labs(Request $request)
     {
-        return $this->success($this->publicProviders(ProviderType::Lab), 'Approved labs.');
+        return $this->success($this->publicProviders($request, ProviderType::Lab), 'Approved labs.');
     }
 
     public function lab(Provider $lab)
@@ -41,15 +42,15 @@ class PublicProviderController extends ApiController
         return $this->showPublicProvider($lab, ProviderType::Lab, 'Lab details.');
     }
 
-    public function specialties()
+    public function specialties(Request $request)
     {
         return $this->success(
-            SpecialtyResource::collection(Specialty::query()->where('is_active', true)->orderBy('name_en')->get()),
+            SpecialtyResource::collection(Specialty::query()->where('is_active', true)->orderBy('name_en')->limit($this->perPage($request, 100))->get()),
             'Active specialties.',
         );
     }
 
-    private function publicProviders(ProviderType $type)
+    private function publicProviders(Request $request, ProviderType $type)
     {
         return ProviderResource::collection(
             Provider::query()
@@ -57,6 +58,7 @@ class PublicProviderController extends ApiController
                 ->where('type', $type)
                 ->with(['doctorProfile.specialties', 'pharmacyProfile', 'labProfile', 'branches.city', 'branches.area'])
                 ->orderBy('name_en')
+                ->limit($this->perPage($request))
                 ->get(),
         );
     }

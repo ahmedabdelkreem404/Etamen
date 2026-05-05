@@ -7,16 +7,17 @@ use App\Modules\AI\Application\Services\AiAssistantService;
 use App\Modules\AI\Http\Requests\AiMessageRequest;
 use App\Modules\AI\Http\Resources\AiMessageResource;
 use App\Modules\AI\Infrastructure\Models\AiConversation;
+use Illuminate\Http\Request;
 
 class AiMessageController extends ApiController
 {
     public function __construct(private readonly AiAssistantService $assistant) {}
 
-    public function index(AiConversation $conversation)
+    public function index(Request $request, AiConversation $conversation)
     {
         $this->authorize('view', $conversation);
 
-        $messages = $conversation->messages()->oldest('id')->get();
+        $messages = $conversation->messages()->oldest('id')->limit($this->perPage($request, 50))->get();
 
         return $this->success(AiMessageResource::collection($messages), 'AI messages.');
     }

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('care-plans')->middleware(['auth:sanctum', 'patient'])->group(function (): void {
     Route::get('/summary', [CarePlanProgressController::class, 'summary']);
     Route::get('/', [PatientCarePlanController::class, 'index']);
-    Route::post('/', [PatientCarePlanController::class, 'store']);
+    Route::post('/', [PatientCarePlanController::class, 'store'])->middleware('throttle:health-write');
     Route::get('/{plan}', [PatientCarePlanController::class, 'show']);
     Route::put('/{plan}', [PatientCarePlanController::class, 'update']);
     Route::delete('/{plan}', [PatientCarePlanController::class, 'destroy']);
@@ -47,11 +47,11 @@ Route::prefix('care-plans')->middleware(['auth:sanctum', 'patient'])->group(func
     Route::delete('/{plan}/instructions/{instruction}', [CarePlanInstructionController::class, 'destroy']);
 
     Route::get('/{plan}/checkins', [CarePlanCheckinController::class, 'index']);
-    Route::post('/{plan}/checkins', [CarePlanCheckinController::class, 'store']);
+    Route::post('/{plan}/checkins', [CarePlanCheckinController::class, 'store'])->middleware('throttle:health-write');
     Route::put('/{plan}/checkins/{checkin}', [CarePlanCheckinController::class, 'update']);
 
     Route::get('/{plan}/meal-logs', [MealLogController::class, 'index']);
-    Route::post('/{plan}/meal-logs', [MealLogController::class, 'store']);
+    Route::post('/{plan}/meal-logs', [MealLogController::class, 'store'])->middleware('throttle:health-write');
     Route::get('/{plan}/meal-logs/{log}', [MealLogController::class, 'show']);
     Route::put('/{plan}/meal-logs/{log}', [MealLogController::class, 'update']);
     Route::delete('/{plan}/meal-logs/{log}', [MealLogController::class, 'destroy']);
@@ -61,7 +61,7 @@ Route::prefix('care-plans')->middleware(['auth:sanctum', 'patient'])->group(func
 
 Route::prefix('provider/care-plans')->middleware(['auth:sanctum', 'provider.user'])->group(function (): void {
     Route::get('/', [ProviderCarePlanController::class, 'index']);
-    Route::post('/assign', [ProviderCarePlanController::class, 'assign']);
+    Route::post('/assign', [ProviderCarePlanController::class, 'assign'])->middleware('throttle:sensitive-action');
     Route::get('/{plan}', [ProviderCarePlanController::class, 'show']);
     Route::put('/{plan}', [ProviderCarePlanController::class, 'update']);
     Route::post('/{plan}/activate', [CarePlanStatusController::class, 'activate']);

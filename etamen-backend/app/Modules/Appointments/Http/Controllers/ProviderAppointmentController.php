@@ -25,6 +25,7 @@ class ProviderAppointmentController extends ApiController
             ->with(['slot', 'patient', 'provider', 'branch', 'review'])
             ->when($request->query('status'), fn ($query, $status) => $query->where('status', $status))
             ->orderByDesc('created_at')
+            ->limit($this->perPage($request))
             ->get();
 
         return $this->success(AppointmentResource::collection($appointments), 'Doctor appointments.');

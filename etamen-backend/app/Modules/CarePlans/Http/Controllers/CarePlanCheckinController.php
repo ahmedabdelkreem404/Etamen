@@ -8,16 +8,17 @@ use App\Modules\CarePlans\Http\Requests\CarePlanCheckinRequest;
 use App\Modules\CarePlans\Http\Resources\CarePlanCheckinResource;
 use App\Modules\CarePlans\Infrastructure\Models\CarePlan;
 use App\Modules\CarePlans\Infrastructure\Models\CarePlanCheckin;
+use Illuminate\Http\Request;
 
 class CarePlanCheckinController extends ApiController
 {
     public function __construct(private readonly CarePlanCheckinService $checkins) {}
 
-    public function index(CarePlan $plan)
+    public function index(Request $request, CarePlan $plan)
     {
         $this->authorize('view', $plan);
 
-        return $this->success(CarePlanCheckinResource::collection($plan->checkins()->orderByDesc('checkin_date')->get()), 'Care plan check-ins.');
+        return $this->success(CarePlanCheckinResource::collection($plan->checkins()->orderByDesc('checkin_date')->limit($this->perPage($request))->get()), 'Care plan check-ins.');
     }
 
     public function store(CarePlanCheckinRequest $request, CarePlan $plan)

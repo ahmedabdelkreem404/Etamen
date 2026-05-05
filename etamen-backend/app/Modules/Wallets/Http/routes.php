@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('provider')->middleware(['auth:sanctum', 'provider.user'])->group(function (): void {
     Route::get('/wallet', [ProviderWalletController::class, 'show']);
     Route::get('/wallet/transactions', [ProviderWalletController::class, 'transactions']);
-    Route::post('/withdrawals', [ProviderWalletController::class, 'requestWithdrawal']);
+    Route::post('/withdrawals', [ProviderWalletController::class, 'requestWithdrawal'])->middleware('throttle:sensitive-action');
     Route::get('/withdrawals', [ProviderWalletController::class, 'withdrawals']);
 });
 
@@ -20,16 +20,16 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function ()
     Route::get('/wallets/{wallet}/transactions', [AdminWalletController::class, 'transactions']);
 
     Route::get('/commission-rules', [AdminCommissionRuleController::class, 'index']);
-    Route::post('/commission-rules', [AdminCommissionRuleController::class, 'store']);
-    Route::put('/commission-rules/{rule}', [AdminCommissionRuleController::class, 'update']);
+    Route::post('/commission-rules', [AdminCommissionRuleController::class, 'store'])->middleware('throttle:admin-sensitive');
+    Route::put('/commission-rules/{rule}', [AdminCommissionRuleController::class, 'update'])->middleware('throttle:admin-sensitive');
 
     Route::get('/withdrawals', [AdminWithdrawalController::class, 'index']);
-    Route::post('/withdrawals/{withdrawal}/approve', [AdminWithdrawalController::class, 'approve']);
-    Route::post('/withdrawals/{withdrawal}/reject', [AdminWithdrawalController::class, 'reject']);
-    Route::post('/withdrawals/{withdrawal}/mark-paid', [AdminWithdrawalController::class, 'markPaid']);
+    Route::post('/withdrawals/{withdrawal}/approve', [AdminWithdrawalController::class, 'approve'])->middleware('throttle:admin-sensitive');
+    Route::post('/withdrawals/{withdrawal}/reject', [AdminWithdrawalController::class, 'reject'])->middleware('throttle:admin-sensitive');
+    Route::post('/withdrawals/{withdrawal}/mark-paid', [AdminWithdrawalController::class, 'markPaid'])->middleware('throttle:admin-sensitive');
 
     Route::get('/settlements', [AdminSettlementController::class, 'index']);
-    Route::post('/settlements', [AdminSettlementController::class, 'store']);
+    Route::post('/settlements', [AdminSettlementController::class, 'store'])->middleware('throttle:admin-sensitive');
     Route::get('/settlements/{settlement}', [AdminSettlementController::class, 'show']);
-    Route::post('/settlements/{settlement}/mark-paid', [AdminSettlementController::class, 'markPaid']);
+    Route::post('/settlements/{settlement}/mark-paid', [AdminSettlementController::class, 'markPaid'])->middleware('throttle:admin-sensitive');
 });

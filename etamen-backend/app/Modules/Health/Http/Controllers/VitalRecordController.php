@@ -30,6 +30,7 @@ class VitalRecordController extends ApiController
             ->when($request->query('from'), fn ($query, $date) => $query->whereDate('measured_at', '>=', $date))
             ->when($request->query('to'), fn ($query, $date) => $query->whereDate('measured_at', '<=', $date))
             ->orderByDesc('measured_at')
+            ->limit($this->perPage($request))
             ->get();
 
         return $this->success(VitalRecordResource::collection($records), 'Vital records.');

@@ -20,6 +20,7 @@ class AiConversationController extends ApiController
             ->withCount('messages')
             ->latest('last_message_at')
             ->latest('id')
+            ->limit($this->perPage($request, 20))
             ->get();
 
         return $this->success(AiConversationResource::collection($conversations), 'AI conversations.');

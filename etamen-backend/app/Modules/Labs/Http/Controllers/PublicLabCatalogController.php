@@ -9,24 +9,26 @@ use App\Modules\Labs\Http\Resources\LabTestResource;
 use App\Modules\Labs\Infrastructure\Models\LabPackage;
 use App\Modules\Labs\Infrastructure\Models\LabTest;
 use App\Modules\Providers\Infrastructure\Models\Provider;
+use Illuminate\Http\Request;
 
 class PublicLabCatalogController extends ApiController
 {
     public function __construct(private readonly LabAccessService $accessService) {}
 
-    public function tests(Provider $lab)
+    public function tests(Request $request, Provider $lab)
     {
         $lab = $this->accessService->publicLab($lab->id);
         $tests = LabTest::query()
             ->where('provider_id', $lab->id)
             ->where('is_active', true)
             ->orderBy('name_en')
+            ->limit($this->perPage($request))
             ->get();
 
         return $this->success(LabTestResource::collection($tests), 'Lab tests.');
     }
 
-    public function packages(Provider $lab)
+    public function packages(Request $request, Provider $lab)
     {
         $lab = $this->accessService->publicLab($lab->id);
         $packages = LabPackage::query()
@@ -34,6 +36,7 @@ class PublicLabCatalogController extends ApiController
             ->where('is_active', true)
             ->with('tests')
             ->orderBy('name_en')
+            ->limit($this->perPage($request))
             ->get();
 
         return $this->success(LabPackageResource::collection($packages), 'Lab packages.');

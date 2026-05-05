@@ -21,9 +21,9 @@ class AdminNotificationController extends ApiController
 {
     public function __construct(private readonly NotificationTemplateService $templates) {}
 
-    public function notifications()
+    public function notifications(Request $request)
     {
-        return $this->success(NotificationResource::collection(Notification::query()->latest('id')->paginate(50)), 'Notifications.');
+        return $this->success(NotificationResource::collection(Notification::query()->latest('id')->paginate($this->perPage($request, 50))), 'Notifications.');
     }
 
     public function dispatches(Request $request)
@@ -36,12 +36,12 @@ class AdminNotificationController extends ApiController
             }
         }
 
-        return $this->success(NotificationDispatchResource::collection($query->paginate(50)), 'Notification dispatches.');
+        return $this->success(NotificationDispatchResource::collection($query->paginate($this->perPage($request, 50))), 'Notification dispatches.');
     }
 
-    public function templates()
+    public function templates(Request $request)
     {
-        return $this->success(NotificationTemplateResource::collection(NotificationTemplate::query()->orderBy('key')->get()), 'Notification templates.');
+        return $this->success(NotificationTemplateResource::collection(NotificationTemplate::query()->orderBy('key')->limit($this->perPage($request, 100))->get()), 'Notification templates.');
     }
 
     public function storeTemplate(NotificationTemplateRequest $request)
@@ -54,13 +54,13 @@ class AdminNotificationController extends ApiController
         return $this->success(new NotificationTemplateResource($this->templates->update($request->user(), $template, $request->validated())), 'Notification template updated.');
     }
 
-    public function schedulerRuns()
+    public function schedulerRuns(Request $request)
     {
-        return $this->success(SchedulerRunResource::collection(SchedulerRun::query()->latest('id')->paginate(50)), 'Scheduler runs.');
+        return $this->success(SchedulerRunResource::collection(SchedulerRun::query()->latest('id')->paginate($this->perPage($request, 50))), 'Scheduler runs.');
     }
 
-    public function tokens()
+    public function tokens(Request $request)
     {
-        return $this->success(NotificationTokenResource::collection(NotificationToken::query()->latest('id')->paginate(50)), 'Notification tokens.');
+        return $this->success(NotificationTokenResource::collection(NotificationToken::query()->latest('id')->paginate($this->perPage($request, 50))), 'Notification tokens.');
     }
 }

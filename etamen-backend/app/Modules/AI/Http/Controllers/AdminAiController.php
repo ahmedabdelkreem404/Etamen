@@ -33,7 +33,7 @@ class AdminAiController extends ApiController
             $query->where('provider', (string) $request->string('provider'));
         }
 
-        return $this->success(AiConversationResource::collection($query->paginate(50)), 'AI conversations.');
+        return $this->success(AiConversationResource::collection($query->paginate($this->perPage($request, 50))), 'AI conversations.');
     }
 
     public function conversation(AiConversation $conversation)
@@ -49,7 +49,7 @@ class AdminAiController extends ApiController
             $query->where('safety_classification', (string) $request->string('safety_classification'));
         }
 
-        return $this->success(AiMessageResource::collection($query->paginate(50)), 'AI messages.');
+        return $this->success(AiMessageResource::collection($query->paginate($this->perPage($request, 50))), 'AI messages.');
     }
 
     public function safetyEvents(Request $request)
@@ -64,12 +64,12 @@ class AdminAiController extends ApiController
             $query->where('event_type', (string) $request->string('event_type'));
         }
 
-        return $this->success(AiSafetyEventResource::collection($query->paginate(50)), 'AI safety events.');
+        return $this->success(AiSafetyEventResource::collection($query->paginate($this->perPage($request, 50))), 'AI safety events.');
     }
 
-    public function usageLogs()
+    public function usageLogs(Request $request)
     {
-        return $this->success(AiUsageLogResource::collection(AiUsageLog::query()->latest('id')->paginate(50)), 'AI usage logs.');
+        return $this->success(AiUsageLogResource::collection(AiUsageLog::query()->latest('id')->paginate($this->perPage($request, 50))), 'AI usage logs.');
     }
 
     public function providerConfigs()
