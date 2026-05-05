@@ -11,12 +11,8 @@ class PaymentStatusController extends ApiController
 {
     public function show(Request $request, Payment $payment)
     {
-        $user = $request->user();
+        $this->authorize('view', $payment);
 
-        if ($payment->user_id !== $user->id && ! $user->hasAnyRole(['super_admin', 'admin'])) {
-            return $this->error('Forbidden.', [], 403);
-        }
-
-        return $this->success(new PaymentStatusResource($payment->load('paymentMethod')), 'Payment status.');
+        return $this->success(new PaymentStatusResource($payment->load(['paymentMethod', 'payable', 'invoice'])), 'Payment status.');
     }
 }

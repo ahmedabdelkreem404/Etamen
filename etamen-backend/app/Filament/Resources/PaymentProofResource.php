@@ -37,6 +37,8 @@ class PaymentProofResource extends Resource
                 Tables\Columns\TextColumn::make('id')->sortable(),
                 Tables\Columns\TextColumn::make('payment_id')->sortable(),
                 Tables\Columns\TextColumn::make('uploader.email')->searchable(),
+                Tables\Columns\TextColumn::make('file.original_name')->label('File'),
+                Tables\Columns\TextColumn::make('file.visibility')->label('Visibility'),
                 Tables\Columns\TextColumn::make('reference_number')->searchable(),
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
@@ -45,7 +47,13 @@ class PaymentProofResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        'uploaded' => 'uploaded',
+                        'pending_review' => 'pending_review',
+                        'accepted' => 'accepted',
+                        'rejected' => 'rejected',
+                    ]),
             ])
             ->actions([
                 //

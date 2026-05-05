@@ -40,6 +40,7 @@ class PaymentMethodResource extends Resource
                 Forms\Components\Toggle::make('is_active'),
                 Forms\Components\KeyValue::make('config')
                     ->label('Config (encrypted)')
+                    ->helperText('Do not store Paymob secret keys here; use backend env variables.')
                     ->nullable(),
                 Forms\Components\Textarea::make('instructions_ar')
                     ->columnSpanFull(),

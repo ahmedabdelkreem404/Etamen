@@ -45,4 +45,9 @@ class PaymentProof extends Model
     {
         return $this->belongsTo(User::class, 'uploaded_by');
     }
+
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
 }

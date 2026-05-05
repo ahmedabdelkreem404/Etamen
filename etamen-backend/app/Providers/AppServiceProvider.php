@@ -14,6 +14,12 @@ use App\Modules\Appointments\Policies\AppointmentSlotPolicy;
 use App\Modules\Appointments\Policies\DoctorHolidayPolicy;
 use App\Modules\Appointments\Policies\DoctorScheduleDayPolicy;
 use App\Modules\Appointments\Policies\DoctorSchedulePolicy;
+use App\Modules\Payments\Infrastructure\Models\Invoice;
+use App\Modules\Payments\Infrastructure\Models\Payment;
+use App\Modules\Payments\Infrastructure\Models\PaymentProof;
+use App\Modules\Payments\Policies\InvoicePolicy;
+use App\Modules\Payments\Policies\PaymentPolicy;
+use App\Modules\Payments\Policies\PaymentProofPolicy;
 use App\Modules\Providers\Infrastructure\Models\DoctorProfile;
 use App\Modules\Providers\Infrastructure\Models\LabProfile;
 use App\Modules\Providers\Infrastructure\Models\PharmacyProfile;
@@ -61,5 +67,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(AppointmentSlot::class, AppointmentSlotPolicy::class);
         Gate::policy(Appointment::class, AppointmentPolicy::class);
         Gate::policy(AppointmentReview::class, AppointmentReviewPolicy::class);
+        Gate::policy(Payment::class, PaymentPolicy::class);
+        Gate::policy(PaymentProof::class, PaymentProofPolicy::class);
+        Gate::policy(Invoice::class, InvoicePolicy::class);
     }
 }

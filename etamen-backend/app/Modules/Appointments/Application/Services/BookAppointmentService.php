@@ -9,6 +9,7 @@ use App\Modules\Appointments\Infrastructure\Models\Appointment;
 use App\Modules\Appointments\Infrastructure\Models\AppointmentSlot;
 use App\Modules\AuditLogs\Application\Services\AuditLogService;
 use App\Modules\Identity\Domain\Enums\UserRole;
+use App\Modules\Payments\Application\Services\PaymentCreationService;
 use App\Modules\Providers\Domain\Enums\ProviderStatus;
 use App\Modules\Providers\Domain\Enums\ProviderType;
 use App\Modules\Providers\Infrastructure\Models\DoctorProfile;
@@ -21,6 +22,7 @@ class BookAppointmentService
     public function __construct(
         private readonly AppointmentNumberGenerator $numberGenerator,
         private readonly AuditLogService $auditLogService,
+        private readonly PaymentCreationService $paymentCreationService,
     ) {}
 
     public function book(User $patient, array $data): Appointment
@@ -92,6 +94,10 @@ class BookAppointmentService
                 'slot_id' => $slot->id,
                 'status' => $status->value,
             ]);
+
+            if ($status === AppointmentStatus::PendingPayment) {
+                $this->paymentCreationService->createForAppointment($appointment, $patient);
+            }
 
             return $appointment->load(['slot', 'doctorProfile.provider', 'provider', 'branch']);
         });

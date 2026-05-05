@@ -3,6 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PaymentResource\Pages;
+use App\Modules\Payments\Application\Services\ManualPaymentService;
+use App\Modules\Payments\Domain\Enums\PaymentStatus;
 use App\Modules\Payments\Infrastructure\Models\Payment;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -47,10 +49,35 @@ class PaymentResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('status')
+                    ->options(array_combine(PaymentStatus::values(), PaymentStatus::values())),
+                Tables\Filters\SelectFilter::make('payment_method_id')
+                    ->relationship('paymentMethod', 'name_en')
+                    ->label('Method'),
+                Tables\Filters\Filter::make('created_at')
+                    ->form([
+                        Forms\Components\DatePicker::make('from'),
+                        Forms\Components\DatePicker::make('until'),
+                    ])
+                    ->query(fn ($query, array $data) => $query
+                        ->when($data['from'] ?? null, fn ($query, $date) => $query->whereDate('created_at', '>=', $date))
+                        ->when($data['until'] ?? null, fn ($query, $date) => $query->whereDate('created_at', '<=', $date))),
             ])
             ->actions([
-                //
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\Action::make('accept_manual')
+                    ->label('Accept manual')
+                    ->requiresConfirmation()
+                    ->visible(fn (Payment $record): bool => $record->status === PaymentStatus::PendingReview)
+                    ->action(fn (Payment $record) => app(ManualPaymentService::class)->accept(auth()->user(), $record)),
+                Tables\Actions\Action::make('reject_manual')
+                    ->label('Reject manual')
+                    ->requiresConfirmation()
+                    ->visible(fn (Payment $record): bool => $record->status === PaymentStatus::PendingReview)
+                    ->form([
+                        Forms\Components\Textarea::make('reason')->required()->maxLength(1000),
+                    ])
+                    ->action(fn (Payment $record, array $data) => app(ManualPaymentService::class)->reject(auth()->user(), $record, $data['reason'])),
             ])
             ->bulkActions([
                 //

@@ -90,7 +90,7 @@ return new class extends Migration
 
         Schema::create('invoices', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('payment_id')->constrained('payments')->restrictOnDelete();
+            $table->foreignId('payment_id')->unique()->constrained('payments')->restrictOnDelete();
             $table->string('invoice_number')->unique();
             $table->decimal('gross_amount', 12, 2);
             $table->decimal('commission_amount', 12, 2)->default(0);
