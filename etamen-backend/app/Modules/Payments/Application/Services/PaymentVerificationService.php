@@ -20,9 +20,31 @@ class PaymentVerificationService
         private readonly AuditLogService $auditLogService,
     ) {}
 
-    public function verify(Payment $payment, ?User $actor = null, string $reason = 'Payment verified.', array $metadata = []): Payment
+    public function verifyManualAdmin(Payment $payment, User $actor, string $reason = 'Manual payment verified.', array $metadata = []): Payment
     {
-        return DB::transaction(function () use ($payment, $actor, $reason, $metadata): Payment {
+        return $this->verify(
+            $payment,
+            $actor,
+            $reason,
+            $metadata + ['verification_source' => 'manual_admin_review'],
+            [PaymentStatus::PendingReview],
+        );
+    }
+
+    public function verifyPaymobCallback(Payment $payment, string $reason = 'Paymob payment verified.', array $metadata = []): Payment
+    {
+        return $this->verify(
+            $payment,
+            null,
+            $reason,
+            $metadata + ['verification_source' => 'paymob_callback'],
+            [PaymentStatus::PendingGateway],
+        );
+    }
+
+    private function verify(Payment $payment, ?User $actor, string $reason, array $metadata, array $allowedStatuses): Payment
+    {
+        return DB::transaction(function () use ($payment, $actor, $reason, $metadata, $allowedStatuses): Payment {
             $payment = Payment::query()->whereKey($payment->id)->lockForUpdate()->firstOrFail();
 
             if ($payment->status === PaymentStatus::Verified) {
@@ -31,9 +53,9 @@ class PaymentVerificationService
                 return $payment->refresh()->load(['invoice', 'paymentMethod']);
             }
 
-            if (! in_array($payment->status, [PaymentStatus::PendingGateway, PaymentStatus::PendingReview, PaymentStatus::AwaitingProof, PaymentStatus::AwaitingMethod, PaymentStatus::Rejected], true)) {
+            if (! in_array($payment->status, $allowedStatuses, true)) {
                 throw ValidationException::withMessages([
-                    'payment' => ['This payment cannot be verified in its current status.'],
+                    'payment' => ['This payment cannot be verified from its current status for this source.'],
                 ]);
             }
 

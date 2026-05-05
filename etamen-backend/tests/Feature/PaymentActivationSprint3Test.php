@@ -205,6 +205,23 @@ class PaymentActivationSprint3Test extends TestCase
         $this->assertSame(1, Invoice::query()->where('payment_id', $payment->id)->count());
     }
 
+    public function test_manual_accept_verifies_only_pending_review_payments(): void
+    {
+        $admin = $this->adminUser();
+        $awaitingMethod = $this->paymentWithStatus(PaymentStatus::AwaitingMethod);
+        $awaitingProof = $this->paymentWithStatus(PaymentStatus::AwaitingProof);
+        $rejected = $this->paymentWithStatus(PaymentStatus::Rejected);
+        Sanctum::actingAs($admin);
+
+        $this->postJson('/api/v1/admin/payments/'.$awaitingMethod->id.'/accept')->assertUnprocessable();
+        $this->postJson('/api/v1/admin/payments/'.$awaitingProof->id.'/accept')->assertUnprocessable();
+        $this->postJson('/api/v1/admin/payments/'.$rejected->id.'/accept')->assertUnprocessable();
+
+        $this->assertSame(PaymentStatus::AwaitingMethod, $awaitingMethod->refresh()->status);
+        $this->assertSame(PaymentStatus::AwaitingProof, $awaitingProof->refresh()->status);
+        $this->assertSame(PaymentStatus::Rejected, $rejected->refresh()->status);
+    }
+
     public function test_admin_can_reject_manual_payment_with_reason(): void
     {
         Storage::fake('medical_private');
@@ -225,6 +242,50 @@ class PaymentActivationSprint3Test extends TestCase
             ->assertJsonPath('data.appointment.status', AppointmentStatus::PendingPayment->value);
 
         $this->assertSame(PaymentProofStatus::Rejected, $payment->proofs()->firstOrFail()->refresh()->status);
+    }
+
+    public function test_manual_retry_after_rejection_can_be_accepted(): void
+    {
+        Storage::fake('medical_private');
+
+        $patient = $this->patientUser();
+        $payment = $this->prepareManualProof($patient);
+        $admin = $this->adminUser();
+        Sanctum::actingAs($admin);
+
+        $this->postJson('/api/v1/admin/payments/'.$payment->id.'/reject', [
+            'reason' => 'Reference not found.',
+        ])->assertOk();
+
+        $payment = $payment->refresh();
+        $appointment = Appointment::query()->findOrFail($payment->payable_id);
+
+        $this->assertSame(PaymentStatus::Rejected, $payment->status);
+        $this->assertSame(AppointmentStatus::PendingPayment, $appointment->status);
+
+        Sanctum::actingAs($patient);
+        $this->postJson('/api/v1/payments/'.$payment->id.'/manual/select', [
+            'payment_method_id' => $payment->payment_method_id,
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.payment.status', PaymentStatus::AwaitingProof->value);
+
+        $this->post('/api/v1/payments/'.$payment->id.'/proofs', [
+            'file' => UploadedFile::fake()->image('retry-proof.jpg'),
+            'reference_number' => 'VC-RETRY-123',
+            'sender_phone' => '01012345678',
+        ])
+            ->assertCreated()
+            ->assertJsonPath('data.status', PaymentStatus::PendingReview->value);
+
+        Sanctum::actingAs($admin);
+        $this->postJson('/api/v1/admin/payments/'.$payment->id.'/accept')
+            ->assertOk()
+            ->assertJsonPath('data.status', PaymentStatus::Verified->value)
+            ->assertJsonPath('data.appointment.status', AppointmentStatus::Confirmed->value);
+
+        $this->assertSame(1, Invoice::query()->where('payment_id', $payment->id)->count());
+        $this->assertSame(2, $payment->proofs()->count());
     }
 
     public function test_non_admin_cannot_accept_or_reject_payment(): void
@@ -301,6 +362,20 @@ class PaymentActivationSprint3Test extends TestCase
 
         $this->assertSame($invoiceCount, Invoice::query()->where('payment_id', $payment->id)->count());
         $this->assertSame($historyCount, $payment->statusHistories()->count());
+    }
+
+    public function test_paymob_callback_verifies_only_pending_gateway_payments(): void
+    {
+        foreach ([PaymentStatus::AwaitingMethod, PaymentStatus::AwaitingProof, PaymentStatus::Rejected] as $status) {
+            $payment = $this->paymentWithStatus($status);
+            $payload = $this->paymobPayload($payment);
+            $payload['hmac'] = app(PaymobGateway::class)->calculateHmac($payload);
+
+            $this->postJson('/api/v1/payments/paymob/callback', $payload)->assertUnprocessable();
+
+            $this->assertSame($status, $payment->refresh()->status);
+            $this->assertSame(0, Invoice::query()->where('payment_id', $payment->id)->count());
+        }
     }
 
     public function test_failed_paymob_callback_does_not_confirm_appointment(): void
@@ -390,6 +465,23 @@ class PaymentActivationSprint3Test extends TestCase
             'method_type' => PaymentMethodType::Paymob,
             'gateway_reference' => 'paymob-txn-'.$payment->id,
             'status' => 'created',
+        ]);
+
+        Config::set('paymob.hmac_secret', 'test-hmac-secret');
+
+        return $payment->refresh();
+    }
+
+    private function paymentWithStatus(PaymentStatus $status): Payment
+    {
+        $patient = $this->patientUser('payment-status-'.$status->value.'-'.Str::random(6).'@example.com');
+        $payment = $this->bookAppointmentThroughApi($patient)->payment;
+        $method = $this->paymentMethod(PaymentMethodType::ManualVodafoneCash);
+
+        $payment->update([
+            'payment_method_id' => $method->id,
+            'status' => $status,
+            'rejected_at' => $status === PaymentStatus::Rejected ? now() : null,
         ]);
 
         Config::set('paymob.hmac_secret', 'test-hmac-secret');

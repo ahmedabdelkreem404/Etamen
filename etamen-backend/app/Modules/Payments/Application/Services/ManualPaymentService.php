@@ -109,7 +109,7 @@ class ManualPaymentService
             $payment = Payment::query()->whereKey($payment->id)->with(['proofs', 'paymentMethod'])->lockForUpdate()->firstOrFail();
 
             if ($payment->status === PaymentStatus::Verified) {
-                return $this->paymentVerificationService->verify($payment, $admin, 'Manual payment already verified.');
+                return $this->paymentVerificationService->verifyManualAdmin($payment, $admin, 'Manual payment already verified.');
             }
 
             if ($payment->status !== PaymentStatus::PendingReview) {
@@ -139,7 +139,7 @@ class ManualPaymentService
                 'payment_id' => $payment->id,
             ]);
 
-            return $this->paymentVerificationService->verify($payment, $admin, 'Manual payment proof accepted.', [
+            return $this->paymentVerificationService->verifyManualAdmin($payment, $admin, 'Manual payment proof accepted.', [
                 'proof_id' => $proof->id,
             ]);
         });

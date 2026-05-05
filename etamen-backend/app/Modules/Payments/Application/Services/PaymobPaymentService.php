@@ -134,7 +134,7 @@ class PaymobPaymentService
             }
 
             if ($success && ! $pending) {
-                return $this->paymentVerificationService->verify($payment, null, 'Paymob verified callback.', [
+                return $this->paymentVerificationService->verifyPaymobCallback($payment, 'Paymob verified callback.', [
                     'source' => $source,
                     'gateway_reference' => $gatewayReference,
                 ]);
