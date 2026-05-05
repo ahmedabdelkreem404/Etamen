@@ -6,6 +6,7 @@ use App\Modules\Wallets\Domain\Enums\WalletTransactionStatus;
 use App\Modules\Wallets\Domain\Enums\WalletTransactionType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class WalletTransaction extends Model
 {
@@ -22,6 +23,7 @@ class WalletTransaction extends Model
         'description',
         'metadata',
         'created_by',
+        'idempotency_key',
     ];
 
     protected function casts(): array
@@ -40,5 +42,10 @@ class WalletTransaction extends Model
     public function wallet(): BelongsTo
     {
         return $this->belongsTo(Wallet::class);
+    }
+
+    public function settlementItem(): HasOne
+    {
+        return $this->hasOne(SettlementItem::class);
     }
 }

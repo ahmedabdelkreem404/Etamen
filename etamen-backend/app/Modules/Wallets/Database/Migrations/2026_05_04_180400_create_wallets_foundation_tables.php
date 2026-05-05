@@ -7,6 +7,8 @@ use App\Modules\Wallets\Domain\Enums\WalletOwnerType;
 use App\Modules\Wallets\Domain\Enums\WalletStatus;
 use App\Modules\Wallets\Domain\Enums\WalletTransactionStatus;
 use App\Modules\Wallets\Domain\Enums\WalletTransactionType;
+use App\Modules\Wallets\Domain\Enums\WithdrawalRequestStatus;
+use App\Modules\Wallets\Domain\Enums\SettlementStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -23,7 +25,7 @@ return new class extends Migration
             $table->enum('status', WalletStatus::values())->default(WalletStatus::Active->value);
             $table->timestamps();
 
-            $table->unique(['owner_type', 'owner_id']);
+            $table->unique(['owner_type', 'owner_id', 'currency']);
         });
 
         Schema::create('wallet_transactions', function (Blueprint $table): void {
@@ -40,6 +42,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->json('metadata')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->string('idempotency_key')->nullable()->unique();
             $table->timestamps();
 
             $table->index(['source_type', 'source_id']);
@@ -89,10 +92,52 @@ return new class extends Migration
 
             $table->index(['provider_id', 'status']);
         });
+
+        Schema::create('withdrawal_requests', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('wallet_id')->constrained('wallets')->restrictOnDelete();
+            $table->decimal('amount', 12, 2);
+            $table->enum('status', WithdrawalRequestStatus::values())->default(WithdrawalRequestStatus::Pending->value);
+            $table->foreignId('requested_by')->constrained('users')->restrictOnDelete();
+            $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->text('rejection_reason')->nullable();
+            $table->timestamp('paid_at')->nullable();
+            $table->json('metadata')->nullable();
+            $table->timestamps();
+
+            $table->index(['wallet_id', 'status']);
+        });
+
+        Schema::create('settlements', function (Blueprint $table): void {
+            $table->id();
+            $table->unsignedBigInteger('provider_id');
+            $table->enum('provider_type', ProviderType::values());
+            $table->decimal('total_gross', 12, 2)->default(0);
+            $table->decimal('total_commission', 12, 2)->default(0);
+            $table->decimal('total_net', 12, 2)->default(0);
+            $table->enum('status', SettlementStatus::values())->default(SettlementStatus::Draft->value);
+            $table->foreignId('settled_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('settled_at')->nullable();
+            $table->json('metadata')->nullable();
+            $table->timestamps();
+
+            $table->index(['provider_id', 'provider_type', 'status']);
+        });
+
+        Schema::create('settlement_items', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('settlement_id')->constrained('settlements')->cascadeOnDelete();
+            $table->foreignId('wallet_transaction_id')->unique()->constrained('wallet_transactions')->restrictOnDelete();
+            $table->decimal('amount', 12, 2);
+            $table->timestamps();
+        });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('settlement_items');
+        Schema::dropIfExists('settlements');
+        Schema::dropIfExists('withdrawal_requests');
         Schema::dropIfExists('provider_subscriptions');
         Schema::dropIfExists('subscription_plans');
         Schema::dropIfExists('commission_rules');
