@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Modules\AI\Database\Seeders\AiProviderConfigSeeder;
 use App\Modules\Identity\Database\Seeders\RoleSeeder;
 use App\Modules\Identity\Database\Seeders\SuperAdminSeeder;
+use App\Modules\Notifications\Database\Seeders\NotificationTemplateSeeder;
 use App\Modules\Payments\Database\Seeders\PaymentMethodSeeder;
 use App\Modules\Settings\Database\Seeders\SettingSeeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -24,6 +25,7 @@ class DatabaseSeeder extends Seeder
             SettingSeeder::class,
             PaymentMethodSeeder::class,
             AiProviderConfigSeeder::class,
+            NotificationTemplateSeeder::class,
             SuperAdminSeeder::class,
         ]);
     }
