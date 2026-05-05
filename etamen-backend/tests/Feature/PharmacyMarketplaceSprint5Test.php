@@ -237,6 +237,41 @@ class PharmacyMarketplaceSprint5Test extends TestCase
             ->assertJsonPath('data.id', $order->id);
     }
 
+    public function test_pharmacy_order_financial_fields_are_hidden_from_patient_and_visible_to_provider_and_admin(): void
+    {
+        $this->createCommissionRule(percentage: 10);
+
+        $patient = $this->patientUser();
+        $admin = $this->adminUser();
+        ['user' => $pharmacyUser, 'provider' => $provider] = $this->createPharmacyProvider();
+        $product = $this->createProduct($provider, ['price' => 100]);
+        $order = $this->createOrder($patient, $provider, [['product_id' => $product->id, 'quantity' => 1]]);
+
+        Sanctum::actingAs($patient);
+        $this->getJson('/api/v1/pharmacy/orders/'.$order->id)
+            ->assertOk()
+            ->assertJsonPath('data.subtotal', '100.00')
+            ->assertJsonPath('data.discount_total', '0.00')
+            ->assertJsonPath('data.grand_total', '100.00')
+            ->assertJsonPath('data.currency', 'EGP')
+            ->assertJsonPath('data.payment_status', PharmacyOrderPaymentStatus::Unpaid->value)
+            ->assertJsonPath('data.order_status', PharmacyOrderStatus::PharmacyReview->value)
+            ->assertJsonMissingPath('data.commission_amount')
+            ->assertJsonMissingPath('data.provider_net_amount');
+
+        Sanctum::actingAs($pharmacyUser);
+        $this->getJson('/api/v1/provider/pharmacy/orders/'.$order->id)
+            ->assertOk()
+            ->assertJsonPath('data.commission_amount', '10.00')
+            ->assertJsonPath('data.provider_net_amount', '90.00');
+
+        Sanctum::actingAs($admin);
+        $this->getJson('/api/v1/admin/pharmacy-orders/'.$order->id)
+            ->assertOk()
+            ->assertJsonPath('data.commission_amount', '10.00')
+            ->assertJsonPath('data.provider_net_amount', '90.00');
+    }
+
     public function test_verified_pharmacy_payment_posts_hold_once_and_delivery_releases_once(): void
     {
         $this->createCommissionRule(percentage: 10, fixedAmount: 5);

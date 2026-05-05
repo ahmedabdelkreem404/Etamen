@@ -10,6 +10,8 @@ class PharmacyOrderResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $canViewProviderFinancials = $this->canViewProviderFinancials($request);
+
         return [
             'id' => $this->id,
             'order_number' => $this->order_number,
@@ -19,8 +21,8 @@ class PharmacyOrderResource extends JsonResource
             'payment_id' => $this->payment_id,
             'subtotal' => $this->subtotal,
             'discount_total' => $this->discount_total,
-            'commission_amount' => $this->commission_amount,
-            'provider_net_amount' => $this->provider_net_amount,
+            'commission_amount' => $this->when($canViewProviderFinancials, $this->commission_amount),
+            'provider_net_amount' => $this->when($canViewProviderFinancials, $this->provider_net_amount),
             'grand_total' => $this->grand_total,
             'currency' => $this->currency,
             'payment_status' => $this->payment_status->value,
@@ -44,5 +46,22 @@ class PharmacyOrderResource extends JsonResource
             ])->values()),
             'created_at' => $this->created_at?->toISOString(),
         ];
+    }
+
+    private function canViewProviderFinancials(Request $request): bool
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->isPlatformAdmin()) {
+            return true;
+        }
+
+        return $user->ownedProviders()
+            ->whereKey($this->pharmacy_provider_id)
+            ->exists();
     }
 }
