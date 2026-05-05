@@ -33,7 +33,32 @@ class AiMessageResource extends JsonResource
             return null;
         }
 
-        unset($metadata['provider_metadata']['raw'], $metadata['api_key'], $metadata['secret']);
+        return $this->sanitize($metadata);
+    }
+
+    private function sanitize(array $metadata): array
+    {
+        foreach ($metadata as $key => $value) {
+            $normalizedKey = strtolower((string) $key);
+
+            if (
+                str_contains($normalizedKey, 'key')
+                || str_contains($normalizedKey, 'secret')
+                || str_contains($normalizedKey, 'token')
+                || str_contains($normalizedKey, 'authorization')
+                || str_contains($normalizedKey, 'raw')
+                || str_contains($normalizedKey, 'content')
+                || str_contains($normalizedKey, 'response')
+            ) {
+                unset($metadata[$key]);
+
+                continue;
+            }
+
+            if (is_array($value)) {
+                $metadata[$key] = $this->sanitize($value);
+            }
+        }
 
         return $metadata;
     }

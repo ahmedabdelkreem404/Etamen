@@ -49,9 +49,25 @@ class AiUsageLoggerService
 
     private function sanitizeMetadata(array $metadata): array
     {
-        foreach (array_keys($metadata) as $key) {
-            if (str_contains(strtolower((string) $key), 'key') || str_contains(strtolower((string) $key), 'secret')) {
+        foreach ($metadata as $key => $value) {
+            $normalizedKey = strtolower((string) $key);
+
+            if (
+                str_contains($normalizedKey, 'key')
+                || str_contains($normalizedKey, 'secret')
+                || str_contains($normalizedKey, 'token')
+                || str_contains($normalizedKey, 'authorization')
+                || str_contains($normalizedKey, 'raw')
+                || str_contains($normalizedKey, 'content')
+                || str_contains($normalizedKey, 'response')
+            ) {
                 unset($metadata[$key]);
+
+                continue;
+            }
+
+            if (is_array($value)) {
+                $metadata[$key] = $this->sanitizeMetadata($value);
             }
         }
 

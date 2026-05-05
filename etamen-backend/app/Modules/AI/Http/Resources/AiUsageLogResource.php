@@ -21,8 +21,68 @@ class AiUsageLogResource extends JsonResource
             'latency_ms' => $this->latency_ms,
             'success' => (bool) $this->success,
             'error_code' => $this->error_code,
-            'metadata' => $this->metadata,
+            'metadata' => $this->safeMetadata(),
             'created_at' => $this->created_at?->toISOString(),
         ];
+    }
+
+    private function safeMetadata(): ?array
+    {
+        $metadata = $this->metadata;
+
+        if (! is_array($metadata)) {
+            return null;
+        }
+
+        foreach ($metadata as $key => $value) {
+            $normalizedKey = strtolower((string) $key);
+
+            if (
+                str_contains($normalizedKey, 'key')
+                || str_contains($normalizedKey, 'secret')
+                || str_contains($normalizedKey, 'token')
+                || str_contains($normalizedKey, 'authorization')
+                || str_contains($normalizedKey, 'raw')
+                || str_contains($normalizedKey, 'content')
+                || str_contains($normalizedKey, 'response')
+            ) {
+                unset($metadata[$key]);
+
+                continue;
+            }
+
+            if (is_array($value)) {
+                $metadata[$key] = $this->sanitizeNested($value);
+            }
+        }
+
+        return $metadata;
+    }
+
+    private function sanitizeNested(array $metadata): array
+    {
+        foreach ($metadata as $key => $value) {
+            $normalizedKey = strtolower((string) $key);
+
+            if (
+                str_contains($normalizedKey, 'key')
+                || str_contains($normalizedKey, 'secret')
+                || str_contains($normalizedKey, 'token')
+                || str_contains($normalizedKey, 'authorization')
+                || str_contains($normalizedKey, 'raw')
+                || str_contains($normalizedKey, 'content')
+                || str_contains($normalizedKey, 'response')
+            ) {
+                unset($metadata[$key]);
+
+                continue;
+            }
+
+            if (is_array($value)) {
+                $metadata[$key] = $this->sanitizeNested($value);
+            }
+        }
+
+        return $metadata;
     }
 }

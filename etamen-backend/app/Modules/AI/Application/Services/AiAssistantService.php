@@ -87,6 +87,21 @@ class AiAssistantService
         $latencyMs = (int) round((microtime(true) - $startedAt) * 1000);
         $this->usageLogger->logSuccess($patient, $conversation, $response, $latencyMs);
 
+        $postCheck = $this->safetyGuard->inspect($response->content, $language);
+
+        if ($postCheck->shouldRefuse) {
+            return $this->createBlockedProviderResponse(
+                patient: $patient,
+                conversation: $conversation,
+                response: $response,
+                contextIncluded: $context !== null,
+                content: $postCheck->safeResponse ?? $this->safetyGuard->safetyLine($language),
+                classification: $postCheck->classification,
+                eventType: $postCheck->eventType ?? AiSafetyEventType::RefusalTriggered,
+                severity: $postCheck->severity,
+            );
+        }
+
         return DB::transaction(function () use ($patient, $conversation, $response, $context): AiMessage {
             $assistant = $this->messages->createAssistantMessage(
                 conversation: $conversation,
@@ -99,12 +114,64 @@ class AiAssistantService
                 metadata: [
                     'model' => $response->model,
                     'context_included' => $context !== null,
-                    'provider_metadata' => $response->rawMetadata,
+                    'provider_metadata' => $this->sanitizeProviderMetadata($response->rawMetadata),
                 ],
             );
 
             $this->auditLogs->log('ai_assistant.response_generated', $assistant, $patient, metadata: [
                 'conversation_id' => $conversation->id,
+                'provider' => $response->provider->value,
+            ]);
+
+            return $assistant;
+        });
+    }
+
+    private function createBlockedProviderResponse(
+        User $patient,
+        AiConversation $conversation,
+        AiProviderResponse $response,
+        bool $contextIncluded,
+        string $content,
+        AiSafetyClassification $classification,
+        AiSafetyEventType $eventType,
+        AiSafetySeverity $severity,
+    ): AiMessage {
+        return DB::transaction(function () use ($patient, $conversation, $response, $contextIncluded, $content, $classification, $eventType, $severity): AiMessage {
+            $assistant = $this->messages->createAssistantMessage(
+                conversation: $conversation,
+                patient: $patient,
+                content: $content,
+                classification: $classification,
+                wasRefused: true,
+                provider: $response->provider,
+                tokenCount: $response->totalTokens,
+                metadata: [
+                    'source' => 'post_response_safety_guard',
+                    'model' => $response->model,
+                    'context_included' => $contextIncluded,
+                    'provider_metadata' => $this->sanitizeProviderMetadata($response->rawMetadata),
+                ],
+            );
+
+            AiSafetyEvent::query()->create([
+                'conversation_id' => $conversation->id,
+                'message_id' => $assistant->id,
+                'patient_user_id' => $patient->id,
+                'event_type' => $eventType,
+                'severity' => $severity,
+                'description' => 'AI provider response was blocked by post-response safety guard.',
+                'metadata' => [
+                    'classification' => $classification->value,
+                    'provider' => $response->provider->value,
+                    'model' => $response->model,
+                ],
+                'created_at' => now(),
+            ]);
+
+            $this->auditLogs->log('ai_safety.provider_response_blocked', $assistant, $patient, metadata: [
+                'conversation_id' => $conversation->id,
+                'classification' => $classification->value,
                 'provider' => $response->provider->value,
             ]);
 
@@ -238,5 +305,32 @@ class AiAssistantService
         $content = trim($response->content);
 
         return $content !== '' ? $content : 'المساعد غير متاح مؤقتًا، جرّب لاحقًا.';
+    }
+
+    private function sanitizeProviderMetadata(array $metadata): array
+    {
+        foreach ($metadata as $key => $value) {
+            $normalizedKey = strtolower((string) $key);
+
+            if (
+                str_contains($normalizedKey, 'key')
+                || str_contains($normalizedKey, 'secret')
+                || str_contains($normalizedKey, 'token')
+                || str_contains($normalizedKey, 'authorization')
+                || str_contains($normalizedKey, 'raw')
+                || str_contains($normalizedKey, 'content')
+                || str_contains($normalizedKey, 'response')
+            ) {
+                unset($metadata[$key]);
+
+                continue;
+            }
+
+            if (is_array($value)) {
+                $metadata[$key] = $this->sanitizeProviderMetadata($value);
+            }
+        }
+
+        return $metadata;
     }
 }

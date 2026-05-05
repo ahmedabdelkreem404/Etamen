@@ -31,9 +31,11 @@ class AiProviderConfigResource extends Resource
             Forms\Components\Toggle::make('is_active'),
             Forms\Components\TextInput::make('model')->maxLength(255),
             Forms\Components\Select::make('safety_level')->options(array_combine(AiSafetyLevel::values(), AiSafetyLevel::values())),
-            Forms\Components\KeyValue::make('encrypted_config')
-                ->disabled()
-                ->helperText('Secrets are stored encrypted and should be managed through backend settings only.')
+            Forms\Components\Placeholder::make('encrypted_config_status')
+                ->label('Encrypted config')
+                ->content(fn (AiProviderConfig $record): string => is_array($record->encrypted_config) && $record->encrypted_config !== []
+                    ? 'Encrypted config exists; values are intentionally hidden.'
+                    : 'No encrypted config stored.')
                 ->columnSpanFull(),
         ]);
     }

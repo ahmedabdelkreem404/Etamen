@@ -18,7 +18,7 @@ class AiProviderConfigResource extends JsonResource
             'model' => $this->model,
             'safety_level' => $this->safety_level->value,
             'has_config' => $config !== [],
-            'config_keys' => array_values(array_keys($config)),
+            'config_fields_count' => count($config),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];
