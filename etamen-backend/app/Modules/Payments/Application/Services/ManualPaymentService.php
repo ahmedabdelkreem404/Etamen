@@ -7,6 +7,9 @@ use App\Modules\Appointments\Application\Services\AppointmentStatusService;
 use App\Modules\Appointments\Domain\Enums\AppointmentStatus;
 use App\Modules\Appointments\Infrastructure\Models\Appointment;
 use App\Modules\AuditLogs\Application\Services\AuditLogService;
+use App\Modules\Labs\Domain\Enums\LabOrderPaymentStatus;
+use App\Modules\Labs\Domain\Enums\LabOrderStatus;
+use App\Modules\Labs\Infrastructure\Models\LabOrder;
 use App\Modules\MedicalFiles\Application\Services\FileStorageService;
 use App\Modules\MedicalFiles\Domain\Enums\FileCategory;
 use App\Modules\Payments\Domain\Enums\PaymentMethodType;
@@ -48,6 +51,7 @@ class ManualPaymentService
                 'method_type' => $method->type->value,
             ], ['payment_method_id' => $method->id, 'rejected_at' => null]);
             $this->resetPharmacyOrderForManualRetry($payment, $patient);
+            $this->resetLabOrderForManualRetry($payment, $patient);
 
             $this->auditLogService->log('payment.manual_method_selected', $payment, $patient, metadata: [
                 'payment_method_id' => $method->id,
@@ -99,6 +103,7 @@ class ManualPaymentService
             $this->transitionPayment($payment, PaymentStatus::PendingReview, $patient, 'Manual payment proof uploaded.');
             $this->moveAppointmentToPaymentReview($payment, $patient);
             $this->movePharmacyOrderToPaymentReview($payment, $patient);
+            $this->moveLabOrderToPaymentReview($payment, $patient);
 
             $this->auditLogService->log('payment.manual_proof_uploaded', $payment, $patient, metadata: [
                 'file_id' => $uploadedFile->id,
@@ -182,6 +187,7 @@ class ManualPaymentService
 
             $this->returnAppointmentToPendingPayment($payment, $admin, $reason);
             $this->returnPharmacyOrderToPendingPayment($payment, $admin, $reason);
+            $this->returnLabOrderToPendingPayment($payment, $admin, $reason);
 
             $this->auditLogService->log('payment.manual_proof_rejected', $proof, $admin, metadata: [
                 'payment_id' => $payment->id,
@@ -373,6 +379,100 @@ class ManualPaymentService
         ]);
 
         $this->auditLogService->log('pharmacy_order.payment_review_rejected', $order, $actor, before: $before, after: $order->getAttributes(), metadata: [
+            'payment_id' => $payment->id,
+            'reason' => $reason,
+        ]);
+    }
+
+    private function moveLabOrderToPaymentReview(Payment $payment, User $actor): void
+    {
+        if ($payment->payable_type !== LabOrder::class || ! $payment->payable_id) {
+            return;
+        }
+
+        $order = LabOrder::query()->whereKey($payment->payable_id)->lockForUpdate()->firstOrFail();
+
+        if ($order->payment_status === LabOrderPaymentStatus::PendingPaymentReview) {
+            return;
+        }
+
+        if ($order->payment_status !== LabOrderPaymentStatus::PendingPayment) {
+            throw ValidationException::withMessages([
+                'payment_status' => ['This lab order cannot move to payment review.'],
+            ]);
+        }
+
+        $before = $order->getAttributes();
+        $order->forceFill([
+            'payment_status' => LabOrderPaymentStatus::PendingPaymentReview,
+            'order_status' => LabOrderStatus::AwaitingPayment,
+        ])->save();
+
+        $order->statusHistories()->create([
+            'from_status' => $before['order_status'],
+            'to_status' => LabOrderStatus::AwaitingPayment->value,
+            'actor_id' => $actor->id,
+            'reason' => 'Manual payment proof uploaded.',
+            'metadata' => ['payment_id' => $payment->id],
+            'created_at' => now(),
+        ]);
+
+        $this->auditLogService->log('lab_order.pending_payment_review', $order, $actor, before: $before, after: $order->getAttributes(), metadata: [
+            'payment_id' => $payment->id,
+        ]);
+    }
+
+    private function resetLabOrderForManualRetry(Payment $payment, User $actor): void
+    {
+        if ($payment->payable_type !== LabOrder::class || ! $payment->payable_id) {
+            return;
+        }
+
+        $order = LabOrder::query()->whereKey($payment->payable_id)->lockForUpdate()->firstOrFail();
+
+        if ($order->payment_status === LabOrderPaymentStatus::PendingPayment) {
+            return;
+        }
+
+        if (! in_array($order->payment_status, [LabOrderPaymentStatus::Failed, LabOrderPaymentStatus::Unpaid], true)) {
+            return;
+        }
+
+        $before = $order->getAttributes();
+        $order->forceFill([
+            'payment_status' => LabOrderPaymentStatus::PendingPayment,
+            'order_status' => LabOrderStatus::AwaitingPayment,
+        ])->save();
+
+        $this->auditLogService->log('lab_order.manual_payment_retry_started', $order, $actor, before: $before, after: $order->getAttributes(), metadata: [
+            'payment_id' => $payment->id,
+        ]);
+    }
+
+    private function returnLabOrderToPendingPayment(Payment $payment, User $actor, string $reason): void
+    {
+        if ($payment->payable_type !== LabOrder::class || ! $payment->payable_id) {
+            return;
+        }
+
+        $order = LabOrder::query()->whereKey($payment->payable_id)->lockForUpdate()->firstOrFail();
+        $before = $order->getAttributes();
+
+        $order->forceFill([
+            'payment_status' => LabOrderPaymentStatus::Failed,
+            'order_status' => LabOrderStatus::AwaitingPayment,
+        ])->save();
+
+        $order->statusHistories()->create([
+            'from_status' => $before['order_status'],
+            'to_status' => LabOrderStatus::AwaitingPayment->value,
+            'actor_id' => $actor->id,
+            'reason' => $reason,
+            'metadata' => ['payment_id' => $payment->id],
+            'created_at' => now(),
+        ]);
+
+        $this->auditLogService->log('lab_order.payment_review_rejected', $order, $actor, before: $before, after: $order->getAttributes(), metadata: [
             'payment_id' => $payment->id,
             'reason' => $reason,
         ]);

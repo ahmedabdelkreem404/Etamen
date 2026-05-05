@@ -6,6 +6,9 @@ use App\Models\User;
 use App\Modules\Appointments\Domain\Enums\AppointmentStatus;
 use App\Modules\Appointments\Infrastructure\Models\Appointment;
 use App\Modules\AuditLogs\Application\Services\AuditLogService;
+use App\Modules\Labs\Domain\Enums\LabOrderPaymentStatus;
+use App\Modules\Labs\Domain\Enums\LabOrderStatus;
+use App\Modules\Labs\Infrastructure\Models\LabOrder;
 use App\Modules\Payments\Domain\Enums\PaymentStatus;
 use App\Modules\Payments\Infrastructure\Models\Payment;
 use App\Modules\Pharmacies\Domain\Enums\PharmacyOrderPaymentStatus;
@@ -39,6 +42,12 @@ class WalletPostingService
 
             if ($payment->payable_type === PharmacyOrder::class) {
                 $this->postVerifiedPharmacyOrderPayment($payment, $actor);
+
+                return;
+            }
+
+            if ($payment->payable_type === LabOrder::class) {
+                $this->postVerifiedLabOrderPayment($payment, $actor);
 
                 return;
             }
@@ -150,6 +159,60 @@ class WalletPostingService
         $this->auditLogService->log('wallet.pharmacy_order_hold_posted', $hold, $actor, metadata: [
             'payment_id' => $payment->id,
             'pharmacy_order_id' => $order->id,
+            'wallet_id' => $wallet->id,
+        ]);
+    }
+
+    private function postVerifiedLabOrderPayment(Payment $payment, ?User $actor = null): void
+    {
+        $order = LabOrder::query()->with('lab')->whereKey($payment->payable_id)->firstOrFail();
+
+        if ($order->payment_status !== LabOrderPaymentStatus::Paid || $order->lab->type !== ProviderType::Lab) {
+            return;
+        }
+
+        $wallet = $this->walletService->walletForProvider($order->lab, $payment->currency);
+        $commission = $this->commissionService->calculate(ProviderType::Lab, ServiceType::LabOrder, (float) $payment->amount);
+
+        $hold = $this->createTransaction($wallet, [
+            'source_type' => Payment::class,
+            'source_id' => $payment->id,
+            'type' => WalletTransactionType::Hold,
+            'gross_amount' => $commission['gross_amount'],
+            'commission_amount' => $commission['commission_amount'],
+            'net_amount' => $commission['net_amount'],
+            'status' => WalletTransactionStatus::Posted,
+            'description' => 'Lab order earning held after verified payment.',
+            'metadata' => [
+                'lab_order_id' => $order->id,
+                'commission_rule_id' => $commission['rule_id'],
+                'missing_commission_rule' => $commission['missing_rule'],
+            ],
+            'created_by' => $actor?->id,
+            'idempotency_key' => 'payment:'.$payment->id.':provider_hold',
+        ]);
+
+        $this->createTransaction($wallet, [
+            'source_type' => Payment::class,
+            'source_id' => $payment->id,
+            'type' => WalletTransactionType::Commission,
+            'gross_amount' => $commission['gross_amount'],
+            'commission_amount' => $commission['commission_amount'],
+            'net_amount' => 0,
+            'status' => WalletTransactionStatus::Posted,
+            'description' => 'Platform commission recorded for lab order.',
+            'metadata' => [
+                'lab_order_id' => $order->id,
+                'commission_rule_id' => $commission['rule_id'],
+                'missing_commission_rule' => $commission['missing_rule'],
+            ],
+            'created_by' => $actor?->id,
+            'idempotency_key' => 'payment:'.$payment->id.':platform_commission',
+        ]);
+
+        $this->auditLogService->log('wallet.lab_order_hold_posted', $hold, $actor, metadata: [
+            'payment_id' => $payment->id,
+            'lab_order_id' => $order->id,
             'wallet_id' => $wallet->id,
         ]);
     }
@@ -268,6 +331,47 @@ class WalletPostingService
 
             $this->auditLogService->log('wallet.pharmacy_order_earning_released', $release, $actor, metadata: [
                 'pharmacy_order_id' => $order->id,
+                'payment_id' => $order->payment_id,
+                'wallet_id' => $wallet->id,
+            ]);
+        });
+    }
+
+    public function releaseLabOrder(LabOrder $order, ?User $actor = null): void
+    {
+        DB::transaction(function () use ($order, $actor): void {
+            $order = LabOrder::query()->with(['payment', 'lab'])->whereKey($order->id)->lockForUpdate()->firstOrFail();
+
+            if ($order->order_status !== LabOrderStatus::Completed || ! $order->payment || $order->payment->status !== PaymentStatus::Verified) {
+                return;
+            }
+
+            $wallet = $this->walletService->walletForProvider($order->lab, $order->currency);
+            $hold = $wallet->transactions()
+                ->where('idempotency_key', 'payment:'.$order->payment_id.':provider_hold')
+                ->where('status', WalletTransactionStatus::Posted)
+                ->first();
+
+            if (! $hold) {
+                return;
+            }
+
+            $release = $this->createTransaction($wallet, [
+                'source_type' => LabOrder::class,
+                'source_id' => $order->id,
+                'type' => WalletTransactionType::Release,
+                'gross_amount' => $hold->gross_amount,
+                'commission_amount' => $hold->commission_amount,
+                'net_amount' => $hold->net_amount,
+                'status' => WalletTransactionStatus::Posted,
+                'description' => 'Lab order earning released after completion.',
+                'metadata' => ['payment_id' => $order->payment_id],
+                'created_by' => $actor?->id,
+                'idempotency_key' => 'lab_order:'.$order->id.':provider_release',
+            ]);
+
+            $this->auditLogService->log('wallet.lab_order_earning_released', $release, $actor, metadata: [
+                'lab_order_id' => $order->id,
                 'payment_id' => $order->payment_id,
                 'wallet_id' => $wallet->id,
             ]);

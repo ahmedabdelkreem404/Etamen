@@ -22,8 +22,8 @@ class SettlementService
     public function create(User $admin, int $providerId, ProviderType $providerType): Settlement
     {
         return DB::transaction(function () use ($admin, $providerId, $providerType): Settlement {
-            if (! in_array($providerType, [ProviderType::Doctor, ProviderType::Pharmacy], true)) {
-                throw ValidationException::withMessages(['provider_type' => ['Only doctor and pharmacy settlements are active in this sprint.']]);
+            if (! in_array($providerType, [ProviderType::Doctor, ProviderType::Pharmacy, ProviderType::Lab], true)) {
+                throw ValidationException::withMessages(['provider_type' => ['Only doctor, pharmacy, and lab settlements are active.']]);
             }
 
             Provider::query()

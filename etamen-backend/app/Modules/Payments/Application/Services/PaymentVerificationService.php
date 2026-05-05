@@ -7,6 +7,9 @@ use App\Modules\Appointments\Application\Services\AppointmentStatusService;
 use App\Modules\Appointments\Domain\Enums\AppointmentStatus;
 use App\Modules\Appointments\Infrastructure\Models\Appointment;
 use App\Modules\AuditLogs\Application\Services\AuditLogService;
+use App\Modules\Labs\Domain\Enums\LabOrderPaymentStatus;
+use App\Modules\Labs\Domain\Enums\LabOrderStatus;
+use App\Modules\Labs\Infrastructure\Models\LabOrder;
 use App\Modules\Payments\Domain\Enums\PaymentStatus;
 use App\Modules\Payments\Infrastructure\Models\Payment;
 use App\Modules\Pharmacies\Domain\Enums\PharmacyOrderPaymentStatus;
@@ -55,6 +58,7 @@ class PaymentVerificationService
             if ($payment->status === PaymentStatus::Verified) {
                 $this->confirmAppointmentIfNeeded($payment, $actor, $metadata, strict: false);
                 $this->markPharmacyOrderPaidIfNeeded($payment, $actor, $metadata, strict: false);
+                $this->markLabOrderPaidIfNeeded($payment, $actor, $metadata, strict: false);
                 $this->invoiceService->createForPayment($payment);
                 $this->walletPostingService->postVerifiedPayment($payment, $actor);
 
@@ -87,6 +91,7 @@ class PaymentVerificationService
 
             $this->confirmAppointmentIfNeeded($payment, $actor, $metadata, strict: true);
             $this->markPharmacyOrderPaidIfNeeded($payment, $actor, $metadata, strict: true);
+            $this->markLabOrderPaidIfNeeded($payment, $actor, $metadata, strict: true);
 
             $this->invoiceService->createForPayment($payment);
             $this->walletPostingService->postVerifiedPayment($payment, $actor);
@@ -218,5 +223,60 @@ class PaymentVerificationService
         }
 
         $this->auditLogService->log('pharmacy_order.paid_after_payment', $order, $actor, before: $before, after: $order->getAttributes(), metadata: ['payment_id' => $payment->id] + $metadata);
+    }
+
+    private function markLabOrderPaidIfNeeded(Payment $payment, ?User $actor, array $metadata, bool $strict): void
+    {
+        if ($payment->payable_type !== LabOrder::class || ! $payment->payable_id) {
+            return;
+        }
+
+        $order = LabOrder::query()->whereKey($payment->payable_id)->lockForUpdate()->firstOrFail();
+
+        if ($order->payment_status === LabOrderPaymentStatus::Paid) {
+            return;
+        }
+
+        if (! in_array($order->payment_status, [LabOrderPaymentStatus::PendingPayment, LabOrderPaymentStatus::PendingPaymentReview], true)) {
+            if (! $strict) {
+                return;
+            }
+
+            throw ValidationException::withMessages([
+                'payment_status' => ['The lab order cannot be paid from its current payment status.'],
+            ]);
+        }
+
+        if (! in_array($order->order_status, [LabOrderStatus::Accepted, LabOrderStatus::AwaitingPayment], true)) {
+            if (! $strict) {
+                return;
+            }
+
+            throw ValidationException::withMessages([
+                'order_status' => ['The lab order cannot be marked paid from its current status.'],
+            ]);
+        }
+
+        $from = $order->order_status;
+        $before = $order->getAttributes();
+
+        $order->forceFill([
+            'payment_status' => LabOrderPaymentStatus::Paid,
+            'order_status' => LabOrderStatus::Paid,
+            'paid_at' => now(),
+        ])->save();
+
+        if ($from !== LabOrderStatus::Paid) {
+            $order->statusHistories()->create([
+                'from_status' => $from?->value,
+                'to_status' => LabOrderStatus::Paid->value,
+                'actor_id' => $actor?->id,
+                'reason' => 'Payment verified.',
+                'metadata' => ['payment_id' => $payment->id] + $metadata,
+                'created_at' => now(),
+            ]);
+        }
+
+        $this->auditLogService->log('lab_order.paid_after_payment', $order, $actor, before: $before, after: $order->getAttributes(), metadata: ['payment_id' => $payment->id] + $metadata);
     }
 }

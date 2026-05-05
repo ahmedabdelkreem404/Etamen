@@ -13,9 +13,9 @@ class WalletService
 {
     public function walletForProvider(Provider $provider, string $currency = 'EGP'): Wallet
     {
-        if (! in_array($provider->type, [ProviderType::Doctor, ProviderType::Pharmacy], true)) {
+        if (! in_array($provider->type, [ProviderType::Doctor, ProviderType::Pharmacy, ProviderType::Lab], true)) {
             throw ValidationException::withMessages([
-                'provider' => ['Only doctor and pharmacy provider wallets are active in this sprint.'],
+                'provider' => ['Only doctor, pharmacy, and lab provider wallets are active.'],
             ]);
         }
 

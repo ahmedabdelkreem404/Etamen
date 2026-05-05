@@ -41,6 +41,18 @@ class PaymentStatusResource extends JsonResource
                     'payment_status' => $this->payable->payment_status->value,
                 ];
             }),
+            'lab_order' => $this->whenLoaded('payable', function () {
+                if (! $this->payable || ! str_ends_with((string) $this->payable_type, 'LabOrder')) {
+                    return null;
+                }
+
+                return [
+                    'id' => $this->payable->id,
+                    'order_number' => $this->payable->order_number,
+                    'order_status' => $this->payable->order_status->value,
+                    'payment_status' => $this->payable->payment_status->value,
+                ];
+            }),
             'payment_method' => $this->paymentMethod ? [
                 'id' => $this->paymentMethod->id,
                 'type' => $this->paymentMethod->type->value,

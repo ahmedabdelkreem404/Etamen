@@ -5,6 +5,7 @@ namespace App\Modules\Payments\Application\Services;
 use App\Models\User;
 use App\Modules\Appointments\Infrastructure\Models\Appointment;
 use App\Modules\AuditLogs\Application\Services\AuditLogService;
+use App\Modules\Labs\Infrastructure\Models\LabOrder;
 use App\Modules\Payments\Domain\Enums\PaymentStatus;
 use App\Modules\Payments\Infrastructure\Models\Payment;
 use App\Modules\Pharmacies\Infrastructure\Models\PharmacyOrder;
@@ -78,6 +79,41 @@ class PaymentCreationService
 
         $this->auditLogService->log('payment.created_for_pharmacy_order', $payment, $actor, metadata: [
             'pharmacy_order_id' => $order->id,
+        ]);
+
+        return $payment->refresh();
+    }
+
+    public function createForLabOrder(LabOrder $order, User $actor): Payment
+    {
+        $payment = Payment::query()->create([
+            'payable_type' => LabOrder::class,
+            'payable_id' => $order->id,
+            'user_id' => $order->patient_user_id,
+            'provider_id' => $order->lab_provider_id,
+            'provider_type' => 'lab',
+            'amount' => $order->grand_total,
+            'currency' => $order->currency,
+            'status' => PaymentStatus::AwaitingMethod,
+            'created_by' => $actor->id,
+            'metadata' => [
+                'order_number' => $order->order_number,
+                'source' => 'lab_order',
+            ],
+        ]);
+
+        $payment->statusHistories()->create([
+            'from_status' => null,
+            'to_status' => PaymentStatus::AwaitingMethod->value,
+            'actor_id' => $actor->id,
+            'reason' => 'Payment created for lab order.',
+            'metadata' => ['lab_order_id' => $order->id],
+        ]);
+
+        $order->update(['payment_id' => $payment->id]);
+
+        $this->auditLogService->log('payment.created_for_lab_order', $payment, $actor, metadata: [
+            'lab_order_id' => $order->id,
         ]);
 
         return $payment->refresh();
