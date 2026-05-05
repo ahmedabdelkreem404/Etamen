@@ -14,5 +14,6 @@ Route::prefix('v1')->group(function (): void {
     require app_path('Modules/Health/Http/routes.php');
     require app_path('Modules/Medications/Http/routes.php');
     require app_path('Modules/CarePlans/Http/routes.php');
+    require app_path('Modules/AI/Http/routes.php');
     require app_path('Modules/Wallets/Http/routes.php');
 });

@@ -2,6 +2,16 @@
 
 namespace App\Providers;
 
+use App\Modules\AI\Infrastructure\Models\AiConversation;
+use App\Modules\AI\Infrastructure\Models\AiMessage;
+use App\Modules\AI\Infrastructure\Models\AiProviderConfig;
+use App\Modules\AI\Infrastructure\Models\AiSafetyEvent;
+use App\Modules\AI\Infrastructure\Models\AiUsageLog;
+use App\Modules\AI\Policies\AiConversationPolicy;
+use App\Modules\AI\Policies\AiMessagePolicy;
+use App\Modules\AI\Policies\AiProviderConfigPolicy;
+use App\Modules\AI\Policies\AiSafetyEventPolicy;
+use App\Modules\AI\Policies\AiUsageLogPolicy;
 use App\Modules\Appointments\Infrastructure\Models\Appointment;
 use App\Modules\Appointments\Infrastructure\Models\AppointmentReview;
 use App\Modules\Appointments\Infrastructure\Models\AppointmentSlot;
@@ -161,6 +171,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(CarePlanInstruction::class, CarePlanInstructionPolicy::class);
         Gate::policy(CarePlanCheckin::class, CarePlanCheckinPolicy::class);
         Gate::policy(MealLog::class, MealLogPolicy::class);
+        Gate::policy(AiConversation::class, AiConversationPolicy::class);
+        Gate::policy(AiMessage::class, AiMessagePolicy::class);
+        Gate::policy(AiSafetyEvent::class, AiSafetyEventPolicy::class);
+        Gate::policy(AiUsageLog::class, AiUsageLogPolicy::class);
+        Gate::policy(AiProviderConfig::class, AiProviderConfigPolicy::class);
         Gate::policy(Wallet::class, WalletPolicy::class);
         Gate::policy(WalletTransaction::class, WalletTransactionPolicy::class);
         Gate::policy(CommissionRule::class, CommissionRulePolicy::class);

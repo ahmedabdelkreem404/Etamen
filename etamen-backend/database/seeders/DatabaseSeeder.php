@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Modules\AI\Database\Seeders\AiProviderConfigSeeder;
 use App\Modules\Identity\Database\Seeders\RoleSeeder;
 use App\Modules\Identity\Database\Seeders\SuperAdminSeeder;
 use App\Modules\Payments\Database\Seeders\PaymentMethodSeeder;
@@ -22,6 +23,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             SettingSeeder::class,
             PaymentMethodSeeder::class,
+            AiProviderConfigSeeder::class,
             SuperAdminSeeder::class,
         ]);
     }
