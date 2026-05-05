@@ -34,6 +34,16 @@ use App\Modules\Providers\Policies\ProviderBranchPolicy;
 use App\Modules\Providers\Policies\ProviderDocumentPolicy;
 use App\Modules\Providers\Policies\ProviderPolicy;
 use App\Modules\Providers\Policies\SpecialtyPolicy;
+use App\Modules\Wallets\Infrastructure\Models\CommissionRule;
+use App\Modules\Wallets\Infrastructure\Models\Settlement;
+use App\Modules\Wallets\Infrastructure\Models\Wallet;
+use App\Modules\Wallets\Infrastructure\Models\WalletTransaction;
+use App\Modules\Wallets\Infrastructure\Models\WithdrawalRequest;
+use App\Modules\Wallets\Policies\CommissionRulePolicy;
+use App\Modules\Wallets\Policies\SettlementPolicy;
+use App\Modules\Wallets\Policies\WalletPolicy;
+use App\Modules\Wallets\Policies\WalletTransactionPolicy;
+use App\Modules\Wallets\Policies\WithdrawalRequestPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -70,5 +80,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Payment::class, PaymentPolicy::class);
         Gate::policy(PaymentProof::class, PaymentProofPolicy::class);
         Gate::policy(Invoice::class, InvoicePolicy::class);
+        Gate::policy(Wallet::class, WalletPolicy::class);
+        Gate::policy(WalletTransaction::class, WalletTransactionPolicy::class);
+        Gate::policy(CommissionRule::class, CommissionRulePolicy::class);
+        Gate::policy(WithdrawalRequest::class, WithdrawalRequestPolicy::class);
+        Gate::policy(Settlement::class, SettlementPolicy::class);
     }
 }

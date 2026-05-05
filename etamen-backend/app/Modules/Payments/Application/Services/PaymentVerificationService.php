@@ -9,6 +9,7 @@ use App\Modules\Appointments\Infrastructure\Models\Appointment;
 use App\Modules\AuditLogs\Application\Services\AuditLogService;
 use App\Modules\Payments\Domain\Enums\PaymentStatus;
 use App\Modules\Payments\Infrastructure\Models\Payment;
+use App\Modules\Wallets\Application\Services\WalletPostingService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -18,6 +19,7 @@ class PaymentVerificationService
         private readonly AppointmentStatusService $appointmentStatusService,
         private readonly InvoiceService $invoiceService,
         private readonly AuditLogService $auditLogService,
+        private readonly WalletPostingService $walletPostingService,
     ) {}
 
     public function verifyManualAdmin(Payment $payment, User $actor, string $reason = 'Manual payment verified.', array $metadata = []): Payment
@@ -80,6 +82,7 @@ class PaymentVerificationService
             $this->confirmAppointmentIfNeeded($payment, $actor, $metadata);
 
             $this->invoiceService->createForPayment($payment);
+            $this->walletPostingService->postVerifiedPayment($payment, $actor);
 
             $this->auditLogService->log('payment.verified', $payment, $actor, before: $before, after: $payment->getAttributes(), metadata: $metadata);
 

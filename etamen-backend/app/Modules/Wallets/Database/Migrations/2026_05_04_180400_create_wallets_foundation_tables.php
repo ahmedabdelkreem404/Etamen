@@ -2,13 +2,13 @@
 
 use App\Modules\Providers\Domain\Enums\ProviderType;
 use App\Modules\Providers\Domain\Enums\ServiceType;
+use App\Modules\Wallets\Domain\Enums\SettlementStatus;
 use App\Modules\Wallets\Domain\Enums\SubscriptionStatus;
 use App\Modules\Wallets\Domain\Enums\WalletOwnerType;
 use App\Modules\Wallets\Domain\Enums\WalletStatus;
 use App\Modules\Wallets\Domain\Enums\WalletTransactionStatus;
 use App\Modules\Wallets\Domain\Enums\WalletTransactionType;
 use App\Modules\Wallets\Domain\Enums\WithdrawalRequestStatus;
-use App\Modules\Wallets\Domain\Enums\SettlementStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
