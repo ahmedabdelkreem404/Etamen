@@ -10,6 +10,7 @@ enum FileCategory: string
     case MedicalReport = 'medical_report';
     case ProviderDocument = 'provider_document';
     case ProfileDocument = 'profile_document';
+    case PharmacyProductImage = 'pharmacy_product_image';
 
     public static function values(): array
     {

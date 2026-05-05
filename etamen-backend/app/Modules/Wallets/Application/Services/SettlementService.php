@@ -22,17 +22,17 @@ class SettlementService
     public function create(User $admin, int $providerId, ProviderType $providerType): Settlement
     {
         return DB::transaction(function () use ($admin, $providerId, $providerType): Settlement {
-            if ($providerType !== ProviderType::Doctor) {
-                throw ValidationException::withMessages(['provider_type' => ['Only doctor settlements are active in this sprint.']]);
+            if (! in_array($providerType, [ProviderType::Doctor, ProviderType::Pharmacy], true)) {
+                throw ValidationException::withMessages(['provider_type' => ['Only doctor and pharmacy settlements are active in this sprint.']]);
             }
 
             Provider::query()
                 ->whereKey($providerId)
-                ->where('type', ProviderType::Doctor)
+                ->where('type', $providerType)
                 ->firstOrFail();
 
             $wallet = Wallet::query()
-                ->where('owner_type', WalletOwnerType::Doctor)
+                ->where('owner_type', $this->ownerTypeFor($providerType))
                 ->where('owner_id', $providerId)
                 ->where('currency', 'EGP')
                 ->lockForUpdate()
@@ -88,5 +88,14 @@ class SettlementService
 
             return $settlement->refresh()->load('items');
         });
+    }
+
+    private function ownerTypeFor(ProviderType $providerType): WalletOwnerType
+    {
+        return match ($providerType) {
+            ProviderType::Doctor => WalletOwnerType::Doctor,
+            ProviderType::Pharmacy => WalletOwnerType::Pharmacy,
+            ProviderType::Lab => WalletOwnerType::Lab,
+        };
     }
 }

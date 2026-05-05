@@ -9,5 +9,6 @@ Route::prefix('v1')->group(function (): void {
     require app_path('Modules/Locations/Http/routes.php');
     require app_path('Modules/Payments/Http/routes.php');
     require app_path('Modules/Appointments/Http/routes.php');
+    require app_path('Modules/Pharmacies/Http/routes.php');
     require app_path('Modules/Wallets/Http/routes.php');
 });

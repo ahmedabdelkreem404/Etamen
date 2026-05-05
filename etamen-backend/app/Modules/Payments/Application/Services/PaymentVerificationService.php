@@ -9,6 +9,9 @@ use App\Modules\Appointments\Infrastructure\Models\Appointment;
 use App\Modules\AuditLogs\Application\Services\AuditLogService;
 use App\Modules\Payments\Domain\Enums\PaymentStatus;
 use App\Modules\Payments\Infrastructure\Models\Payment;
+use App\Modules\Pharmacies\Domain\Enums\PharmacyOrderPaymentStatus;
+use App\Modules\Pharmacies\Domain\Enums\PharmacyOrderStatus;
+use App\Modules\Pharmacies\Infrastructure\Models\PharmacyOrder;
 use App\Modules\Wallets\Application\Services\WalletPostingService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -80,6 +83,7 @@ class PaymentVerificationService
             ]);
 
             $this->confirmAppointmentIfNeeded($payment, $actor, $metadata);
+            $this->markPharmacyOrderPaidIfNeeded($payment, $actor, $metadata);
 
             $this->invoiceService->createForPayment($payment);
             $this->walletPostingService->postVerifiedPayment($payment, $actor);
@@ -150,5 +154,46 @@ class PaymentVerificationService
             'Payment verified.',
             ['payment_id' => $payment->id] + $metadata,
         );
+    }
+
+    private function markPharmacyOrderPaidIfNeeded(Payment $payment, ?User $actor, array $metadata): void
+    {
+        if ($payment->payable_type !== PharmacyOrder::class || ! $payment->payable_id) {
+            return;
+        }
+
+        $order = PharmacyOrder::query()->whereKey($payment->payable_id)->lockForUpdate()->firstOrFail();
+
+        if ($order->payment_status === PharmacyOrderPaymentStatus::Paid) {
+            return;
+        }
+
+        if (! in_array($order->payment_status, [PharmacyOrderPaymentStatus::PendingPayment, PharmacyOrderPaymentStatus::PendingPaymentReview], true)) {
+            throw ValidationException::withMessages([
+                'payment_status' => ['The pharmacy order cannot be paid from its current payment status.'],
+            ]);
+        }
+
+        $from = $order->order_status;
+        $before = $order->getAttributes();
+
+        $order->forceFill([
+            'payment_status' => PharmacyOrderPaymentStatus::Paid,
+            'order_status' => PharmacyOrderStatus::Paid,
+            'paid_at' => now(),
+        ])->save();
+
+        if ($from !== PharmacyOrderStatus::Paid) {
+            $order->statusHistories()->create([
+                'from_status' => $from?->value,
+                'to_status' => PharmacyOrderStatus::Paid->value,
+                'actor_id' => $actor?->id,
+                'reason' => 'Payment verified.',
+                'metadata' => ['payment_id' => $payment->id] + $metadata,
+                'created_at' => now(),
+            ]);
+        }
+
+        $this->auditLogService->log('pharmacy_order.paid_after_payment', $order, $actor, before: $before, after: $order->getAttributes(), metadata: ['payment_id' => $payment->id] + $metadata);
     }
 }

@@ -8,6 +8,9 @@ use App\Modules\Appointments\Infrastructure\Models\Appointment;
 use App\Modules\AuditLogs\Application\Services\AuditLogService;
 use App\Modules\Payments\Domain\Enums\PaymentStatus;
 use App\Modules\Payments\Infrastructure\Models\Payment;
+use App\Modules\Pharmacies\Domain\Enums\PharmacyOrderPaymentStatus;
+use App\Modules\Pharmacies\Domain\Enums\PharmacyOrderStatus;
+use App\Modules\Pharmacies\Infrastructure\Models\PharmacyOrder;
 use App\Modules\Providers\Domain\Enums\ProviderType;
 use App\Modules\Providers\Domain\Enums\ServiceType;
 use App\Modules\Wallets\Domain\Enums\WalletTransactionStatus;
@@ -30,7 +33,17 @@ class WalletPostingService
         DB::transaction(function () use ($payment, $actor): void {
             $payment = Payment::query()->whereKey($payment->id)->lockForUpdate()->firstOrFail();
 
-            if ($payment->status !== PaymentStatus::Verified || $payment->payable_type !== Appointment::class) {
+            if ($payment->status !== PaymentStatus::Verified) {
+                return;
+            }
+
+            if ($payment->payable_type === PharmacyOrder::class) {
+                $this->postVerifiedPharmacyOrderPayment($payment, $actor);
+
+                return;
+            }
+
+            if ($payment->payable_type !== Appointment::class) {
                 return;
             }
 
@@ -85,6 +98,60 @@ class WalletPostingService
                 'wallet_id' => $wallet->id,
             ]);
         });
+    }
+
+    private function postVerifiedPharmacyOrderPayment(Payment $payment, ?User $actor = null): void
+    {
+        $order = PharmacyOrder::query()->with('pharmacy')->whereKey($payment->payable_id)->firstOrFail();
+
+        if ($order->payment_status !== PharmacyOrderPaymentStatus::Paid || $order->pharmacy->type !== ProviderType::Pharmacy) {
+            return;
+        }
+
+        $wallet = $this->walletService->walletForProvider($order->pharmacy, $payment->currency);
+        $commission = $this->commissionService->calculate(ProviderType::Pharmacy, ServiceType::PharmacyOrder, (float) $payment->amount);
+
+        $hold = $this->createTransaction($wallet, [
+            'source_type' => Payment::class,
+            'source_id' => $payment->id,
+            'type' => WalletTransactionType::Hold,
+            'gross_amount' => $commission['gross_amount'],
+            'commission_amount' => $commission['commission_amount'],
+            'net_amount' => $commission['net_amount'],
+            'status' => WalletTransactionStatus::Posted,
+            'description' => 'Pharmacy order earning held after verified payment.',
+            'metadata' => [
+                'pharmacy_order_id' => $order->id,
+                'commission_rule_id' => $commission['rule_id'],
+                'missing_commission_rule' => $commission['missing_rule'],
+            ],
+            'created_by' => $actor?->id,
+            'idempotency_key' => 'payment:'.$payment->id.':provider_hold',
+        ]);
+
+        $this->createTransaction($wallet, [
+            'source_type' => Payment::class,
+            'source_id' => $payment->id,
+            'type' => WalletTransactionType::Commission,
+            'gross_amount' => $commission['gross_amount'],
+            'commission_amount' => $commission['commission_amount'],
+            'net_amount' => 0,
+            'status' => WalletTransactionStatus::Posted,
+            'description' => 'Platform commission recorded for pharmacy order.',
+            'metadata' => [
+                'pharmacy_order_id' => $order->id,
+                'commission_rule_id' => $commission['rule_id'],
+                'missing_commission_rule' => $commission['missing_rule'],
+            ],
+            'created_by' => $actor?->id,
+            'idempotency_key' => 'payment:'.$payment->id.':platform_commission',
+        ]);
+
+        $this->auditLogService->log('wallet.pharmacy_order_hold_posted', $hold, $actor, metadata: [
+            'payment_id' => $payment->id,
+            'pharmacy_order_id' => $order->id,
+            'wallet_id' => $wallet->id,
+        ]);
     }
 
     public function releaseAppointment(Appointment $appointment, ?User $actor = null): void
@@ -162,6 +229,47 @@ class WalletPostingService
             $this->auditLogService->log('wallet.payment_reversal_recorded', $reversal, $actor, metadata: [
                 'payment_id' => $payment->id,
                 'appointment_id' => $appointment->id,
+            ]);
+        });
+    }
+
+    public function releasePharmacyOrder(PharmacyOrder $order, ?User $actor = null): void
+    {
+        DB::transaction(function () use ($order, $actor): void {
+            $order = PharmacyOrder::query()->with(['payment', 'pharmacy'])->whereKey($order->id)->lockForUpdate()->firstOrFail();
+
+            if ($order->order_status !== PharmacyOrderStatus::Delivered || ! $order->payment || $order->payment->status !== PaymentStatus::Verified) {
+                return;
+            }
+
+            $wallet = $this->walletService->walletForProvider($order->pharmacy, $order->currency);
+            $hold = $wallet->transactions()
+                ->where('idempotency_key', 'payment:'.$order->payment_id.':provider_hold')
+                ->where('status', WalletTransactionStatus::Posted)
+                ->first();
+
+            if (! $hold) {
+                return;
+            }
+
+            $release = $this->createTransaction($wallet, [
+                'source_type' => PharmacyOrder::class,
+                'source_id' => $order->id,
+                'type' => WalletTransactionType::Release,
+                'gross_amount' => $hold->gross_amount,
+                'commission_amount' => $hold->commission_amount,
+                'net_amount' => $hold->net_amount,
+                'status' => WalletTransactionStatus::Posted,
+                'description' => 'Pharmacy order earning released after delivery.',
+                'metadata' => ['payment_id' => $order->payment_id],
+                'created_by' => $actor?->id,
+                'idempotency_key' => 'pharmacy_order:'.$order->id.':provider_release',
+            ]);
+
+            $this->auditLogService->log('wallet.pharmacy_order_earning_released', $release, $actor, metadata: [
+                'pharmacy_order_id' => $order->id,
+                'payment_id' => $order->payment_id,
+                'wallet_id' => $wallet->id,
             ]);
         });
     }

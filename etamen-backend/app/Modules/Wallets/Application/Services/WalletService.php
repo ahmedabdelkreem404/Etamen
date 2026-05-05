@@ -13,19 +13,28 @@ class WalletService
 {
     public function walletForProvider(Provider $provider, string $currency = 'EGP'): Wallet
     {
-        if ($provider->type !== ProviderType::Doctor) {
+        if (! in_array($provider->type, [ProviderType::Doctor, ProviderType::Pharmacy], true)) {
             throw ValidationException::withMessages([
-                'provider' => ['Only doctor provider wallets are active in this sprint.'],
+                'provider' => ['Only doctor and pharmacy provider wallets are active in this sprint.'],
             ]);
         }
 
         return Wallet::query()->firstOrCreate(
             [
-                'owner_type' => WalletOwnerType::Doctor,
+                'owner_type' => $this->ownerTypeFor($provider->type),
                 'owner_id' => $provider->id,
                 'currency' => $currency,
             ],
             ['status' => WalletStatus::Active],
         );
+    }
+
+    private function ownerTypeFor(ProviderType $providerType): WalletOwnerType
+    {
+        return match ($providerType) {
+            ProviderType::Doctor => WalletOwnerType::Doctor,
+            ProviderType::Pharmacy => WalletOwnerType::Pharmacy,
+            ProviderType::Lab => WalletOwnerType::Lab,
+        };
     }
 }
