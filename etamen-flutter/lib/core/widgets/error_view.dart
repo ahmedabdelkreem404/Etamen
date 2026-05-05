@@ -1,0 +1,36 @@
+import 'package:etamen_app/app/localization/app_localizations.dart';
+import 'package:etamen_app/app/theme/app_colors.dart';
+import 'package:flutter/material.dart';
+
+class ErrorView extends StatelessWidget {
+  const ErrorView({required this.message, this.onRetry, super.key});
+
+  final String message;
+  final VoidCallback? onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, color: AppColors.danger, size: 40),
+            const SizedBox(height: 12),
+            Text(message, textAlign: TextAlign.center),
+            if (onRetry != null) ...[
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh),
+                label: Text(l10n.get('retry')),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
