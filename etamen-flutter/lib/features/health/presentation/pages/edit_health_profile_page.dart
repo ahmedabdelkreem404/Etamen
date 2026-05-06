@@ -10,7 +10,8 @@ class EditHealthProfilePage extends ConsumerStatefulWidget {
   const EditHealthProfilePage({super.key});
 
   @override
-  ConsumerState<EditHealthProfilePage> createState() => _EditHealthProfilePageState();
+  ConsumerState<EditHealthProfilePage> createState() =>
+      _EditHealthProfilePageState();
 }
 
 class _EditHealthProfilePageState extends ConsumerState<EditHealthProfilePage> {

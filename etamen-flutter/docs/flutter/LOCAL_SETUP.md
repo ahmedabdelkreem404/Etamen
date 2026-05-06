@@ -164,3 +164,36 @@ Contract note:
 - Current backend routes and Sprint 13 OpenAPI use `/lab/orders` and `/lab/results/{result}/download`. If a future contract aliases `/lab-orders`, update `ApiEndpoints` in one place.
 
 Flutter never sends `patient_user_id`, trusted prices, order totals, commission fields, provider net fields, `order_status`, or `payment_status` when creating lab orders, and never uploads lab results from the patient app.
+
+## Sprint 19 Health / Vitals Testing Notes
+
+1. Run the Laravel backend and login as a patient from Flutter.
+2. Open **صحتي** from the bottom navigation.
+3. The dashboard loads:
+   - `GET /api/v1/health/profile`
+   - `GET /api/v1/health/summary`
+   - `GET /api/v1/health/vitals/latest`
+   - `GET /api/v1/health/vitals/trends`
+4. To edit basic profile fields, open **الملف الصحي** then **تعديل الملف**. Flutter calls:
+   `PUT /api/v1/health/profile`.
+5. To add a vital, tap **إضافة قياس** or one of the quick vital chips. Flutter calls:
+   `POST /api/v1/health/vitals`.
+6. To list records, open **القياسات الصحية**. Flutter calls:
+   `GET /api/v1/health/vitals` with a bounded `per_page`.
+7. Supported Sprint 19 vital types:
+   - blood pressure
+   - blood sugar
+   - heart rate
+   - oxygen saturation
+   - temperature
+   - weight
+   - sleep
+   - mood
+   - symptoms note
+
+Safety notes:
+
+- Flutter displays backend flags as non-diagnostic follow-up labels only.
+- Flutter does not diagnose, advise treatment, recommend medication, or suggest changing/stopping doses.
+- Flutter never sends `patient_user_id`, `user_id`, `source`, `flag`, `unit`, diagnosis fields, treatment fields, or calculated backend fields when creating vitals.
+- The current backend health summary route is `/api/v1/health/summary`; Sprint 19 prompt referenced `/api/v1/health/vitals/summary`, so Flutter uses the actual implemented backend route.

@@ -77,11 +77,8 @@ class ApiClient {
     required T Function(Object? raw) parser,
   }) {
     return _request<T>(
-      () => _dio.put<Object?>(
-        path,
-        data: data,
-        queryParameters: queryParameters,
-      ),
+      () =>
+          _dio.put<Object?>(path, data: data, queryParameters: queryParameters),
       parser,
     );
   }

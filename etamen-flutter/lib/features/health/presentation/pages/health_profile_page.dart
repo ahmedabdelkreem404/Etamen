@@ -70,7 +70,10 @@ class _ProfileContent extends StatelessWidget {
             _InfoRow(l10n.get('bloodType'), current.bloodType ?? '-'),
           ],
         ),
-        _ListCard(title: l10n.get('chronicDiseases'), items: current.chronicDiseases),
+        _ListCard(
+          title: l10n.get('chronicDiseases'),
+          items: current.chronicDiseases,
+        ),
         _ListCard(title: l10n.get('allergies'), items: current.allergies),
         _ListCard(
           title: l10n.get('currentMedications'),

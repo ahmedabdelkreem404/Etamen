@@ -70,26 +70,29 @@ void main() {
     expect(VitalFlag.fromWire('not-real'), VitalFlag.unknown);
   });
 
-  test('CreateVitalRecordRequest excludes forbidden ownership and backend fields', () {
-    final request = CreateVitalRecordRequest.bloodSugar(
-      measuredAt: DateTime.utc(2026, 5, 6, 10),
-      value: 110,
-      context: BloodSugarContext.fasting,
-      notes: 'Before breakfast',
-    );
-    final json = request.toJson();
+  test(
+    'CreateVitalRecordRequest excludes forbidden ownership and backend fields',
+    () {
+      final request = CreateVitalRecordRequest.bloodSugar(
+        measuredAt: DateTime.utc(2026, 5, 6, 10),
+        value: 110,
+        context: BloodSugarContext.fasting,
+        notes: 'Before breakfast',
+      );
+      final json = request.toJson();
 
-    expect(json['vital_type'], 'blood_sugar');
-    expect(json['value_decimal'], 110);
-    expect(json['metadata'], {'context': 'fasting'});
-    expect(json.containsKey('patient_user_id'), false);
-    expect(json.containsKey('user_id'), false);
-    expect(json.containsKey('source'), false);
-    expect(json.containsKey('flag'), false);
-    expect(json.containsKey('unit'), false);
-    expect(json.containsKey('diagnosis'), false);
-    expect(json.containsKey('treatment'), false);
-  });
+      expect(json['vital_type'], 'blood_sugar');
+      expect(json['value_decimal'], 110);
+      expect(json['metadata'], {'context': 'fasting'});
+      expect(json.containsKey('patient_user_id'), false);
+      expect(json.containsKey('user_id'), false);
+      expect(json.containsKey('source'), false);
+      expect(json.containsKey('flag'), false);
+      expect(json.containsKey('unit'), false);
+      expect(json.containsKey('diagnosis'), false);
+      expect(json.containsKey('treatment'), false);
+    },
+  );
 
   test('Blood pressure request serializes systolic and diastolic only', () {
     final json = CreateVitalRecordRequest.bloodPressure(
@@ -131,17 +134,20 @@ void main() {
     expect(trend.points.first.secondaryValue, '80');
   });
 
-  test('Add vital validation rejects missing fields without medical wording', () {
-    final request = CreateVitalRecordRequest(
-      vitalType: VitalType.bloodPressure,
-      measuredAt: DateTime.utc(2026, 5, 6),
-    );
-    final message = VitalInputValidator.validate(request);
+  test(
+    'Add vital validation rejects missing fields without medical wording',
+    () {
+      final request = CreateVitalRecordRequest(
+        vitalType: VitalType.bloodPressure,
+        measuredAt: DateTime.utc(2026, 5, 6),
+      );
+      final message = VitalInputValidator.validate(request);
 
-    expect(message, isNotNull);
-    expect(message!.contains('تشخيص'), false);
-    expect(message.contains('علاج'), false);
-  });
+      expect(message, isNotNull);
+      expect(message!.contains('تشخيص'), false);
+      expect(message.contains('علاج'), false);
+    },
+  );
 
   test('VitalsListController filters by selected type', () async {
     final controller = VitalsListController(FakeHealthRepository());
@@ -158,7 +164,11 @@ class FakeHealthRepository implements HealthRepository {
   Future<ApiResult<VitalRecord>> createVital(CreateVitalRecordRequest request) {
     return Future.value(
       ApiSuccess(
-        VitalRecord(id: 1, vitalType: request.vitalType, measuredAt: request.measuredAt),
+        VitalRecord(
+          id: 1,
+          vitalType: request.vitalType,
+          measuredAt: request.measuredAt,
+        ),
       ),
     );
   }
@@ -188,9 +198,7 @@ class FakeHealthRepository implements HealthRepository {
   @override
   Future<ApiResult<List<VitalRecord>>> getVitals({VitalType? type}) {
     return Future.value(
-      ApiSuccess([
-        VitalRecord(id: 1, vitalType: type ?? VitalType.weight),
-      ]),
+      ApiSuccess([VitalRecord(id: 1, vitalType: type ?? VitalType.weight)]),
     );
   }
 

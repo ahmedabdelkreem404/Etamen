@@ -113,9 +113,9 @@ class _AddVitalPageState extends ConsumerState<AddVitalPage> {
               if (record != null) {
                 ref.invalidate(healthDashboardControllerProvider);
                 ref.invalidate(vitalsListControllerProvider);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.get('vitalSaved'))),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(l10n.get('vitalSaved'))));
                 Navigator.of(context).pop();
               }
             },
@@ -243,13 +243,12 @@ class _AddVitalPageState extends ConsumerState<AddVitalPage> {
           value: primary,
           notes: notes,
         ),
-      VitalType.oxygen when primary != null =>
-        CreateVitalRecordRequest.simple(
-          vitalType: VitalType.oxygen,
-          measuredAt: _measuredAt,
-          value: primary,
-          notes: notes,
-        ),
+      VitalType.oxygen when primary != null => CreateVitalRecordRequest.simple(
+        vitalType: VitalType.oxygen,
+        measuredAt: _measuredAt,
+        value: primary,
+        notes: notes,
+      ),
       VitalType.temperature when primary != null =>
         CreateVitalRecordRequest.simple(
           vitalType: VitalType.temperature,
@@ -257,13 +256,12 @@ class _AddVitalPageState extends ConsumerState<AddVitalPage> {
           value: primary,
           notes: notes,
         ),
-      VitalType.weight when primary != null =>
-        CreateVitalRecordRequest.simple(
-          vitalType: VitalType.weight,
-          measuredAt: _measuredAt,
-          value: primary,
-          notes: notes,
-        ),
+      VitalType.weight when primary != null => CreateVitalRecordRequest.simple(
+        vitalType: VitalType.weight,
+        measuredAt: _measuredAt,
+        value: primary,
+        notes: notes,
+      ),
       VitalType.sleep when primary != null => CreateVitalRecordRequest.simple(
         vitalType: VitalType.sleep,
         measuredAt: _measuredAt,
@@ -274,8 +272,11 @@ class _AddVitalPageState extends ConsumerState<AddVitalPage> {
             'quality': _secondaryController.text,
         },
       ),
-      VitalType.mood =>
-        CreateVitalRecordRequest.mood(measuredAt: _measuredAt, mood: _mood, notes: notes),
+      VitalType.mood => CreateVitalRecordRequest.mood(
+        measuredAt: _measuredAt,
+        mood: _mood,
+        notes: notes,
+      ),
       VitalType.symptoms when _primaryController.text.trim().isNotEmpty =>
         CreateVitalRecordRequest.symptoms(
           measuredAt: _measuredAt,

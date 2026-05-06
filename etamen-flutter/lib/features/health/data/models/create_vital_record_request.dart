@@ -36,7 +36,11 @@ class CreateVitalRecordRequest {
       measuredAt: measuredAt,
       value: value,
       notes: notes,
-      metadata: {'context': context.wireValue},
+      metadata: {
+        'context': context == BloodSugarContext.beforeMeal
+            ? BloodSugarContext.unknown.wireValue
+            : context.wireValue,
+      },
     );
   }
 

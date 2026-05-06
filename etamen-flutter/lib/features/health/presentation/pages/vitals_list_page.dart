@@ -4,7 +4,6 @@ import 'package:etamen_app/core/widgets/app_scaffold.dart';
 import 'package:etamen_app/core/widgets/empty_view.dart';
 import 'package:etamen_app/core/widgets/error_view.dart';
 import 'package:etamen_app/core/widgets/loading_view.dart';
-import 'package:etamen_app/features/health/domain/entities/vital_record.dart';
 import 'package:etamen_app/features/health/presentation/providers/health_providers.dart';
 import 'package:etamen_app/features/health/presentation/widgets/health_disclaimer_box.dart';
 import 'package:etamen_app/features/health/presentation/widgets/vital_card.dart';

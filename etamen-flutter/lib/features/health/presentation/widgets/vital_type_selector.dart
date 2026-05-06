@@ -3,7 +3,11 @@ import 'package:etamen_app/features/health/domain/entities/vital_record.dart';
 import 'package:flutter/material.dart';
 
 class VitalTypeSelector extends StatelessWidget {
-  const VitalTypeSelector({required this.value, required this.onChanged, super.key});
+  const VitalTypeSelector({
+    required this.value,
+    required this.onChanged,
+    super.key,
+  });
 
   final VitalType value;
   final ValueChanged<VitalType> onChanged;
@@ -13,13 +17,15 @@ class VitalTypeSelector extends StatelessWidget {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
-      children: supportedVitalTypes.map((type) {
-        return ChoiceChip(
-          label: Text(vitalTypeLabel(context, type)),
-          selected: value == type,
-          onSelected: (_) => onChanged(type),
-        );
-      }).toList(growable: false),
+      children: supportedVitalTypes
+          .map((type) {
+            return ChoiceChip(
+              label: Text(vitalTypeLabel(context, type)),
+              selected: value == type,
+              onSelected: (_) => onChanged(type),
+            );
+          })
+          .toList(growable: false),
     );
   }
 }

@@ -23,7 +23,10 @@ class VitalCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                  child: Icon(_iconFor(record.vitalType), color: AppColors.primary),
+                  child: Icon(
+                    _iconFor(record.vitalType),
+                    color: AppColors.primary,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -49,9 +52,9 @@ class VitalCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               record.formattedValue,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
             ),
             if (record.notes?.trim().isNotEmpty == true) ...[
               const SizedBox(height: 8),

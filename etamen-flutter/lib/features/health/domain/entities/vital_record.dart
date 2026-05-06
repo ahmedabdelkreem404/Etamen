@@ -113,8 +113,7 @@ class VitalRecord {
   final String? safeMessage;
   final DateTime? createdAt;
 
-  String? get systolic =>
-      vitalType == VitalType.bloodPressure ? value : null;
+  String? get systolic => vitalType == VitalType.bloodPressure ? value : null;
 
   String? get diastolic =>
       vitalType == VitalType.bloodPressure ? secondaryValue : null;
@@ -127,8 +126,7 @@ class VitalRecord {
 
   String? get heartRate => vitalType == VitalType.heartRate ? value : null;
 
-  String? get oxygenSaturation =>
-      vitalType == VitalType.oxygen ? value : null;
+  String? get oxygenSaturation => vitalType == VitalType.oxygen ? value : null;
 
   String? get temperature => vitalType == VitalType.temperature ? value : null;
 
@@ -140,8 +138,9 @@ class VitalRecord {
 
   Mood get mood => Mood.fromWire(metadata['mood']);
 
-  String? get symptomsNotes =>
-      vitalType == VitalType.symptoms ? notes ?? metadata['symptoms']?.toString() : null;
+  String? get symptomsNotes => vitalType == VitalType.symptoms
+      ? notes ?? metadata['symptoms']?.toString()
+      : null;
 
   String get formattedValue {
     if (vitalType == VitalType.bloodPressure) {

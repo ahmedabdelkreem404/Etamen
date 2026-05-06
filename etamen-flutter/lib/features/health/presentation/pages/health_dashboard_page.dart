@@ -35,9 +35,9 @@ class HealthDashboardPage extends ConsumerWidget {
           if (!showAppBar) ...[
             Text(
               l10n.get('health'),
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 12),
           ],
@@ -71,13 +71,15 @@ class HealthDashboardPage extends ConsumerWidget {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: supportedVitalTypes.map((type) {
-              return ActionChip(
-                label: Text(vitalTypeLabel(context, type)),
-                avatar: Icon(_iconFor(type), size: 18),
-                onPressed: () => context.push(RouteNames.addVital(type)),
-              );
-            }).toList(growable: false),
+            children: supportedVitalTypes
+                .map((type) {
+                  return ActionChip(
+                    label: Text(vitalTypeLabel(context, type)),
+                    avatar: Icon(_iconFor(type), size: 18),
+                    onPressed: () => context.push(RouteNames.addVital(type)),
+                  );
+                })
+                .toList(growable: false),
           ),
           const SizedBox(height: 16),
           if (state.isLoading)
@@ -90,7 +92,8 @@ class HealthDashboardPage extends ConsumerWidget {
               icon: Icons.health_and_safety_outlined,
             )
           else ...[
-            if (state.summary != null) HealthSummaryCard(summary: state.summary!),
+            if (state.summary != null)
+              HealthSummaryCard(summary: state.summary!),
             if (state.trend != null) TrendPreviewCard(trend: state.trend!),
             const SizedBox(height: 8),
             Text(
@@ -98,7 +101,9 @@ class HealthDashboardPage extends ConsumerWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
-            ...state.latestVitals.take(5).map((record) => VitalCard(record: record)),
+            ...state.latestVitals
+                .take(5)
+                .map((record) => VitalCard(record: record)),
           ],
         ],
       ),

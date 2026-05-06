@@ -181,11 +181,8 @@ class HealthProfileController extends StateNotifier<HealthProfileState> {
     state = state.copyWith(isLoading: true, clearError: true);
     final result = await _getProfile();
     state = result.when(
-      success: (profile) => state.copyWith(
-        isLoading: false,
-        profile: profile,
-        clearError: true,
-      ),
+      success: (profile) =>
+          state.copyWith(isLoading: false, profile: profile, clearError: true),
       failure: (failure) =>
           state.copyWith(isLoading: false, error: failure.error),
     );

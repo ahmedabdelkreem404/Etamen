@@ -32,22 +32,25 @@ class VitalTrendModel extends VitalTrend {
 
   static List<VitalTrendPoint> _parsePoints(Object? value) {
     if (value is! List) return const [];
-    return value.whereType<Map>().map((item) {
-      final map = _asMap(item);
-      return VitalTrendPoint(
-        measuredAt: _toDateTime(
-          map['measured_at'] ?? map['date'] ?? map['bucket'],
-        ),
-        value: _toStringNumber(
-          map['value'] ?? map['average'] ?? map['avg_value'],
-        ),
-        secondaryValue: _toStringNumber(
-          map['secondary_value'] ?? map['average_secondary'],
-        ),
-        flag: VitalFlag.fromWire(map['flag']),
-        count: _toInt(map['count']),
-      );
-    }).toList(growable: false);
+    return value
+        .whereType<Map>()
+        .map((item) {
+          final map = _asMap(item);
+          return VitalTrendPoint(
+            measuredAt: _toDateTime(
+              map['measured_at'] ?? map['date'] ?? map['bucket'],
+            ),
+            value: _toStringNumber(
+              map['value'] ?? map['average'] ?? map['avg_value'],
+            ),
+            secondaryValue: _toStringNumber(
+              map['secondary_value'] ?? map['average_secondary'],
+            ),
+            flag: VitalFlag.fromWire(map['flag']),
+            count: _toInt(map['count']),
+          );
+        })
+        .toList(growable: false);
   }
 
   static Map<String, int> _parseFlags(Object? value) {

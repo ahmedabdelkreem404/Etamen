@@ -18,11 +18,11 @@ class VitalSummaryModel extends VitalSummary {
   factory VitalSummaryModel.fromJson(Map<String, dynamic> json) {
     final latestRaw = json['latest_vitals'];
     return VitalSummaryModel(
-      profileCompletionPercentage: _toInt(json['profile_completion_percentage']),
-      latestVitals: _parseVitals(latestRaw),
-      activeChronicDiseasesCount: _toInt(
-        json['active_chronic_diseases_count'],
+      profileCompletionPercentage: _toInt(
+        json['profile_completion_percentage'],
       ),
+      latestVitals: _parseVitals(latestRaw),
+      activeChronicDiseasesCount: _toInt(json['active_chronic_diseases_count']),
       activeAllergiesCount: _toInt(json['active_allergies_count']),
       activeCurrentMedicationsCount: _toInt(
         json['active_current_medications_count'],

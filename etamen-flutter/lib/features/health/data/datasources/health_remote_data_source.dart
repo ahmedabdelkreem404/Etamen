@@ -42,9 +42,9 @@ class HealthRemoteDataSource {
     return _client.get<List<VitalRecordModel>>(
       ApiEndpoints.healthVitals,
       queryParameters: query,
-      parser: (raw) => _parseList(raw)
-          .map(VitalRecordModel.fromJson)
-          .toList(growable: false),
+      parser: (raw) => _parseList(
+        raw,
+      ).map(VitalRecordModel.fromJson).toList(growable: false),
     );
   }
 
@@ -61,9 +61,9 @@ class HealthRemoteDataSource {
   Future<ApiResult<List<VitalRecordModel>>> getLatestVitals() {
     return _client.get<List<VitalRecordModel>>(
       ApiEndpoints.healthLatestVitals,
-      parser: (raw) => _parseLatest(raw)
-          .map(VitalRecordModel.fromJson)
-          .toList(growable: false),
+      parser: (raw) => _parseLatest(
+        raw,
+      ).map(VitalRecordModel.fromJson).toList(growable: false),
     );
   }
 
@@ -94,7 +94,9 @@ class HealthRemoteDataSource {
     if (value is! List) return const [];
     return value
         .whereType<Map>()
-        .map((item) => item.map((key, value) => MapEntry(key.toString(), value)))
+        .map(
+          (item) => item.map((key, value) => MapEntry(key.toString(), value)),
+        )
         .toList(growable: false);
   }
 
@@ -103,7 +105,9 @@ class HealthRemoteDataSource {
     if (value is Map) {
       return value.values
           .whereType<Map>()
-          .map((item) => item.map((key, value) => MapEntry(key.toString(), value)))
+          .map(
+            (item) => item.map((key, value) => MapEntry(key.toString(), value)),
+          )
           .toList(growable: false);
     }
     if (value is List) return _parseList(value);
@@ -112,7 +116,10 @@ class HealthRemoteDataSource {
 
   static Object? _unwrapCollection(Object? raw) {
     if (raw is Map) {
-      return raw['data'] ?? raw['items'] ?? raw['vitals'] ?? raw['latest_vitals'];
+      return raw['data'] ??
+          raw['items'] ??
+          raw['vitals'] ??
+          raw['latest_vitals'];
     }
     return raw;
   }
