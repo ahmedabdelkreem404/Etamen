@@ -394,3 +394,40 @@ Safety notes:
 - Flutter never sends `patient_user_id`, `user_id`, `role`, `provider`, `safety_classification`, `was_refused`, raw health context, system prompts, provider config, API keys, or DeepSeek/Gemini keys in AI requests.
 - AI message metadata is sanitized before display; keys containing prompts, system text, API keys, secrets, tokens, raw provider responses, health context, payment/wallet data, private file paths, HMAC values, or config are hidden.
 - Real AI credentials remain backend-only.
+
+## Sprint 24 Account / Settings / Legal / Support Testing Notes
+
+1. Run the Laravel backend and login as a patient from Flutter.
+2. Open **Account** from the bottom navigation.
+3. Confirm the page displays the current `/api/v1/me` user fields available to Flutter: name/email/roles only. Tokens, raw IDs, private paths, and payment/provider internals are never displayed.
+4. Open **Settings** and test:
+   - Language
+   - Notification preferences
+   - Legal & privacy links
+   - Support
+   - About app
+5. Open **Language** and switch between Arabic and English. The selected locale is stored locally and reused on the next app start.
+6. Open each legal page:
+   - Privacy Policy
+   - Terms & Conditions
+   - Medical Disclaimer
+   - AI Assistant Disclaimer
+   - Refund / Cancellation Policy
+7. Open **Support & Help**. Support email, phone, and WhatsApp are read from compile-time config:
+   - `ETAMEN_SUPPORT_EMAIL`
+   - `ETAMEN_SUPPORT_PHONE`
+   - `ETAMEN_SUPPORT_WHATSAPP_URL`
+   If they are empty, Flutter shows a safe placeholder instead of fake contact data.
+8. Open **About app** and verify version/build/env display. Environment is shown only outside production.
+9. Test logout from Account:
+   - Flutter asks for confirmation.
+   - Flutter attempts local notification-token cleanup if Sprint 22 token foundation is available.
+   - Flutter calls `POST /api/v1/auth/logout`.
+   - Flutter clears local session state even if the backend is temporarily unavailable.
+
+Safety/legal notes:
+
+- Legal text is a draft foundation and must receive legal review before public launch.
+- Flutter does not claim Etamen replaces doctors, does not claim AI diagnoses or prescribes treatment, and does not promise automatic refunds.
+- Refund automation is still not implemented; paid cancellations and refunds require support/admin review.
+- Support contact values must be provided through configuration, not hardcoded in random UI files.

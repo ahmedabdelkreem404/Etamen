@@ -1,43 +1,25 @@
 import 'package:etamen_app/app/localization/app_localizations.dart';
 import 'package:etamen_app/core/routing/route_names.dart';
 import 'package:etamen_app/core/widgets/app_scaffold.dart';
-import 'package:etamen_app/features/account/presentation/widgets/account_header.dart';
-import 'package:etamen_app/features/account/presentation/widgets/app_version_card.dart';
-import 'package:etamen_app/features/account/presentation/widgets/logout_button.dart';
 import 'package:etamen_app/features/account/presentation/widgets/settings_tile.dart';
-import 'package:etamen_app/features/auth/presentation/providers/auth_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class AccountPage extends ConsumerWidget {
-  const AccountPage({super.key});
+class SettingsPage extends StatelessWidget {
+  const SettingsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final authState = ref.watch(authControllerProvider);
-    final user = authState.user;
 
     return AppScaffold(
-      title: l10n.get('account'),
+      title: l10n.get('settings'),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          AccountHeader(user: user),
-          const AppVersionCard(),
-          const SizedBox(height: 12),
-          SettingsTile(
-            icon: Icons.settings_outlined,
-            title: l10n.get('settings'),
-            onTap: () => context.push(RouteNames.accountSettings),
-          ),
           SettingsTile(
             icon: Icons.language,
             title: l10n.get('language'),
-            subtitle: AppLocalizations.of(context).isArabic
-                ? l10n.get('arabic')
-                : l10n.get('english'),
             onTap: () => context.push(RouteNames.languageSettings),
           ),
           SettingsTile(
@@ -45,6 +27,14 @@ class AccountPage extends ConsumerWidget {
             title: l10n.get('notificationPreferences'),
             onTap: () => context.push(RouteNames.notificationPreferences),
           ),
+          const SizedBox(height: 12),
+          Text(
+            l10n.get('legalAndPrivacy'),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 8),
           SettingsTile(
             icon: Icons.privacy_tip_outlined,
             title: l10n.get('privacyPolicy'),
@@ -70,6 +60,7 @@ class AccountPage extends ConsumerWidget {
             title: l10n.get('refundCancellationPolicy'),
             onTap: () => context.push(RouteNames.legalRefundPolicy),
           ),
+          const SizedBox(height: 12),
           SettingsTile(
             icon: Icons.support_agent,
             title: l10n.get('supportHelp'),
@@ -80,8 +71,6 @@ class AccountPage extends ConsumerWidget {
             title: l10n.get('aboutApp'),
             onTap: () => context.push(RouteNames.about),
           ),
-          const SizedBox(height: 12),
-          const LogoutButton(),
         ],
       ),
     );

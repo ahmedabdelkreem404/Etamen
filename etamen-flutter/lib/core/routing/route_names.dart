@@ -28,6 +28,15 @@ class RouteNames {
   static const notifications = '/notifications';
   static const notificationPreferences = '/notifications/preferences';
   static const account = '/account';
+  static const accountSettings = '/account/settings';
+  static const languageSettings = '/account/language';
+  static const legalPrivacy = '/legal/privacy';
+  static const legalTerms = '/legal/terms';
+  static const legalMedicalDisclaimer = '/legal/medical-disclaimer';
+  static const legalAiDisclaimer = '/legal/ai-disclaimer';
+  static const legalRefundPolicy = '/legal/refund-policy';
+  static const support = '/support';
+  static const about = '/about';
 
   static String doctorProfile(int id) => '/doctors/$id';
 

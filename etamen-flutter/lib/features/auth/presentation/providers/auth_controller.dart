@@ -113,13 +113,27 @@ class AuthController extends StateNotifier<AuthState> {
     );
   }
 
-  Future<void> logout() async {
+  Future<bool> logout() async {
     state = state.copyWith(isLoading: true);
-    await _ref
-        .read(notificationTokenControllerProvider.notifier)
-        .deleteLocalTokens();
-    await _ref.read(logoutUseCaseProvider).call();
+    var remoteLogoutSucceeded = true;
+    var tokenCleanupSucceeded = true;
+
+    try {
+      tokenCleanupSucceeded = await _ref
+          .read(notificationTokenControllerProvider.notifier)
+          .deleteLocalTokens();
+    } catch (_) {
+      tokenCleanupSucceeded = false;
+    }
+
+    try {
+      await _ref.read(logoutUseCaseProvider).call();
+    } catch (_) {
+      remoteLogoutSucceeded = false;
+    }
+
     state = const AuthState(status: AuthStatus.unauthenticated);
+    return remoteLogoutSucceeded && tokenCleanupSucceeded;
   }
 
   void forceLoggedOut() {

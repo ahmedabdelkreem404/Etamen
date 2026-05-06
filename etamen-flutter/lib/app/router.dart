@@ -1,5 +1,11 @@
 import 'package:etamen_app/core/routing/route_names.dart';
+import 'package:etamen_app/core/legal/legal_document_type.dart';
+import 'package:etamen_app/features/account/presentation/pages/about_page.dart';
 import 'package:etamen_app/features/account/presentation/pages/account_page.dart';
+import 'package:etamen_app/features/account/presentation/pages/language_settings_page.dart';
+import 'package:etamen_app/features/account/presentation/pages/legal_page.dart';
+import 'package:etamen_app/features/account/presentation/pages/settings_page.dart';
+import 'package:etamen_app/features/account/presentation/pages/support_page.dart';
 import 'package:etamen_app/features/appointments/presentation/pages/appointment_booking_page.dart';
 import 'package:etamen_app/features/appointments/presentation/pages/appointment_details_page.dart';
 import 'package:etamen_app/features/appointments/presentation/pages/appointment_result_page.dart';
@@ -411,6 +417,47 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.account,
         builder: (context, state) => const AccountPage(),
+      ),
+      GoRoute(
+        path: RouteNames.accountSettings,
+        builder: (context, state) => const SettingsPage(),
+      ),
+      GoRoute(
+        path: RouteNames.languageSettings,
+        builder: (context, state) => const LanguageSettingsPage(),
+      ),
+      GoRoute(
+        path: RouteNames.legalPrivacy,
+        builder: (context, state) =>
+            const LegalPage(type: LegalDocumentType.privacyPolicy),
+      ),
+      GoRoute(
+        path: RouteNames.legalTerms,
+        builder: (context, state) =>
+            const LegalPage(type: LegalDocumentType.termsConditions),
+      ),
+      GoRoute(
+        path: RouteNames.legalMedicalDisclaimer,
+        builder: (context, state) =>
+            const LegalPage(type: LegalDocumentType.medicalDisclaimer),
+      ),
+      GoRoute(
+        path: RouteNames.legalAiDisclaimer,
+        builder: (context, state) =>
+            const LegalPage(type: LegalDocumentType.aiDisclaimer),
+      ),
+      GoRoute(
+        path: RouteNames.legalRefundPolicy,
+        builder: (context, state) =>
+            const LegalPage(type: LegalDocumentType.refundPolicy),
+      ),
+      GoRoute(
+        path: RouteNames.support,
+        builder: (context, state) => const SupportPage(),
+      ),
+      GoRoute(
+        path: RouteNames.about,
+        builder: (context, state) => const AboutPage(),
       ),
     ],
   );
