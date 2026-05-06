@@ -12,6 +12,7 @@ import 'package:etamen_app/features/doctors/domain/entities/doctor.dart';
 import 'package:etamen_app/features/doctors/domain/entities/doctor_slot.dart';
 import 'package:etamen_app/features/doctors/presentation/providers/doctors_providers.dart';
 import 'package:etamen_app/features/doctors/presentation/widgets/slot_picker.dart';
+import 'package:etamen_app/features/home/presentation/widgets/home_experience_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -54,52 +55,71 @@ class _AppointmentBookingPageState
           success: (doctor) => ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              const _BookingStepper(currentStep: 1),
+              const SizedBox(height: 16),
               _DoctorSummary(doctor: doctor),
               const SizedBox(height: 16),
-              slots.when(
-                loading: () => const LoadingView(),
-                error: (error, _) => ErrorView(message: error.toString()),
-                data: (slotResult) => slotResult.when(
-                  success: (items) => SlotPicker(
-                    slots: items.where((slot) => slot.isAvailable).toList(),
-                    selectedSlot: _selectedSlot,
-                    onSelected: (slot) => setState(() => _selectedSlot = slot),
+              SoftMedicalCard(
+                child: slots.when(
+                  loading: () => const LoadingView(),
+                  error: (error, _) => ErrorView(message: error.toString()),
+                  data: (slotResult) => slotResult.when(
+                    success: (items) => SlotPicker(
+                      slots: items.where((slot) => slot.isAvailable).toList(),
+                      selectedSlot: _selectedSlot,
+                      onSelected: (slot) =>
+                          setState(() => _selectedSlot = slot),
+                    ),
+                    failure: (failure) =>
+                        ErrorView(message: failure.error.message),
                   ),
-                  failure: (failure) =>
-                      ErrorView(message: failure.error.message),
                 ),
               ),
               const SizedBox(height: 16),
-              Text(
-                l10n.get('consultationType'),
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              SegmentedButton<ConsultationType>(
-                segments: [
-                  ButtonSegment(
-                    value: ConsultationType.clinic,
-                    label: Text(l10n.get('clinic')),
-                    icon: const Icon(Icons.local_hospital_outlined),
-                  ),
-                  ButtonSegment(
-                    value: ConsultationType.online,
-                    label: Text(l10n.get('online')),
-                    icon: const Icon(Icons.videocam_outlined),
-                  ),
-                ],
-                selected: {_consultationType},
-                onSelectionChanged: (value) {
-                  setState(() => _consultationType = value.first);
-                },
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _problemController,
-                minLines: 3,
-                maxLines: 5,
-                decoration: InputDecoration(
-                  labelText: l10n.get('problemDescription'),
+              SoftMedicalCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      uxCopy(context, 'أكد بيانات الحجز', 'Confirm details'),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      l10n.get('consultationType'),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    SegmentedButton<ConsultationType>(
+                      segments: [
+                        ButtonSegment(
+                          value: ConsultationType.clinic,
+                          label: Text(l10n.get('clinic')),
+                          icon: const Icon(Icons.local_hospital_outlined),
+                        ),
+                        ButtonSegment(
+                          value: ConsultationType.online,
+                          label: Text(l10n.get('online')),
+                          icon: const Icon(Icons.videocam_outlined),
+                        ),
+                      ],
+                      selected: {_consultationType},
+                      onSelectionChanged: (value) {
+                        setState(() => _consultationType = value.first);
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _problemController,
+                      minLines: 3,
+                      maxLines: 5,
+                      decoration: InputDecoration(
+                        labelText: l10n.get('problemDescription'),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               if (bookingState.error != null) ...[
@@ -123,6 +143,18 @@ class _AppointmentBookingPageState
                         bookingState.isLoading
                     ? null
                     : () => _book(doctor),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                uxCopy(
+                  context,
+                  'لن نرسل سعر أو حالة حجز من التطبيق؛ السيرفر هو مصدر التأكيد.',
+                  'The backend confirms price and booking state.',
+                ),
+                textAlign: TextAlign.center,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.muted),
               ),
             ],
           ),
@@ -194,15 +226,114 @@ class _DoctorSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Card(
-      child: ListTile(
-        leading: const CircleAvatar(child: Icon(Icons.person)),
-        title: Text(doctor.name),
-        subtitle: Text(
-          doctor.consultationFee == null
-              ? doctor.specialties.join('، ')
-              : '${doctor.specialties.join('، ')}\n${l10n.get('fee')}: ${doctor.consultationFee} EGP',
-        ),
+    return SoftMedicalCard(
+      child: Row(
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(Icons.person, color: AppColors.primary),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  doctor.name,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  doctor.consultationFee == null
+                      ? doctor.specialties.join('، ')
+                      : '${doctor.specialties.join('، ')}\n${l10n.get('fee')}: ${doctor.consultationFee} EGP',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: AppColors.muted),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BookingStepper extends StatelessWidget {
+  const _BookingStepper({required this.currentStep});
+
+  final int currentStep;
+
+  @override
+  Widget build(BuildContext context) {
+    final steps = [
+      uxCopy(context, 'الموعد', 'Slot'),
+      uxCopy(context, 'البيانات', 'Details'),
+      uxCopy(context, 'الدفع', 'Payment'),
+      uxCopy(context, 'التأكيد', 'Confirm'),
+    ];
+
+    return SoftMedicalCard(
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        children: [
+          for (var i = 0; i < steps.length; i++) ...[
+            Expanded(
+              child: Column(
+                children: [
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: i <= currentStep
+                          ? AppColors.primary
+                          : AppColors.primary.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '${i + 1}',
+                      style: TextStyle(
+                        color: i <= currentStep
+                            ? Colors.white
+                            : AppColors.primary,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    steps[i],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: i <= currentStep
+                          ? AppColors.primary
+                          : AppColors.muted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (i != steps.length - 1)
+              Container(
+                width: 12,
+                height: 1,
+                color: i < currentStep
+                    ? AppColors.primary
+                    : AppColors.primary.withValues(alpha: 0.16),
+              ),
+          ],
+        ],
       ),
     );
   }
@@ -217,40 +348,53 @@ class _BookingResultCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final pending = appointment.isPendingPayment;
-    return Card(
-      color: pending ? Colors.orange.shade50 : Colors.green.shade50,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              pending
-                  ? l10n.get('bookingPendingPayment')
-                  : l10n.get('bookingConfirmed'),
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+    return SoftMedicalCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                pending ? Icons.payments_outlined : Icons.check_circle_outline,
                 color: pending ? AppColors.warning : AppColors.success,
-                fontWeight: FontWeight.w800,
               ),
-            ),
-            const SizedBox(height: 8),
-            Text('${appointment.price} ${appointment.currency}'),
-            if (pending && appointment.paymentId != null) ...[
-              const SizedBox(height: 8),
-              Text('payment_id: ${appointment.paymentId}'),
-              const SizedBox(height: 8),
-              AppButton(
-                label: l10n.get('goToPayment'),
-                onPressed: () => context.go(
-                  RouteNames.payment(
-                    appointment.paymentId!,
-                    appointmentId: appointment.id,
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  pending
+                      ? l10n.get('bookingPendingPayment')
+                      : l10n.get('bookingConfirmed'),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: pending ? AppColors.warning : AppColors.success,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 8),
+          Text('${appointment.price} ${appointment.currency}'),
+          if (pending && appointment.paymentId != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              uxCopy(
+                context,
+                'رقم عملية الدفع: ${appointment.paymentId}',
+                'Payment reference: ${appointment.paymentId}',
+              ),
+            ),
+            const SizedBox(height: 8),
+            AppButton(
+              label: l10n.get('goToPayment'),
+              onPressed: () => context.go(
+                RouteNames.payment(
+                  appointment.paymentId!,
+                  appointmentId: appointment.id,
+                ),
+              ),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }

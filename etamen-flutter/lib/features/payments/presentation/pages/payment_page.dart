@@ -11,6 +11,7 @@ import 'package:etamen_app/features/payments/presentation/providers/payment_cont
 import 'package:etamen_app/features/payments/presentation/providers/payment_status_controller.dart';
 import 'package:etamen_app/features/payments/presentation/widgets/payment_method_card.dart';
 import 'package:etamen_app/features/payments/presentation/widgets/payment_status_badge.dart';
+import 'package:etamen_app/features/home/presentation/widgets/home_experience_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -50,6 +51,15 @@ class PaymentPage extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            _PaymentFlowBanner(
+              title: uxCopy(context, 'اختار طريقة الدفع', 'Choose payment'),
+              subtitle: uxCopy(
+                context,
+                'الدفع اليدوي يتم مراجعته من الإدارة قبل تأكيد الخدمة.',
+                'Manual payments are reviewed before confirmation.',
+              ),
+            ),
+            const SizedBox(height: 16),
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -58,7 +68,9 @@ class PaymentPage extends ConsumerWidget {
                   children: [
                     Text(
                       l10n.get('paymentSummary'),
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     if (statusState.isLoading && status == null)
@@ -160,5 +172,62 @@ class PaymentPage extends ConsumerWidget {
         ),
       );
     }
+  }
+}
+
+class _PaymentFlowBanner extends StatelessWidget {
+  const _PaymentFlowBanner({required this.title, required this.subtitle});
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(
+              Icons.verified_user_outlined,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.86),
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

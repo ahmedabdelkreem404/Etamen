@@ -8,6 +8,7 @@ import 'package:etamen_app/core/widgets/loading_view.dart';
 import 'package:etamen_app/features/doctors/domain/entities/doctor.dart';
 import 'package:etamen_app/features/doctors/presentation/providers/doctors_providers.dart';
 import 'package:etamen_app/features/doctors/presentation/widgets/slot_picker.dart';
+import 'package:etamen_app/features/home/presentation/widgets/home_experience_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -19,12 +20,11 @@ class DoctorProfilePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
     final details = ref.watch(doctorDetailsProvider(doctorId));
     final slots = ref.watch(doctorSlotsProvider(doctorId));
 
     return AppScaffold(
-      title: l10n.get('doctors'),
+      title: uxCopy(context, 'تفاصيل الدكتور', 'Doctor details'),
       body: details.when(
         loading: () => const LoadingView(),
         error: (error, _) => ErrorView(message: error.toString()),
@@ -32,35 +32,81 @@ class DoctorProfilePage extends ConsumerWidget {
           success: (doctor) => ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              _DoctorHeader(doctor: doctor),
-              const SizedBox(height: 16),
-              if (doctor.bio != null && doctor.bio!.isNotEmpty)
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(doctor.bio!),
+              _DoctorHero(doctor: doctor),
+              const SizedBox(height: 14),
+              if (doctor.bio != null && doctor.bio!.trim().isNotEmpty)
+                SoftMedicalCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        uxCopy(context, 'نبذة عن الدكتور', 'About the doctor'),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(doctor.bio!, style: const TextStyle(height: 1.45)),
+                    ],
                   ),
                 ),
-              const SizedBox(height: 16),
-              slots.when(
-                loading: () => const LoadingView(),
-                error: (error, _) => ErrorView(message: error.toString()),
-                data: (slotResult) => slotResult.when(
-                  success: (items) => SlotPicker(
-                    slots: items.where((slot) => slot.isAvailable).toList(),
-                    selectedSlot: null,
-                    onSelected: (_) {},
-                  ),
-                  failure: (failure) =>
-                      ErrorView(message: failure.error.message),
+              const SizedBox(height: 14),
+              SoftMedicalCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    HomeSectionHeader(
+                      title: uxCopy(
+                        context,
+                        'المواعيد المتاحة',
+                        'Available slots',
+                      ),
+                      subtitle: uxCopy(
+                        context,
+                        'اختار من صفحة الحجز بعد مراجعة بيانات الدكتور.',
+                        'Choose a slot on the booking step.',
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    slots.when(
+                      loading: () => const LoadingView(),
+                      error: (error, _) => ErrorView(message: error.toString()),
+                      data: (slotResult) => slotResult.when(
+                        success: (items) => SlotPicker(
+                          slots: items
+                              .where((slot) => slot.isAvailable)
+                              .toList(),
+                          selectedSlot: null,
+                          onSelected: (_) {},
+                        ),
+                        failure: (failure) =>
+                            ErrorView(message: failure.error.message),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 18),
               AppButton(
-                label: l10n.get('bookAppointment'),
+                label: uxCopy(
+                  context,
+                  'احجز موعد مع الدكتور',
+                  'Book this doctor',
+                ),
                 onPressed: doctor.doctorProfileId == null
                     ? null
                     : () => context.go(RouteNames.doctorBooking(doctor.id)),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                uxCopy(
+                  context,
+                  'التكلفة وحالة الموعد يتم تأكيدهم من السيرفر بعد الحجز.',
+                  'Fee and appointment state are confirmed by the backend.',
+                ),
+                textAlign: TextAlign.center,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.muted),
               ),
             ],
           ),
@@ -71,68 +117,116 @@ class DoctorProfilePage extends ConsumerWidget {
   }
 }
 
-class _DoctorHeader extends StatelessWidget {
-  const _DoctorHeader({required this.doctor});
+class _DoctorHero extends StatelessWidget {
+  const _DoctorHero({required this.doctor});
 
   final Doctor doctor;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 34,
-                  backgroundColor: AppColors.primary.withValues(alpha: 0.12),
-                  child: const Icon(
-                    Icons.person,
-                    color: AppColors.primary,
-                    size: 34,
-                  ),
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(22),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(22),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                child: const Icon(Icons.person, color: Colors.white, size: 38),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      doctor.name,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    if (doctor.specialties.isNotEmpty) ...[
+                      const SizedBox(height: 5),
                       Text(
-                        doctor.name,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w800,
+                        doctor.specialties.join('، '),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.86),
                         ),
                       ),
-                      if (doctor.specialties.isNotEmpty)
-                        Text(doctor.specialties.join('، ')),
                     ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              if (doctor.consultationFee != null)
+                _HeroChip(
+                  icon: Icons.payments_outlined,
+                  label: '${l10n.get('fee')}: ${doctor.consultationFee} EGP',
+                ),
+              if (doctor.yearsOfExperience != null)
+                _HeroChip(
+                  icon: Icons.workspace_premium_outlined,
+                  label: uxCopy(
+                    context,
+                    '${doctor.yearsOfExperience} سنة خبرة',
+                    '${doctor.yearsOfExperience} years experience',
                   ),
                 ),
-              ],
+              for (final branch in doctor.branches.take(2))
+                _HeroChip(icon: Icons.location_on_outlined, label: branch),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HeroChip extends StatelessWidget {
+  const _HeroChip({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.13),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 15, color: Colors.white),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
             ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                if (doctor.consultationFee != null)
-                  Chip(
-                    label: Text(
-                      '${l10n.get('fee')}: ${doctor.consultationFee} EGP',
-                    ),
-                  ),
-                if (doctor.yearsOfExperience != null)
-                  Chip(label: Text('${doctor.yearsOfExperience} سنوات خبرة')),
-                for (final branch in doctor.branches.take(2))
-                  Chip(label: Text(branch)),
-              ],
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

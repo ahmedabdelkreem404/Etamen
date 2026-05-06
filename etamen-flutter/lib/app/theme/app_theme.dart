@@ -26,8 +26,35 @@ class AppTheme {
         color: AppColors.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: AppColors.border),
+        ),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: Colors.white,
+        selectedColor: AppColors.primary.withValues(alpha: 0.12),
+        side: const BorderSide(color: AppColors.border),
+        labelStyle: const TextStyle(color: AppColors.text),
+        secondaryLabelStyle: const TextStyle(
+          color: AppColors.primary,
+          fontWeight: FontWeight.w700,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        height: 72,
+        backgroundColor: Colors.white,
+        indicatorColor: AppColors.primary.withValues(alpha: 0.12),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => TextStyle(
+            fontSize: 11,
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.w800
+                : FontWeight.w600,
+            color: states.contains(WidgetState.selected)
+                ? AppColors.primary
+                : AppColors.muted,
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -52,7 +79,16 @@ class AppTheme {
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(48),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
       ),
