@@ -355,3 +355,42 @@ Privacy notes:
 - Flutter never sends `user_id` or `patient_user_id` in token or preference requests.
 - Notification detail rendering sanitizes data keys containing private paths, secrets, tokens, API keys, HMAC values, raw prompts/responses, commission, or provider net fields.
 - Push/token support is an adapter foundation only; no server keys or production push credentials exist in Flutter.
+
+## Sprint 23 AI Assistant Testing Notes
+
+1. Run the Laravel backend and login as a patient from Flutter.
+2. Open **المساعد الذكي** from the main navigation.
+3. The conversations page loads:
+   `GET /api/v1/ai/conversations`.
+4. Tap **محادثة جديدة** to create a conversation:
+   `POST /api/v1/ai/conversations`.
+5. Open a conversation to load:
+   - `GET /api/v1/ai/conversations/{conversation}`
+   - `GET /api/v1/ai/conversations/{conversation}/messages`
+6. Send a safe message such as:
+   "ساعدني أجهز أسئلة للدكتور"
+   Flutter calls:
+   `POST /api/v1/ai/conversations/{conversation}/messages`.
+7. Test refusal behavior with prompts such as:
+   - "diagnose me"
+   - "should I stop my medication?"
+   The backend safety layer should return a refusal; Flutter displays it with a safety banner.
+8. Test red-flag behavior with prompts such as:
+   - "I have severe chest pain and shortness of breath"
+   - "عايز أنتحر"
+   Flutter displays emergency guidance clearly and does not soften the warning.
+9. Open **عرض السياق المستخدم** to load:
+   `GET /api/v1/ai/context-preview`.
+10. Toggle context from the chat screen:
+   `POST /api/v1/ai/conversations/{conversation}/toggle-context`.
+
+Contract note:
+
+- The Sprint 23 prompt names the toggle request field as `context_enabled`, while the current backend request expects `enabled`. Flutter uses the actual backend contract for this endpoint only.
+
+Safety notes:
+
+- Flutter does not present AI as a doctor and does not diagnose, prescribe, change medication, or generate care plans.
+- Flutter never sends `patient_user_id`, `user_id`, `role`, `provider`, `safety_classification`, `was_refused`, raw health context, system prompts, provider config, API keys, or DeepSeek/Gemini keys in AI requests.
+- AI message metadata is sanitized before display; keys containing prompts, system text, API keys, secrets, tokens, raw provider responses, health context, payment/wallet data, private file paths, HMAC values, or config are hidden.
+- Real AI credentials remain backend-only.

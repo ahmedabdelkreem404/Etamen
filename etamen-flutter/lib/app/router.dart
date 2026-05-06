@@ -4,6 +4,9 @@ import 'package:etamen_app/features/appointments/presentation/pages/appointment_
 import 'package:etamen_app/features/appointments/presentation/pages/appointment_details_page.dart';
 import 'package:etamen_app/features/appointments/presentation/pages/appointment_result_page.dart';
 import 'package:etamen_app/features/appointments/presentation/pages/my_appointments_page.dart';
+import 'package:etamen_app/features/ai_assistant/presentation/pages/ai_chat_page.dart';
+import 'package:etamen_app/features/ai_assistant/presentation/pages/ai_context_preview_page.dart';
+import 'package:etamen_app/features/ai_assistant/presentation/pages/ai_conversations_page.dart';
 import 'package:etamen_app/features/auth/presentation/pages/login_page.dart';
 import 'package:etamen_app/features/auth/presentation/pages/register_page.dart';
 import 'package:etamen_app/features/auth/presentation/providers/auth_controller.dart';
@@ -124,6 +127,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.carePlans,
         builder: (context, state) => const CarePlansPage(),
+      ),
+      GoRoute(
+        path: RouteNames.ai,
+        builder: (context, state) => const AiConversationsPage(),
+      ),
+      GoRoute(
+        path: '/ai/conversations/:id',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          return AiChatPage(conversationId: id ?? 0);
+        },
+      ),
+      GoRoute(
+        path: RouteNames.aiContextPreview,
+        builder: (context, state) => const AiContextPreviewPage(),
       ),
       GoRoute(
         path: RouteNames.notifications,

@@ -24,6 +24,7 @@ class RouteNames {
   static const todayMedications = '/medications/today';
   static const medicationAdherence = '/medications/adherence';
   static const carePlans = '/care-plans';
+  static const ai = '/ai';
   static const notifications = '/notifications';
   static const notificationPreferences = '/notifications/preferences';
   static const account = '/account';
@@ -65,6 +66,10 @@ class RouteNames {
   static String carePlanProgress(int id) => '/care-plans/$id/progress';
 
   static String notificationDetails(int id) => '/notifications/$id';
+
+  static String aiConversation(int id) => '/ai/conversations/$id';
+
+  static const aiContextPreview = '/ai/context-preview';
 
   static String payment(
     int id, {

@@ -31,6 +31,9 @@ class ApiEndpoints {
   static const notificationsReadAll = '/notifications/read-all';
   static const notificationTokens = '/notification-tokens';
   static const notificationPreferences = '/notification-preferences';
+  static const aiConversations = '/ai/conversations';
+  static const aiAsk = '/ai/ask';
+  static const aiContextPreview = '/ai/context-preview';
 
   static String doctor(int id) => '/doctors/$id';
 
@@ -156,4 +159,12 @@ class ApiEndpoints {
   static String notificationRead(int id) => '/notifications/$id/read';
 
   static String notificationToken(int id) => '/notification-tokens/$id';
+
+  static String aiConversation(int id) => '/ai/conversations/$id';
+
+  static String aiConversationMessages(int id) =>
+      '/ai/conversations/$id/messages';
+
+  static String aiToggleContext(int id) =>
+      '/ai/conversations/$id/toggle-context';
 }

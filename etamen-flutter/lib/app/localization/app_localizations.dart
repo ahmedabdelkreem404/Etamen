@@ -345,6 +345,36 @@ class AppLocalizations {
       'preferencesSaved': 'تم حفظ التفضيلات',
       'notificationData': 'بيانات الإشعار',
       'read': 'تحديد كمقروء',
+      'aiAssistant': 'المساعد الذكي',
+      'aiConversations': 'محادثات المساعد',
+      'newAiConversation': 'محادثة جديدة',
+      'writeYourMessage': 'اكتب رسالتك',
+      'send': 'إرسال',
+      'aiThinking': 'جاري التفكير',
+      'healthContext': 'السياق الصحي',
+      'viewContextPreview': 'عرض السياق المستخدم',
+      'contextEnabled': 'السياق مفعل',
+      'contextDisabled': 'السياق متوقف',
+      'aiAssistantNotDoctor': 'المساعد الذكي ليس طبيبًا',
+      'aiDisclaimerFull':
+          'المساعد الذكي ليس طبيبًا ولا يقدم تشخيصًا أو وصف علاج. يمكنه مساعدتك في تنظيم المعلومات وفهمها بشكل عام، والقرار الطبي يجب أن يكون مع طبيب مختص.',
+      'aiEmergencyText':
+          'إذا كانت لديك أعراض خطيرة مثل ألم صدر شديد، ضيق تنفس، فقدان وعي، نزيف شديد، ضعف مفاجئ، أو أفكار لإيذاء النفس، تواصل مع الطوارئ فورًا.',
+      'aiRefusalText':
+          'لا يمكن للمساعد تقديم تشخيص أو وصف علاج، لكنه يساعدك في تنظيم المعلومات.',
+      'contactEmergencyNow': 'تواصل مع الطوارئ فورًا',
+      'aiProviderUnavailable': 'المساعد غير متاح مؤقتًا، جرّب لاحقًا.',
+      'aiRateLimited': 'تم إرسال رسائل كثيرة، حاول بعد قليل.',
+      'noAiConversationsYet': 'ابدأ محادثة آمنة مع المساعد الذكي',
+      'safeAiConversationStart': 'ابدأ بسؤال آمن عن تنظيم أو فهم معلوماتك.',
+      'archiveConversation': 'أرشفة المحادثة',
+      'deleteConversation': 'حذف المحادثة',
+      'confirmDeleteConversation': 'هل تريد حذف هذه المحادثة؟',
+      'aiContextPrivacyDisclaimer':
+          'السياق مأخوذ من بياناتك داخل التطبيق وقد يكون غير كامل. لا يُستخدم للتشخيص.',
+      'archived': 'مؤرشفة',
+      'blocked': 'محظورة',
+      'age': 'العمر',
     },
     'en': {
       'pharmacies': 'Pharmacies',
@@ -668,6 +698,38 @@ class AppLocalizations {
       'preferencesSaved': 'Preferences saved',
       'notificationData': 'Notification data',
       'read': 'Mark as read',
+      'aiAssistant': 'AI assistant',
+      'aiConversations': 'Assistant conversations',
+      'newAiConversation': 'New conversation',
+      'writeYourMessage': 'Write your message',
+      'send': 'Send',
+      'aiThinking': 'Thinking',
+      'healthContext': 'Health context',
+      'viewContextPreview': 'View used context',
+      'contextEnabled': 'Context enabled',
+      'contextDisabled': 'Context disabled',
+      'aiAssistantNotDoctor': 'The AI assistant is not a doctor',
+      'aiDisclaimerFull':
+          'The AI assistant is not a doctor and does not provide diagnosis or treatment prescriptions. It can help organize and understand information generally, and medical decisions must be made with a qualified doctor.',
+      'aiEmergencyText':
+          'If you have serious symptoms such as severe chest pain, shortness of breath, fainting, heavy bleeding, sudden weakness, or thoughts of self-harm, contact emergency services immediately.',
+      'aiRefusalText':
+          'The assistant cannot provide diagnosis or treatment prescriptions, but it can help organize information.',
+      'contactEmergencyNow': 'Contact emergency services immediately',
+      'aiProviderUnavailable':
+          'The assistant is temporarily unavailable. Try later.',
+      'aiRateLimited': 'Too many messages were sent. Try again shortly.',
+      'noAiConversationsYet': 'Start a safe conversation with the assistant',
+      'safeAiConversationStart':
+          'Start with a safe question about organizing or understanding information.',
+      'archiveConversation': 'Archive conversation',
+      'deleteConversation': 'Delete conversation',
+      'confirmDeleteConversation': 'Do you want to delete this conversation?',
+      'aiContextPrivacyDisclaimer':
+          'Context comes from your in-app data and may be incomplete. It is not used for diagnosis.',
+      'archived': 'Archived',
+      'blocked': 'Blocked',
+      'age': 'Age',
     },
   };
 
