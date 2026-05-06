@@ -272,3 +272,37 @@ Safety notes:
 - Flutter does not prescribe, recommend, start, stop, or change any medication or dosage.
 - Flutter never sends `patient_user_id`, `user_id`, `source`, `status`, calculated adherence values, diagnosis fields, treatment fields, or `missed` logs from the UI-created log requests.
 - Medication adherence is displayed as follow-up/organization only and never as treatment success or failure.
+
+## Sprint 21 Care Plans / Nutrition Testing Notes
+
+1. Run the Laravel backend and login as a patient from Flutter.
+2. Open **خطط المتابعة** from the bottom navigation.
+3. The list loads:
+   `GET /api/v1/care-plans`.
+4. Open a plan to load details and tracking data:
+   - `GET /api/v1/care-plans/{plan}`
+   - `GET /api/v1/care-plans/{plan}/days`
+   - `GET /api/v1/care-plans/{plan}/meals`
+   - `GET /api/v1/care-plans/{plan}/foods`
+   - `GET /api/v1/care-plans/{plan}/instructions`
+   - `GET /api/v1/care-plans/{plan}/checkins`
+   - `GET /api/v1/care-plans/{plan}/meal-logs`
+   - `GET /api/v1/care-plans/{plan}/progress`
+5. If the plan is active, tap **تسجيل متابعة اليوم**. Flutter calls:
+   `POST /api/v1/care-plans/{plan}/checkins`.
+6. If the plan is active, tap **تسجيل وجبة**. Flutter calls:
+   `POST /api/v1/care-plans/{plan}/meal-logs`.
+7. Open **عرض التقدم** to review commitment-only progress from:
+   `GET /api/v1/care-plans/{plan}/progress`.
+
+Known limitations for Sprint 21:
+
+- Patient plan creation/editing UI is deferred; Sprint 21 focuses on consuming assigned/patient-created plans and tracking commitment.
+- Meal photo upload is deferred in Flutter. Meal logs currently send status, meal type, planned meal id, description, and notes only.
+- No provider/admin plan builder UI.
+
+Safety notes:
+
+- Flutter displays care-plan and progress disclaimers clearly.
+- Flutter does not diagnose, claim treatment success/failure, promise weight loss, generate a diet, or advise medication changes.
+- Flutter never sends `patient_user_id`, `assigned_by_user_id`, `provider_id`, `source`, `visibility`, `status`, diagnosis fields, treatment fields, progress/adherence fields, or calories/macros in check-in or meal-log requests.

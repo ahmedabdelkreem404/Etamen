@@ -7,6 +7,12 @@ import 'package:etamen_app/features/appointments/presentation/pages/my_appointme
 import 'package:etamen_app/features/auth/presentation/pages/login_page.dart';
 import 'package:etamen_app/features/auth/presentation/pages/register_page.dart';
 import 'package:etamen_app/features/auth/presentation/providers/auth_controller.dart';
+import 'package:etamen_app/features/care_plans/presentation/pages/care_plan_checkin_page.dart';
+import 'package:etamen_app/features/care_plans/presentation/pages/care_plan_day_page.dart';
+import 'package:etamen_app/features/care_plans/presentation/pages/care_plan_details_page.dart';
+import 'package:etamen_app/features/care_plans/presentation/pages/care_plan_progress_page.dart';
+import 'package:etamen_app/features/care_plans/presentation/pages/care_plans_page.dart';
+import 'package:etamen_app/features/care_plans/presentation/pages/meal_log_page.dart';
 import 'package:etamen_app/features/doctors/presentation/pages/doctor_profile_page.dart';
 import 'package:etamen_app/features/doctors/presentation/pages/doctors_list_page.dart';
 import 'package:etamen_app/features/home/presentation/pages/home_page.dart';
@@ -111,6 +117,46 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.medications,
         builder: (context, state) => const MedicationsDashboardPage(),
+      ),
+      GoRoute(
+        path: RouteNames.carePlans,
+        builder: (context, state) => const CarePlansPage(),
+      ),
+      GoRoute(
+        path: '/care-plans/:id',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          return CarePlanDetailsPage(planId: id ?? 0);
+        },
+      ),
+      GoRoute(
+        path: '/care-plans/:id/day/:dayId',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          final dayId = int.tryParse(state.pathParameters['dayId'] ?? '');
+          return CarePlanDayPage(planId: id ?? 0, dayId: dayId ?? 0);
+        },
+      ),
+      GoRoute(
+        path: '/care-plans/:id/checkin',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          return CarePlanCheckinPage(planId: id ?? 0);
+        },
+      ),
+      GoRoute(
+        path: '/care-plans/:id/meal-log',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          return MealLogPage(planId: id ?? 0);
+        },
+      ),
+      GoRoute(
+        path: '/care-plans/:id/progress',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          return CarePlanProgressPage(planId: id ?? 0);
+        },
       ),
       GoRoute(
         path: RouteNames.medicationReminders,

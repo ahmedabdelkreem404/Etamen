@@ -23,6 +23,7 @@ class RouteNames {
   static const createMedicationReminder = '/medications/reminders/create';
   static const todayMedications = '/medications/today';
   static const medicationAdherence = '/medications/adherence';
+  static const carePlans = '/care-plans';
   static const account = '/account';
 
   static String doctorProfile(int id) => '/doctors/$id';
@@ -49,6 +50,17 @@ class RouteNames {
 
   static String medicationReminderDetails(int id) =>
       '/medications/reminders/$id';
+
+  static String carePlanDetails(int id) => '/care-plans/$id';
+
+  static String carePlanDay(int planId, int dayId) =>
+      '/care-plans/$planId/day/$dayId';
+
+  static String carePlanCheckin(int id) => '/care-plans/$id/checkin';
+
+  static String carePlanMealLog(int id) => '/care-plans/$id/meal-log';
+
+  static String carePlanProgress(int id) => '/care-plans/$id/progress';
 
   static String payment(
     int id, {

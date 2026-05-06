@@ -24,6 +24,8 @@ class ApiEndpoints {
   static const medicationUpcoming = '/medications/upcoming';
   static const medicationAdherence = '/medications/adherence';
   static const medicationRefills = '/medications/refills';
+  static const carePlans = '/care-plans';
+  static const carePlansSummary = '/care-plans/summary';
 
   static String doctor(int id) => '/doctors/$id';
 
@@ -99,4 +101,48 @@ class ApiEndpoints {
 
   static String medicationRefillSkipped(int id) =>
       '/medications/reminders/$id/refill-skipped';
+
+  static String carePlan(int id) => '/care-plans/$id';
+
+  static String carePlanActivate(int id) => '/care-plans/$id/activate';
+
+  static String carePlanPause(int id) => '/care-plans/$id/pause';
+
+  static String carePlanResume(int id) => '/care-plans/$id/resume';
+
+  static String carePlanComplete(int id) => '/care-plans/$id/complete';
+
+  static String carePlanCancel(int id) => '/care-plans/$id/cancel';
+
+  static String carePlanDays(int id) => '/care-plans/$id/days';
+
+  static String carePlanDay(int planId, int dayId) =>
+      '/care-plans/$planId/days/$dayId';
+
+  static String carePlanMeals(int id) => '/care-plans/$id/meals';
+
+  static String carePlanMeal(int planId, int mealId) =>
+      '/care-plans/$planId/meals/$mealId';
+
+  static String carePlanFoods(int id) => '/care-plans/$id/foods';
+
+  static String carePlanFood(int planId, int foodId) =>
+      '/care-plans/$planId/foods/$foodId';
+
+  static String carePlanInstructions(int id) => '/care-plans/$id/instructions';
+
+  static String carePlanInstruction(int planId, int instructionId) =>
+      '/care-plans/$planId/instructions/$instructionId';
+
+  static String carePlanCheckins(int id) => '/care-plans/$id/checkins';
+
+  static String carePlanCheckin(int planId, int checkinId) =>
+      '/care-plans/$planId/checkins/$checkinId';
+
+  static String carePlanMealLogs(int id) => '/care-plans/$id/meal-logs';
+
+  static String carePlanMealLog(int planId, int logId) =>
+      '/care-plans/$planId/meal-logs/$logId';
+
+  static String carePlanProgress(int id) => '/care-plans/$id/progress';
 }

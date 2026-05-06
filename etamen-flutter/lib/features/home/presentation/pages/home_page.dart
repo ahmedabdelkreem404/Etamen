@@ -1,6 +1,7 @@
 import 'package:etamen_app/app/localization/app_localizations.dart';
 import 'package:etamen_app/core/routing/route_names.dart';
 import 'package:etamen_app/features/appointments/presentation/pages/my_appointments_page.dart';
+import 'package:etamen_app/features/care_plans/presentation/pages/care_plans_page.dart';
 import 'package:etamen_app/features/doctors/presentation/pages/doctors_list_page.dart';
 import 'package:etamen_app/features/health/presentation/pages/health_dashboard_page.dart';
 import 'package:etamen_app/features/labs/presentation/pages/labs_page.dart';
@@ -29,6 +30,7 @@ class _HomePageState extends State<HomePage> {
       const LabsPage(showAppBar: false),
       const HealthDashboardPage(showAppBar: false),
       const MedicationsDashboardPage(showAppBar: false),
+      const CarePlansPage(showAppBar: false),
     ];
 
     return Scaffold(
@@ -36,7 +38,7 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (value) {
-          if (value == 6) {
+          if (value == 7) {
             context.go(RouteNames.account);
             return;
           }
@@ -72,6 +74,11 @@ class _HomePageState extends State<HomePage> {
             icon: const Icon(Icons.medication_liquid_outlined),
             selectedIcon: const Icon(Icons.medication_liquid),
             label: l10n.get('medications'),
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.assignment_outlined),
+            selectedIcon: const Icon(Icons.assignment),
+            label: l10n.get('carePlans'),
           ),
           NavigationDestination(
             icon: const Icon(Icons.person_outline),
