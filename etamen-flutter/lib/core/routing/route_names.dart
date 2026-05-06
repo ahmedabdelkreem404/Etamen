@@ -14,6 +14,10 @@ class RouteNames {
   static const labs = '/labs';
   static const labCart = '/labs/cart';
   static const labOrders = '/lab-orders';
+  static const health = '/health';
+  static const healthProfile = '/health/profile';
+  static const editHealthProfile = '/health/profile/edit';
+  static const healthVitals = '/health/vitals';
   static const account = '/account';
 
   static String doctorProfile(int id) => '/doctors/$id';
@@ -31,6 +35,12 @@ class RouteNames {
   static String labTests(int id) => '/labs/$id/tests';
 
   static String labOrderDetails(int id) => '/lab-orders/$id';
+
+  static String addVital([dynamic type]) {
+    if (type == null) return '/health/vitals/add';
+    final value = type is String ? type : type.wireValue.toString();
+    return '/health/vitals/add/$value';
+  }
 
   static String payment(
     int id, {

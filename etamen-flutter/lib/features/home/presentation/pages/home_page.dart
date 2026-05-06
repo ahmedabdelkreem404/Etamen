@@ -2,6 +2,7 @@ import 'package:etamen_app/app/localization/app_localizations.dart';
 import 'package:etamen_app/core/routing/route_names.dart';
 import 'package:etamen_app/features/appointments/presentation/pages/my_appointments_page.dart';
 import 'package:etamen_app/features/doctors/presentation/pages/doctors_list_page.dart';
+import 'package:etamen_app/features/health/presentation/pages/health_dashboard_page.dart';
 import 'package:etamen_app/features/labs/presentation/pages/labs_page.dart';
 import 'package:etamen_app/features/pharmacy/presentation/pages/pharmacies_page.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ class _HomePageState extends State<HomePage> {
       const MyAppointmentsPage(showAppBar: false),
       const PharmaciesPage(showAppBar: false),
       const LabsPage(showAppBar: false),
+      const HealthDashboardPage(showAppBar: false),
     ];
 
     return Scaffold(
@@ -32,7 +34,7 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (value) {
-          if (value == 4) {
+          if (value == 5) {
             context.go(RouteNames.account);
             return;
           }
@@ -58,6 +60,11 @@ class _HomePageState extends State<HomePage> {
             icon: const Icon(Icons.biotech_outlined),
             selectedIcon: const Icon(Icons.biotech),
             label: l10n.get('labs'),
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.health_and_safety_outlined),
+            selectedIcon: const Icon(Icons.health_and_safety),
+            label: l10n.get('health'),
           ),
           NavigationDestination(
             icon: const Icon(Icons.person_outline),

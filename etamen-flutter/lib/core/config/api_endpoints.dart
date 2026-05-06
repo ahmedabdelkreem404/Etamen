@@ -13,6 +13,11 @@ class ApiEndpoints {
   static const pharmacyOrders = '/pharmacy/orders';
   static const labs = '/labs';
   static const labOrders = '/lab/orders';
+  static const healthProfile = '/health/profile';
+  static const healthVitals = '/health/vitals';
+  static const healthLatestVitals = '/health/vitals/latest';
+  static const healthSummary = '/health/summary';
+  static const healthVitalTrends = '/health/vitals/trends';
 
   static String doctor(int id) => '/doctors/$id';
 

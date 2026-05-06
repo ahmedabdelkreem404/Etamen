@@ -70,6 +70,22 @@ class ApiClient {
     );
   }
 
+  Future<ApiResult<T>> put<T>(
+    String path, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    required T Function(Object? raw) parser,
+  }) {
+    return _request<T>(
+      () => _dio.put<Object?>(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+      ),
+      parser,
+    );
+  }
+
   Future<ApiResult<T>> multipart<T>(
     String path, {
     required FormData formData,

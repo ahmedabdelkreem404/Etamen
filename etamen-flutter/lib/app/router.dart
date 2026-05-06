@@ -10,6 +10,12 @@ import 'package:etamen_app/features/auth/presentation/providers/auth_controller.
 import 'package:etamen_app/features/doctors/presentation/pages/doctor_profile_page.dart';
 import 'package:etamen_app/features/doctors/presentation/pages/doctors_list_page.dart';
 import 'package:etamen_app/features/home/presentation/pages/home_page.dart';
+import 'package:etamen_app/features/health/domain/entities/vital_record.dart';
+import 'package:etamen_app/features/health/presentation/pages/add_vital_page.dart';
+import 'package:etamen_app/features/health/presentation/pages/edit_health_profile_page.dart';
+import 'package:etamen_app/features/health/presentation/pages/health_dashboard_page.dart';
+import 'package:etamen_app/features/health/presentation/pages/health_profile_page.dart';
+import 'package:etamen_app/features/health/presentation/pages/vitals_list_page.dart';
 import 'package:etamen_app/features/labs/presentation/pages/lab_cart_page.dart';
 import 'package:etamen_app/features/labs/presentation/pages/lab_order_details_page.dart';
 import 'package:etamen_app/features/labs/presentation/pages/lab_tests_page.dart';
@@ -91,6 +97,37 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.labs,
         builder: (context, state) => const LabsPage(),
+      ),
+      GoRoute(
+        path: RouteNames.health,
+        builder: (context, state) => const HealthDashboardPage(),
+      ),
+      GoRoute(
+        path: RouteNames.healthProfile,
+        builder: (context, state) => const HealthProfilePage(),
+      ),
+      GoRoute(
+        path: RouteNames.editHealthProfile,
+        builder: (context, state) => const EditHealthProfilePage(),
+      ),
+      GoRoute(
+        path: RouteNames.healthVitals,
+        builder: (context, state) => const VitalsListPage(),
+      ),
+      GoRoute(
+        path: '/health/vitals/add',
+        builder: (context, state) => const AddVitalPage(),
+      ),
+      GoRoute(
+        path: '/health/vitals/add/:type',
+        builder: (context, state) {
+          final type = VitalType.fromWire(state.pathParameters['type']);
+          return AddVitalPage(
+            initialType: type == VitalType.unknown
+                ? VitalType.bloodPressure
+                : type,
+          );
+        },
       ),
       GoRoute(
         path: '/labs/:id/tests',
