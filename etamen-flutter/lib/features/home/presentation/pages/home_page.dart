@@ -2,6 +2,7 @@ import 'package:etamen_app/app/localization/app_localizations.dart';
 import 'package:etamen_app/core/routing/route_names.dart';
 import 'package:etamen_app/features/appointments/presentation/pages/my_appointments_page.dart';
 import 'package:etamen_app/features/doctors/presentation/pages/doctors_list_page.dart';
+import 'package:etamen_app/features/pharmacy/presentation/pages/pharmacies_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -21,6 +22,7 @@ class _HomePageState extends State<HomePage> {
     final pages = [
       const DoctorsListPage(showAppBar: false),
       const MyAppointmentsPage(showAppBar: false),
+      const PharmaciesPage(showAppBar: false),
     ];
 
     return Scaffold(
@@ -28,7 +30,7 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (value) {
-          if (value == 2) {
+          if (value == 3) {
             context.go(RouteNames.account);
             return;
           }
@@ -44,6 +46,11 @@ class _HomePageState extends State<HomePage> {
             icon: const Icon(Icons.event_note_outlined),
             selectedIcon: const Icon(Icons.event_note),
             label: l10n.get('myAppointments'),
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.local_pharmacy_outlined),
+            selectedIcon: const Icon(Icons.local_pharmacy),
+            label: l10n.get('pharmacies'),
           ),
           NavigationDestination(
             icon: const Icon(Icons.person_outline),

@@ -22,12 +22,14 @@ class ManualPaymentPage extends ConsumerStatefulWidget {
     required this.paymentId,
     required this.methodId,
     this.appointmentId,
+    this.pharmacyOrderId,
     super.key,
   });
 
   final int paymentId;
   final int methodId;
   final int? appointmentId;
+  final int? pharmacyOrderId;
 
   @override
   ConsumerState<ManualPaymentPage> createState() => _ManualPaymentPageState();
@@ -195,6 +197,7 @@ class _ManualPaymentPageState extends ConsumerState<ManualPaymentPage> {
         RouteNames.paymentStatus(
           widget.paymentId,
           appointmentId: widget.appointmentId,
+          pharmacyOrderId: widget.pharmacyOrderId,
         ),
       );
     }

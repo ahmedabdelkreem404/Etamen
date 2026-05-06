@@ -7,6 +7,10 @@ class RouteNames {
   static const home = '/home';
   static const doctors = '/doctors';
   static const appointments = '/appointments';
+  static const pharmacies = '/pharmacies';
+  static const pharmacyCart = '/pharmacy/cart';
+  static const pharmacyOrders = '/pharmacy/orders';
+  static const pharmacyPrescriptionUpload = '/pharmacy/prescription-upload';
   static const account = '/account';
 
   static String doctorProfile(int id) => '/doctors/$id';
@@ -17,8 +21,15 @@ class RouteNames {
 
   static String appointmentDetails(int id) => '/appointments/$id';
 
-  static String payment(int id, {int? appointmentId}) {
-    final suffix = appointmentId == null ? '' : '?appointmentId=$appointmentId';
+  static String pharmacyProducts(int id) => '/pharmacies/$id/products';
+
+  static String pharmacyOrderDetails(int id) => '/pharmacy/orders/$id';
+
+  static String payment(int id, {int? appointmentId, int? pharmacyOrderId}) {
+    final suffix = _query({
+      'appointmentId': appointmentId,
+      'pharmacyOrderId': pharmacyOrderId,
+    });
     return '/payments/$id$suffix';
   }
 
@@ -26,20 +37,45 @@ class RouteNames {
     int id, {
     required int methodId,
     int? appointmentId,
+    int? pharmacyOrderId,
   }) {
-    final appointment = appointmentId == null
-        ? ''
-        : '&appointmentId=$appointmentId';
-    return '/payments/$id/manual?methodId=$methodId$appointment';
+    final suffix = _query({
+      'methodId': methodId,
+      'appointmentId': appointmentId,
+      'pharmacyOrderId': pharmacyOrderId,
+    });
+    return '/payments/$id/manual$suffix';
   }
 
-  static String paymentStatus(int id, {int? appointmentId}) {
-    final suffix = appointmentId == null ? '' : '?appointmentId=$appointmentId';
+  static String paymentStatus(
+    int id, {
+    int? appointmentId,
+    int? pharmacyOrderId,
+  }) {
+    final suffix = _query({
+      'appointmentId': appointmentId,
+      'pharmacyOrderId': pharmacyOrderId,
+    });
     return '/payments/$id/status$suffix';
   }
 
-  static String paymobCheckout(int id, {int? appointmentId}) {
-    final suffix = appointmentId == null ? '' : '?appointmentId=$appointmentId';
+  static String paymobCheckout(
+    int id, {
+    int? appointmentId,
+    int? pharmacyOrderId,
+  }) {
+    final suffix = _query({
+      'appointmentId': appointmentId,
+      'pharmacyOrderId': pharmacyOrderId,
+    });
     return '/payments/$id/paymob$suffix';
+  }
+
+  static String _query(Map<String, Object?> values) {
+    final entries = values.entries
+        .where((entry) => entry.value != null)
+        .map((entry) => '${entry.key}=${entry.value}')
+        .toList();
+    return entries.isEmpty ? '' : '?${entries.join('&')}';
   }
 }

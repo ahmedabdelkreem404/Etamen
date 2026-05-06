@@ -8,6 +8,9 @@ class ApiEndpoints {
   static const doctors = '/doctors';
   static const appointments = '/appointments';
   static const paymentMethods = '/payment-methods';
+  static const pharmacies = '/pharmacies';
+  static const pharmacyPrescriptions = '/pharmacy/prescriptions';
+  static const pharmacyOrders = '/pharmacy/orders';
 
   static String doctor(int id) => '/doctors/$id';
 
@@ -26,4 +29,13 @@ class ApiEndpoints {
 
   static String paymobCreateSession(int paymentId) =>
       '/payments/$paymentId/paymob/create-session';
+
+  static String pharmacy(int id) => '/pharmacies/$id';
+
+  static String pharmacyProducts(int pharmacyId) =>
+      '/pharmacies/$pharmacyId/products';
+
+  static String pharmacyOrder(int id) => '/pharmacy/orders/$id';
+
+  static String pharmacyOrderPay(int id) => '/pharmacy/orders/$id/pay';
 }

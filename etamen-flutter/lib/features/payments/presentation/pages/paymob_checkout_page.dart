@@ -13,11 +13,13 @@ class PaymobCheckoutPage extends ConsumerWidget {
   const PaymobCheckoutPage({
     required this.paymentId,
     this.appointmentId,
+    this.pharmacyOrderId,
     super.key,
   });
 
   final int paymentId;
   final int? appointmentId;
+  final int? pharmacyOrderId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -84,7 +86,11 @@ class PaymobCheckoutPage extends ConsumerWidget {
           AppButton(
             label: l10n.get('checkPaymentStatus'),
             onPressed: () => context.go(
-              RouteNames.paymentStatus(paymentId, appointmentId: appointmentId),
+              RouteNames.paymentStatus(
+                paymentId,
+                appointmentId: appointmentId,
+                pharmacyOrderId: pharmacyOrderId,
+              ),
             ),
           ),
         ],

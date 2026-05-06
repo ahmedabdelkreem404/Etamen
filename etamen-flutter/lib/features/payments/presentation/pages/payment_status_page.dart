@@ -17,11 +17,13 @@ class PaymentStatusPage extends ConsumerStatefulWidget {
   const PaymentStatusPage({
     required this.paymentId,
     this.appointmentId,
+    this.pharmacyOrderId,
     super.key,
   });
 
   final int paymentId;
   final int? appointmentId;
+  final int? pharmacyOrderId;
 
   @override
   ConsumerState<PaymentStatusPage> createState() => _PaymentStatusPageState();
@@ -86,12 +88,22 @@ class _PaymentStatusPageState extends ConsumerState<PaymentStatusPage> {
     if (status == PaymentStatusEnum.verified) {
       return [
         AppButton(
-          label: l10n.get('viewAppointment'),
-          onPressed: widget.appointmentId == null
-              ? null
-              : () => context.go(
-                  RouteNames.appointmentDetails(widget.appointmentId!),
-                ),
+          label: widget.pharmacyOrderId != null
+              ? l10n.get('pharmacyOrderDetails')
+              : l10n.get('viewAppointment'),
+          onPressed: () {
+            if (widget.appointmentId != null) {
+              context.go(RouteNames.appointmentDetails(widget.appointmentId!));
+              return;
+            }
+            if (widget.pharmacyOrderId != null) {
+              context.go(
+                RouteNames.pharmacyOrderDetails(widget.pharmacyOrderId!),
+              );
+              return;
+            }
+            context.go(RouteNames.home);
+          },
         ),
         const SizedBox(height: 12),
         AppButton(
@@ -112,6 +124,7 @@ class _PaymentStatusPageState extends ConsumerState<PaymentStatusPage> {
             RouteNames.payment(
               widget.paymentId,
               appointmentId: widget.appointmentId,
+              pharmacyOrderId: widget.pharmacyOrderId,
             ),
           ),
         ),
@@ -181,7 +194,7 @@ class _StatusCard extends StatelessWidget {
             if (status.status == PaymentStatusEnum.verified) ...[
               const SizedBox(height: 12),
               Text(
-                l10n.get('paymentAndAppointmentConfirmed'),
+                l10n.get('paymentVerified'),
                 style: const TextStyle(
                   color: AppColors.success,
                   fontWeight: FontWeight.w800,

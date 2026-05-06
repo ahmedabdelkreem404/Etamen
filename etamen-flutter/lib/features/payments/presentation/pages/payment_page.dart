@@ -16,10 +16,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class PaymentPage extends ConsumerWidget {
-  const PaymentPage({required this.paymentId, this.appointmentId, super.key});
+  const PaymentPage({
+    required this.paymentId,
+    this.appointmentId,
+    this.pharmacyOrderId,
+    super.key,
+  });
 
   final int paymentId;
   final int? appointmentId;
+  final int? pharmacyOrderId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -117,6 +123,7 @@ class PaymentPage extends ConsumerWidget {
                 RouteNames.paymentStatus(
                   paymentId,
                   appointmentId: appointmentId,
+                  pharmacyOrderId: pharmacyOrderId,
                 ),
               ),
             ),
@@ -133,6 +140,7 @@ class PaymentPage extends ConsumerWidget {
           paymentId,
           methodId: method.id,
           appointmentId: appointmentId,
+          pharmacyOrderId: pharmacyOrderId,
         ),
       );
       return;
@@ -140,7 +148,11 @@ class PaymentPage extends ConsumerWidget {
 
     if (method.type == PaymentMethodType.paymob) {
       context.push(
-        RouteNames.paymobCheckout(paymentId, appointmentId: appointmentId),
+        RouteNames.paymobCheckout(
+          paymentId,
+          appointmentId: appointmentId,
+          pharmacyOrderId: pharmacyOrderId,
+        ),
       );
     }
   }

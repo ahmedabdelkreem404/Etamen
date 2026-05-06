@@ -17,8 +17,107 @@ class AppLocalizations {
   bool get isArabic => locale.languageCode == 'ar';
 
   String get(String key) {
-    return _values[locale.languageCode]?[key] ?? _values['ar']?[key] ?? key;
+    return _extraValues[locale.languageCode]?[key] ??
+        _extraValues['ar']?[key] ??
+        _values[locale.languageCode]?[key] ??
+        _values['ar']?[key] ??
+        key;
   }
+
+  static const _extraValues = <String, Map<String, String>>{
+    'ar': {
+      'pharmacies': 'الصيدليات',
+      'pharmacy': 'الصيدلية',
+      'products': 'المنتجات',
+      'searchMedicine': 'ابحث عن دواء أو صيدلية',
+      'addToCart': 'أضف للسلة',
+      'cart': 'السلة',
+      'quantity': 'الكمية',
+      'remove': 'إزالة',
+      'clearCart': 'تفريغ السلة',
+      'onePharmacyCartNotice':
+          'السلة الحالية تخص صيدلية أخرى. هل تريد تفريغها وبدء طلب جديد؟',
+      'approximateTotal': 'إجمالي تقريبي',
+      'localSubtotal': 'إجمالي محلي للعرض فقط',
+      'pharmacyConfirmsTotal':
+          'الأسعار والمبلغ النهائي يتم تأكيدهم من الصيدلية.',
+      'requiresPrescription': 'يتطلب روشتة',
+      'uploadPrescription': 'رفع روشتة',
+      'choosePrescriptionImage': 'اختيار صورة الروشتة',
+      'prescriptionUploaded': 'تم رفع الروشتة',
+      'prescriptionPrivate':
+          'سيتم حفظ الروشتة بشكل خاص ولا تظهر إلا للجهات المصرح لها.',
+      'prescriptionRequiredMessage': 'هذا الطلب يحتاج رفع روشتة',
+      'createOrder': 'إنشاء الطلب',
+      'orderCreated': 'تم إنشاء طلب الصيدلية',
+      'pharmacyOrders': 'طلبات الصيدلية',
+      'pharmacyOrderDetails': 'تفاصيل طلب الصيدلية',
+      'pharmacyReview': 'في مراجعة الصيدلية',
+      'awaitingPayment': 'في انتظار الدفع',
+      'paid': 'مدفوع',
+      'preparing': 'جاري التحضير',
+      'ready': 'جاهز',
+      'delivered': 'تم التسليم',
+      'rejected': 'مرفوض',
+      'noProducts': 'لا توجد منتجات',
+      'noPharmacies': 'لا توجد صيدليات',
+      'noPharmacyOrders': 'لا توجد طلبات صيدلية',
+      'orderPayment': 'دفع الطلب',
+      'createPayment': 'إنشاء الدفع',
+      'pharmacyWaitingReview': 'الطلب في انتظار مراجعة الصيدلية.',
+      'items': 'العناصر',
+      'createdAt': 'تاريخ الإنشاء',
+      'privateFile': 'ملف خاص',
+      'cartEmpty': 'السلة فارغة',
+      'viewOrders': 'عرض الطلبات',
+    },
+    'en': {
+      'pharmacies': 'Pharmacies',
+      'pharmacy': 'Pharmacy',
+      'products': 'Products',
+      'searchMedicine': 'Search medicine or pharmacy',
+      'addToCart': 'Add to cart',
+      'cart': 'Cart',
+      'quantity': 'Quantity',
+      'remove': 'Remove',
+      'clearCart': 'Clear cart',
+      'onePharmacyCartNotice':
+          'The current cart belongs to another pharmacy. Clear it and start a new order?',
+      'approximateTotal': 'Approximate total',
+      'localSubtotal': 'Local display subtotal',
+      'pharmacyConfirmsTotal':
+          'Prices and final total are confirmed by the pharmacy.',
+      'requiresPrescription': 'Requires prescription',
+      'uploadPrescription': 'Upload prescription',
+      'choosePrescriptionImage': 'Choose prescription image',
+      'prescriptionUploaded': 'Prescription uploaded',
+      'prescriptionPrivate':
+          'The prescription is stored privately and shown only to authorized parties.',
+      'prescriptionRequiredMessage': 'This order requires a prescription',
+      'createOrder': 'Create order',
+      'orderCreated': 'Pharmacy order created',
+      'pharmacyOrders': 'Pharmacy orders',
+      'pharmacyOrderDetails': 'Pharmacy order details',
+      'pharmacyReview': 'Pharmacy review',
+      'awaitingPayment': 'Awaiting payment',
+      'paid': 'Paid',
+      'preparing': 'Preparing',
+      'ready': 'Ready',
+      'delivered': 'Delivered',
+      'rejected': 'Rejected',
+      'noProducts': 'No products',
+      'noPharmacies': 'No pharmacies',
+      'noPharmacyOrders': 'No pharmacy orders',
+      'orderPayment': 'Order payment',
+      'createPayment': 'Create payment',
+      'pharmacyWaitingReview': 'The order is waiting for pharmacy review.',
+      'items': 'Items',
+      'createdAt': 'Created at',
+      'privateFile': 'Private file',
+      'cartEmpty': 'Cart is empty',
+      'viewOrders': 'View orders',
+    },
+  };
 
   static const _values = <String, Map<String, String>>{
     'ar': {

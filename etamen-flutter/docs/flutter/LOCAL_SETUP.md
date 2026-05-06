@@ -99,3 +99,32 @@ Flutter never marks payments verified and never stores Paymob secrets. Paymob ch
    `لا يمكن إلغاء موعد مدفوع من التطبيق حاليًا، تواصل مع الدعم.`
 
 Flutter never sends `patient_user_id`, `provider_id`, appointment status, payment status, or trusted amount when listing, viewing, paying, or cancelling appointments.
+
+## Sprint 17 Pharmacy Testing Notes
+
+1. Run the Laravel backend and seed an approved active pharmacy with active products.
+2. Login as a patient from Flutter.
+3. Open **الصيدليات** from the bottom navigation.
+4. Choose a pharmacy and open its products:
+   `GET /api/v1/pharmacies/{pharmacy}/products`.
+5. Add products to the local cart. The local subtotal is display-only; the backend confirms real totals.
+6. If any selected product requires a prescription, open **رفع روشتة** and upload an image from the gallery:
+   `POST /api/v1/pharmacy/prescriptions`.
+7. Create the order from the cart:
+   `POST /api/v1/pharmacy/orders`.
+8. Open **طلبات الصيدلية** to list current patient orders:
+   `GET /api/v1/pharmacy/orders`.
+9. Open order details:
+   `GET /api/v1/pharmacy/orders/{order}`.
+10. If the order is payable, tap **متابعة الدفع**. Flutter calls:
+    `POST /api/v1/pharmacy/orders/{order}/pay`
+    and then reuses the existing Sprint 15 payment UI.
+
+Known limitations for Sprint 17:
+
+- Prescription upload is image-based through `image_picker`; PDF prescription picking is not enabled yet.
+- No delivery tracking map.
+- No order cancellation UI.
+- No pharmacy provider dashboard.
+
+Flutter never sends `patient_user_id`, trusted prices, order totals, commission fields, provider net fields, `order_status`, or `payment_status` when creating pharmacy orders.
