@@ -1,7 +1,9 @@
 import 'package:etamen_app/core/routing/route_names.dart';
 import 'package:etamen_app/features/account/presentation/pages/account_page.dart';
 import 'package:etamen_app/features/appointments/presentation/pages/appointment_booking_page.dart';
+import 'package:etamen_app/features/appointments/presentation/pages/appointment_details_page.dart';
 import 'package:etamen_app/features/appointments/presentation/pages/appointment_result_page.dart';
+import 'package:etamen_app/features/appointments/presentation/pages/my_appointments_page.dart';
 import 'package:etamen_app/features/auth/presentation/pages/login_page.dart';
 import 'package:etamen_app/features/auth/presentation/pages/register_page.dart';
 import 'package:etamen_app/features/auth/presentation/providers/auth_controller.dart';
@@ -68,6 +70,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const DoctorsListPage(),
       ),
       GoRoute(
+        path: RouteNames.appointments,
+        builder: (context, state) => const MyAppointmentsPage(),
+      ),
+      GoRoute(
         path: '/doctors/:id',
         builder: (context, state) {
           final id = int.tryParse(state.pathParameters['id'] ?? '');
@@ -86,6 +92,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final id = int.tryParse(state.pathParameters['id'] ?? '');
           return AppointmentResultPage(appointmentId: id ?? 0);
+        },
+      ),
+      GoRoute(
+        path: '/appointments/:id',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          return AppointmentDetailsPage(appointmentId: id ?? 0);
         },
       ),
       GoRoute(

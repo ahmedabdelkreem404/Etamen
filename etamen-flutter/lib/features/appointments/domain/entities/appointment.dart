@@ -5,6 +5,7 @@ enum AppointmentStatus {
   confirmed,
   accepted,
   rejected,
+  cancelled,
   cancelledByPatient,
   cancelledByDoctor,
   completed,
@@ -20,6 +21,7 @@ enum AppointmentStatus {
       'confirmed' => AppointmentStatus.confirmed,
       'accepted' => AppointmentStatus.accepted,
       'rejected' => AppointmentStatus.rejected,
+      'cancelled' => AppointmentStatus.cancelled,
       'cancelled_by_patient' => AppointmentStatus.cancelledByPatient,
       'cancelled_by_doctor' => AppointmentStatus.cancelledByDoctor,
       'completed' => AppointmentStatus.completed,
@@ -50,6 +52,14 @@ class Appointment {
     required this.status,
     this.appointmentNumber,
     this.paymentId,
+    this.doctorName,
+    this.specialty,
+    this.startsAt,
+    this.endsAt,
+    this.paymentStatus,
+    this.location,
+    this.canCancel,
+    this.createdAt,
   });
 
   final int id;
@@ -61,8 +71,40 @@ class Appointment {
   final String currency;
   final AppointmentStatus status;
   final int? paymentId;
+  final String? doctorName;
+  final String? specialty;
+  final DateTime? startsAt;
+  final DateTime? endsAt;
+  final String? paymentStatus;
+  final String? location;
+  final bool? canCancel;
+  final DateTime? createdAt;
 
   bool get isPendingPayment => status == AppointmentStatus.pendingPayment;
 
   bool get isConfirmed => status == AppointmentStatus.confirmed;
+
+  bool get isUpcoming {
+    return status == AppointmentStatus.confirmed ||
+        status == AppointmentStatus.accepted;
+  }
+
+  bool get isCompleted => status == AppointmentStatus.completed;
+
+  bool get isCancelled {
+    return status == AppointmentStatus.cancelled ||
+        status == AppointmentStatus.cancelledByPatient ||
+        status == AppointmentStatus.cancelledByDoctor ||
+        status == AppointmentStatus.rejected ||
+        status == AppointmentStatus.noShow ||
+        status == AppointmentStatus.expired;
+  }
+
+  bool get isCancellable {
+    if (canCancel != null) return canCancel!;
+    return status == AppointmentStatus.confirmed ||
+        status == AppointmentStatus.accepted ||
+        status == AppointmentStatus.pendingPayment ||
+        status == AppointmentStatus.pendingPaymentReview;
+  }
 }

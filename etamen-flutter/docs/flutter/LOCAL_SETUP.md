@@ -78,3 +78,24 @@ flutter test
    - Returning from checkout is not proof of payment; use the status screen to poll backend state.
 
 Flutter never marks payments verified and never stores Paymob secrets. Paymob checkout requires backend `.env` configuration and real credentials when testing against a live gateway.
+
+## Sprint 16 My Appointments Testing Notes
+
+1. Run the backend and login as a patient.
+2. Book an appointment from the Doctors flow.
+3. Open **مواعيدي** from the bottom navigation.
+4. Pull to refresh to reload the current patient's appointments from:
+   `GET /api/v1/appointments`.
+5. Tap any appointment to open:
+   `GET /api/v1/appointments/{appointment}`.
+6. For a paid appointment in `pending_payment`, tap **ادفع الآن** or **متابعة الدفع** to continue the Sprint 15 payment flow.
+7. On the appointment details page, payment status is loaded from:
+   `GET /api/v1/payments/{payment}/status`.
+8. To test cancellation, use a cancellable appointment state such as:
+   `pending_payment`, `pending_payment_review`, `confirmed`, or `accepted`.
+   The app calls:
+   `POST /api/v1/appointments/{appointment}/cancel`.
+9. If the backend blocks cancellation for paid/refund-sensitive appointments, Flutter shows the backend message or:
+   `لا يمكن إلغاء موعد مدفوع من التطبيق حاليًا، تواصل مع الدعم.`
+
+Flutter never sends `patient_user_id`, `provider_id`, appointment status, payment status, or trusted amount when listing, viewing, paying, or cancelling appointments.

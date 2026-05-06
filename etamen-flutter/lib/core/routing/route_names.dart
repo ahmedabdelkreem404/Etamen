@@ -6,6 +6,7 @@ class RouteNames {
   static const register = '/register';
   static const home = '/home';
   static const doctors = '/doctors';
+  static const appointments = '/appointments';
   static const account = '/account';
 
   static String doctorProfile(int id) => '/doctors/$id';
@@ -13,6 +14,8 @@ class RouteNames {
   static String doctorBooking(int id) => '/doctors/$id/booking';
 
   static String appointmentResult(int id) => '/appointments/$id/result';
+
+  static String appointmentDetails(int id) => '/appointments/$id';
 
   static String payment(int id, {int? appointmentId}) {
     final suffix = appointmentId == null ? '' : '?appointmentId=$appointmentId';

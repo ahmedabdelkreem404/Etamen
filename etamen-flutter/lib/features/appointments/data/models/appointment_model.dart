@@ -11,23 +11,111 @@ class AppointmentModel extends Appointment {
     required super.status,
     super.appointmentNumber,
     super.paymentId,
+    super.doctorName,
+    super.specialty,
+    super.startsAt,
+    super.endsAt,
+    super.paymentStatus,
+    super.location,
+    super.canCancel,
+    super.createdAt,
   });
 
   factory AppointmentModel.fromJson(Map<String, dynamic> json) {
+    final doctor =
+        _asMap(json['doctor']) ??
+        _asMap(json['doctor_profile']) ??
+        _asMap(json['provider']);
+    final specialty = _asMap(doctor?['specialty']);
+    final slot = _asMap(json['slot']) ?? _asMap(json['appointment_slot']);
+    final branch = _asMap(json['branch']) ?? _asMap(json['provider_branch']);
+    final city = _asMap(branch?['city']);
+    final area = _asMap(branch?['area']);
+    final payment = _asMap(json['payment']);
+
     return AppointmentModel(
       id: (json['id'] as num).toInt(),
       appointmentNumber: json['appointment_number']?.toString(),
-      doctorProfileId: (json['doctor_profile_id'] as num).toInt(),
-      appointmentSlotId: (json['appointment_slot_id'] as num).toInt(),
+      doctorProfileId: _toInt(json['doctor_profile_id'] ?? doctor?['id']) ?? 0,
+      appointmentSlotId:
+          _toInt(json['appointment_slot_id'] ?? slot?['id']) ?? 0,
       consultationType: json['consultation_type'] == 'online'
           ? ConsultationType.online
           : ConsultationType.clinic,
-      price: (json['price'] ?? '0.00').toString(),
+      price: (json['price'] ?? json['amount'] ?? payment?['amount'] ?? '0.00')
+          .toString(),
       currency: (json['currency'] ?? 'EGP').toString(),
       status: AppointmentStatus.fromWire(json['status']?.toString()),
-      paymentId: json['payment_id'] == null
-          ? null
-          : (json['payment_id'] as num).toInt(),
+      paymentId: _toInt(json['payment_id'] ?? payment?['id']),
+      doctorName: _firstString([
+        json['doctor_name'],
+        doctor?['name_ar'],
+        doctor?['name_en'],
+        doctor?['name'],
+      ]),
+      specialty: _firstString([
+        json['specialty'],
+        specialty?['name_ar'],
+        specialty?['name_en'],
+        specialty?['name'],
+      ]),
+      startsAt: _date(
+        json['starts_at'] ?? json['start_at'] ?? slot?['starts_at'],
+      ),
+      endsAt: _date(json['ends_at'] ?? json['end_at'] ?? slot?['ends_at']),
+      paymentStatus: (json['payment_status'] ?? payment?['status'])?.toString(),
+      location: _buildLocation(branch: branch, city: city, area: area),
+      canCancel: json['can_cancel'] is bool ? json['can_cancel'] as bool : null,
+      createdAt: _date(json['created_at']),
     );
+  }
+
+  static Map<String, dynamic>? _asMap(Object? value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) {
+      return value.map((key, item) => MapEntry(key.toString(), item));
+    }
+    return null;
+  }
+
+  static int? _toInt(Object? value) {
+    if (value == null) return null;
+    if (value is num) return value.toInt();
+    return int.tryParse(value.toString());
+  }
+
+  static DateTime? _date(Object? value) {
+    if (value == null) return null;
+    return DateTime.tryParse(value.toString());
+  }
+
+  static String? _firstString(List<Object?> values) {
+    for (final value in values) {
+      final text = value?.toString().trim();
+      if (text != null && text.isNotEmpty && text != 'null') return text;
+    }
+    return null;
+  }
+
+  static String? _buildLocation({
+    Map<String, dynamic>? branch,
+    Map<String, dynamic>? city,
+    Map<String, dynamic>? area,
+  }) {
+    final direct = _firstString([
+      branch?['address_ar'],
+      branch?['address_en'],
+      branch?['address'],
+      branch?['name_ar'],
+      branch?['name_en'],
+    ]);
+    final cityName = _firstString([city?['name_ar'], city?['name_en']]);
+    final areaName = _firstString([area?['name_ar'], area?['name_en']]);
+    final parts = [
+      direct,
+      areaName,
+      cityName,
+    ].where((item) => item != null && item.isNotEmpty).cast<String>().toList();
+    return parts.isEmpty ? null : parts.join(' - ');
   }
 }

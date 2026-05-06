@@ -13,6 +13,10 @@ class ApiEndpoints {
 
   static String doctorSlots(int doctorId) => '/doctors/$doctorId/slots';
 
+  static String appointment(int id) => '/appointments/$id';
+
+  static String cancelAppointment(int id) => '/appointments/$id/cancel';
+
   static String paymentStatus(int paymentId) => '/payments/$paymentId/status';
 
   static String manualPaymentSelect(int paymentId) =>

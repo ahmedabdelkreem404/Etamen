@@ -90,7 +90,7 @@ class _PaymentStatusPageState extends ConsumerState<PaymentStatusPage> {
           onPressed: widget.appointmentId == null
               ? null
               : () => context.go(
-                  RouteNames.appointmentResult(widget.appointmentId!),
+                  RouteNames.appointmentDetails(widget.appointmentId!),
                 ),
         ),
         const SizedBox(height: 12),
