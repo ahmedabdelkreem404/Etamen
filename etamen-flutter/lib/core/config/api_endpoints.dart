@@ -7,8 +7,19 @@ class ApiEndpoints {
   static const me = '/me';
   static const doctors = '/doctors';
   static const appointments = '/appointments';
+  static const paymentMethods = '/payment-methods';
 
   static String doctor(int id) => '/doctors/$id';
 
   static String doctorSlots(int doctorId) => '/doctors/$doctorId/slots';
+
+  static String paymentStatus(int paymentId) => '/payments/$paymentId/status';
+
+  static String manualPaymentSelect(int paymentId) =>
+      '/payments/$paymentId/manual/select';
+
+  static String paymentProofs(int paymentId) => '/payments/$paymentId/proofs';
+
+  static String paymobCreateSession(int paymentId) =>
+      '/payments/$paymentId/paymob/create-session';
 }

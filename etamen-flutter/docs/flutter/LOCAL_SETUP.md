@@ -59,3 +59,22 @@ flutter test
 - Do not place backend secrets, Paymob secrets, AI keys, FCM server keys, or admin tokens in Flutter.
 - Tokens are stored through `flutter_secure_storage`.
 - Flutter must not send `patient_user_id`, `user_id`, trusted price, appointment status, or payment verification flags.
+
+## Sprint 15 Payment Testing Notes
+
+1. Run the Laravel backend and seed an active doctor with a paid appointment slot.
+2. Login as a patient from Flutter.
+3. Book a paid doctor appointment.
+4. If the backend returns `pending_payment`, Flutter opens the payment page using the returned `payment_id`.
+5. Manual test:
+   - Choose Vodafone Cash or InstaPay.
+   - Follow backend-provided instructions.
+   - Upload a proof screenshot from the gallery.
+   - Wait on the payment status page while the backend/admin reviews the proof.
+6. Paymob test:
+   - Choose Paymob.
+   - Flutter requests a checkout session from the backend.
+   - If `checkout_url` is returned, Flutter opens it externally.
+   - Returning from checkout is not proof of payment; use the status screen to poll backend state.
+
+Flutter never marks payments verified and never stores Paymob secrets. Paymob checkout requires backend `.env` configuration and real credentials when testing against a live gateway.

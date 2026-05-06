@@ -8,6 +8,10 @@ import 'package:etamen_app/features/auth/presentation/providers/auth_controller.
 import 'package:etamen_app/features/doctors/presentation/pages/doctor_profile_page.dart';
 import 'package:etamen_app/features/doctors/presentation/pages/doctors_list_page.dart';
 import 'package:etamen_app/features/home/presentation/pages/home_page.dart';
+import 'package:etamen_app/features/payments/presentation/pages/manual_payment_page.dart';
+import 'package:etamen_app/features/payments/presentation/pages/payment_page.dart';
+import 'package:etamen_app/features/payments/presentation/pages/payment_status_page.dart';
+import 'package:etamen_app/features/payments/presentation/pages/paymob_checkout_page.dart';
 import 'package:etamen_app/features/splash/presentation/pages/splash_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -82,6 +86,59 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final id = int.tryParse(state.pathParameters['id'] ?? '');
           return AppointmentResultPage(appointmentId: id ?? 0);
+        },
+      ),
+      GoRoute(
+        path: '/payments/:id',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          final appointmentId = int.tryParse(
+            state.uri.queryParameters['appointmentId'] ?? '',
+          );
+          return PaymentPage(paymentId: id ?? 0, appointmentId: appointmentId);
+        },
+      ),
+      GoRoute(
+        path: '/payments/:id/manual',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          final methodId = int.tryParse(
+            state.uri.queryParameters['methodId'] ?? '',
+          );
+          final appointmentId = int.tryParse(
+            state.uri.queryParameters['appointmentId'] ?? '',
+          );
+          return ManualPaymentPage(
+            paymentId: id ?? 0,
+            methodId: methodId ?? 0,
+            appointmentId: appointmentId,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/payments/:id/status',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          final appointmentId = int.tryParse(
+            state.uri.queryParameters['appointmentId'] ?? '',
+          );
+          return PaymentStatusPage(
+            paymentId: id ?? 0,
+            appointmentId: appointmentId,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/payments/:id/paymob',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          final appointmentId = int.tryParse(
+            state.uri.queryParameters['appointmentId'] ?? '',
+          );
+          return PaymobCheckoutPage(
+            paymentId: id ?? 0,
+            appointmentId: appointmentId,
+          );
         },
       ),
       GoRoute(

@@ -13,4 +13,30 @@ class RouteNames {
   static String doctorBooking(int id) => '/doctors/$id/booking';
 
   static String appointmentResult(int id) => '/appointments/$id/result';
+
+  static String payment(int id, {int? appointmentId}) {
+    final suffix = appointmentId == null ? '' : '?appointmentId=$appointmentId';
+    return '/payments/$id$suffix';
+  }
+
+  static String manualPayment(
+    int id, {
+    required int methodId,
+    int? appointmentId,
+  }) {
+    final appointment = appointmentId == null
+        ? ''
+        : '&appointmentId=$appointmentId';
+    return '/payments/$id/manual?methodId=$methodId$appointment';
+  }
+
+  static String paymentStatus(int id, {int? appointmentId}) {
+    final suffix = appointmentId == null ? '' : '?appointmentId=$appointmentId';
+    return '/payments/$id/status$suffix';
+  }
+
+  static String paymobCheckout(int id, {int? appointmentId}) {
+    final suffix = appointmentId == null ? '' : '?appointmentId=$appointmentId';
+    return '/payments/$id/paymob$suffix';
+  }
 }

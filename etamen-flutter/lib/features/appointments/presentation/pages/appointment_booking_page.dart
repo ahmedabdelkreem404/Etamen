@@ -1,5 +1,6 @@
 import 'package:etamen_app/app/localization/app_localizations.dart';
 import 'package:etamen_app/app/theme/app_colors.dart';
+import 'package:etamen_app/core/routing/route_names.dart';
 import 'package:etamen_app/core/widgets/app_button.dart';
 import 'package:etamen_app/core/widgets/app_scaffold.dart';
 import 'package:etamen_app/core/widgets/error_view.dart';
@@ -13,6 +14,7 @@ import 'package:etamen_app/features/doctors/presentation/providers/doctors_provi
 import 'package:etamen_app/features/doctors/presentation/widgets/slot_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class AppointmentBookingPage extends ConsumerStatefulWidget {
   const AppointmentBookingPage({required this.doctorId, super.key});
@@ -146,8 +148,32 @@ class _AppointmentBookingPageState
           ),
         );
 
-    if (appointment == null && mounted) {
+    if (!mounted) return;
+
+    if (appointment == null) {
       ref.invalidate(doctorSlotsProvider(widget.doctorId));
+      return;
+    }
+
+    if (appointment.isPendingPayment) {
+      final paymentId = appointment.paymentId;
+      if (paymentId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context).get('bookingPaymentMissing'),
+            ),
+          ),
+        );
+        return;
+      }
+
+      context.go(RouteNames.payment(paymentId, appointmentId: appointment.id));
+      return;
+    }
+
+    if (appointment.isConfirmed) {
+      context.go(RouteNames.appointmentResult(appointment.id));
     }
   }
 
@@ -213,7 +239,15 @@ class _BookingResultCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text('payment_id: ${appointment.paymentId}'),
               const SizedBox(height: 8),
-              Text(l10n.get('paymentLater')),
+              AppButton(
+                label: l10n.get('goToPayment'),
+                onPressed: () => context.go(
+                  RouteNames.payment(
+                    appointment.paymentId!,
+                    appointmentId: appointment.id,
+                  ),
+                ),
+              ),
             ],
           ],
         ),
