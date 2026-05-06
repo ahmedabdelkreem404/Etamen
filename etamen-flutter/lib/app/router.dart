@@ -21,6 +21,12 @@ import 'package:etamen_app/features/labs/presentation/pages/lab_order_details_pa
 import 'package:etamen_app/features/labs/presentation/pages/lab_tests_page.dart';
 import 'package:etamen_app/features/labs/presentation/pages/labs_page.dart';
 import 'package:etamen_app/features/labs/presentation/pages/my_lab_orders_page.dart';
+import 'package:etamen_app/features/medications/presentation/pages/create_medication_reminder_page.dart';
+import 'package:etamen_app/features/medications/presentation/pages/medication_adherence_page.dart';
+import 'package:etamen_app/features/medications/presentation/pages/medication_reminder_details_page.dart';
+import 'package:etamen_app/features/medications/presentation/pages/medication_reminders_page.dart';
+import 'package:etamen_app/features/medications/presentation/pages/medications_dashboard_page.dart';
+import 'package:etamen_app/features/medications/presentation/pages/today_medications_page.dart';
 import 'package:etamen_app/features/payments/presentation/pages/manual_payment_page.dart';
 import 'package:etamen_app/features/payments/presentation/pages/payment_page.dart';
 import 'package:etamen_app/features/payments/presentation/pages/payment_status_page.dart';
@@ -101,6 +107,33 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.health,
         builder: (context, state) => const HealthDashboardPage(),
+      ),
+      GoRoute(
+        path: RouteNames.medications,
+        builder: (context, state) => const MedicationsDashboardPage(),
+      ),
+      GoRoute(
+        path: RouteNames.medicationReminders,
+        builder: (context, state) => const MedicationRemindersPage(),
+      ),
+      GoRoute(
+        path: RouteNames.createMedicationReminder,
+        builder: (context, state) => const CreateMedicationReminderPage(),
+      ),
+      GoRoute(
+        path: RouteNames.todayMedications,
+        builder: (context, state) => const TodayMedicationsPage(),
+      ),
+      GoRoute(
+        path: RouteNames.medicationAdherence,
+        builder: (context, state) => const MedicationAdherencePage(),
+      ),
+      GoRoute(
+        path: '/medications/reminders/:id',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          return MedicationReminderDetailsPage(reminderId: id ?? 0);
+        },
       ),
       GoRoute(
         path: RouteNames.healthProfile,

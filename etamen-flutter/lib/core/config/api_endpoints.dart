@@ -18,6 +18,12 @@ class ApiEndpoints {
   static const healthLatestVitals = '/health/vitals/latest';
   static const healthSummary = '/health/summary';
   static const healthVitalTrends = '/health/vitals/trends';
+  static const medicationReminders = '/medications/reminders';
+  static const medicationLogs = '/medications/logs';
+  static const medicationToday = '/medications/today';
+  static const medicationUpcoming = '/medications/upcoming';
+  static const medicationAdherence = '/medications/adherence';
+  static const medicationRefills = '/medications/refills';
 
   static String doctor(int id) => '/doctors/$id';
 
@@ -57,4 +63,40 @@ class ApiEndpoints {
   static String labOrderPay(int id) => '/lab/orders/$id/pay';
 
   static String labResultDownload(int id) => '/lab/results/$id/download';
+
+  static String medicationReminder(int id) => '/medications/reminders/$id';
+
+  static String medicationReminderPause(int id) =>
+      '/medications/reminders/$id/pause';
+
+  static String medicationReminderResume(int id) =>
+      '/medications/reminders/$id/resume';
+
+  static String medicationReminderCancel(int id) =>
+      '/medications/reminders/$id/cancel';
+
+  static String medicationReminderTimes(int id) =>
+      '/medications/reminders/$id/times';
+
+  static String medicationReminderTime(int reminderId, int timeId) =>
+      '/medications/reminders/$reminderId/times/$timeId';
+
+  static String medicationReminderLogs(int id) =>
+      '/medications/reminders/$id/logs';
+
+  static String medicationLog(int id) => '/medications/logs/$id';
+
+  static String medicationTaken(int id) => '/medications/reminders/$id/taken';
+
+  static String medicationSkipped(int id) =>
+      '/medications/reminders/$id/skipped';
+
+  static String medicationReminderSchedule(int id) =>
+      '/medications/reminders/$id/schedule';
+
+  static String medicationRefillDone(int id) =>
+      '/medications/reminders/$id/refill-done';
+
+  static String medicationRefillSkipped(int id) =>
+      '/medications/reminders/$id/refill-skipped';
 }

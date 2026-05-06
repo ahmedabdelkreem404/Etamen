@@ -18,6 +18,11 @@ class RouteNames {
   static const healthProfile = '/health/profile';
   static const editHealthProfile = '/health/profile/edit';
   static const healthVitals = '/health/vitals';
+  static const medications = '/medications';
+  static const medicationReminders = '/medications/reminders';
+  static const createMedicationReminder = '/medications/reminders/create';
+  static const todayMedications = '/medications/today';
+  static const medicationAdherence = '/medications/adherence';
   static const account = '/account';
 
   static String doctorProfile(int id) => '/doctors/$id';
@@ -41,6 +46,9 @@ class RouteNames {
     final value = type is String ? type : type.wireValue.toString();
     return '/health/vitals/add/$value';
   }
+
+  static String medicationReminderDetails(int id) =>
+      '/medications/reminders/$id';
 
   static String payment(
     int id, {

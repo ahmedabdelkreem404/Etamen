@@ -4,6 +4,7 @@ import 'package:etamen_app/features/appointments/presentation/pages/my_appointme
 import 'package:etamen_app/features/doctors/presentation/pages/doctors_list_page.dart';
 import 'package:etamen_app/features/health/presentation/pages/health_dashboard_page.dart';
 import 'package:etamen_app/features/labs/presentation/pages/labs_page.dart';
+import 'package:etamen_app/features/medications/presentation/pages/medications_dashboard_page.dart';
 import 'package:etamen_app/features/pharmacy/presentation/pages/pharmacies_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -27,6 +28,7 @@ class _HomePageState extends State<HomePage> {
       const PharmaciesPage(showAppBar: false),
       const LabsPage(showAppBar: false),
       const HealthDashboardPage(showAppBar: false),
+      const MedicationsDashboardPage(showAppBar: false),
     ];
 
     return Scaffold(
@@ -34,7 +36,7 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (value) {
-          if (value == 5) {
+          if (value == 6) {
             context.go(RouteNames.account);
             return;
           }
@@ -65,6 +67,11 @@ class _HomePageState extends State<HomePage> {
             icon: const Icon(Icons.health_and_safety_outlined),
             selectedIcon: const Icon(Icons.health_and_safety),
             label: l10n.get('health'),
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.medication_liquid_outlined),
+            selectedIcon: const Icon(Icons.medication_liquid),
+            label: l10n.get('medications'),
           ),
           NavigationDestination(
             icon: const Icon(Icons.person_outline),

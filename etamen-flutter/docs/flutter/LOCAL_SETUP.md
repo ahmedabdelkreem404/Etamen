@@ -2,6 +2,40 @@
 
 Sprint 14 uses the clean Flutter app in this folder: `etamen-flutter`.
 
+## Required Flutter SDK
+
+This project was generated with Flutter `3.32.5` / Dart `3.8.1`.
+
+If `flutter pub get` says the current Dart SDK is `3.0.6`, your terminal is using an older Flutter SDK from `PATH`. On this workstation the project points to:
+
+```powershell
+C:\DevFlutter\flutter\bin\flutter.bat
+```
+
+Use either:
+
+```powershell
+C:\DevFlutter\flutter\bin\flutter.bat pub get
+C:\DevFlutter\flutter\bin\flutter.bat run --dart-define=ETAMEN_API_BASE_URL=http://10.0.2.2:8000/api/v1
+```
+
+Or update your Windows `PATH` so `C:\DevFlutter\flutter\bin` appears before any old Flutter installation.
+
+You can also use the project wrapper:
+
+```powershell
+.\scripts\project_flutter.ps1 --version
+.\scripts\project_flutter.ps1 pub get
+.\scripts\project_flutter.ps1 run --dart-define=ETAMEN_API_BASE_URL=http://10.0.2.2:8000/api/v1
+```
+
+If your Flutter 3.32+ SDK lives somewhere else:
+
+```powershell
+$env:ETAMEN_FLUTTER_BIN="D:\flutter\bin\flutter.bat"
+.\scripts\project_flutter.ps1 --version
+```
+
 ## Install Packages
 
 ```bash
@@ -197,3 +231,44 @@ Safety notes:
 - Flutter does not diagnose, advise treatment, recommend medication, or suggest changing/stopping doses.
 - Flutter never sends `patient_user_id`, `user_id`, `source`, `flag`, `unit`, diagnosis fields, treatment fields, or calculated backend fields when creating vitals.
 - The current backend health summary route is `/api/v1/health/summary`; Sprint 19 prompt referenced `/api/v1/health/vitals/summary`, so Flutter uses the actual implemented backend route.
+
+## Sprint 20 Medication Reminders Testing Notes
+
+1. Run the Laravel backend and login as a patient from Flutter.
+2. Open **الأدوية** from the bottom navigation.
+3. The dashboard loads:
+   - `GET /api/v1/medications/reminders`
+   - `GET /api/v1/medications/today`
+   - `GET /api/v1/medications/upcoming`
+   - `GET /api/v1/medications/adherence`
+   - `GET /api/v1/medications/refills`
+4. To create a reminder, open **إضافة تذكير دواء**. Flutter calls:
+   `POST /api/v1/medications/reminders`.
+5. Supported Sprint 20 frequencies in the create UI:
+   - once daily
+   - twice daily
+   - three times daily
+   - custom times
+   - every X hours
+   - as needed
+6. `specific_days` is parsed by the model/request layer but the day-picker UI is deferred so Flutter does not send an incomplete request.
+7. Open **جرعات اليوم** to load:
+   `GET /api/v1/medications/today`.
+8. Mark a dose as taken or skipped:
+   - `POST /api/v1/medications/reminders/{reminder}/taken`
+   - `POST /api/v1/medications/reminders/{reminder}/skipped`
+9. Open **الالتزام** to load:
+   `GET /api/v1/medications/adherence`.
+10. From reminder details, test pause/resume/cancel and refill actions:
+   - `POST /api/v1/medications/reminders/{reminder}/pause`
+   - `POST /api/v1/medications/reminders/{reminder}/resume`
+   - `POST /api/v1/medications/reminders/{reminder}/cancel`
+   - `POST /api/v1/medications/reminders/{reminder}/refill-done`
+   - `POST /api/v1/medications/reminders/{reminder}/refill-skipped`
+
+Safety notes:
+
+- Flutter only records patient-entered medication organization data.
+- Flutter does not prescribe, recommend, start, stop, or change any medication or dosage.
+- Flutter never sends `patient_user_id`, `user_id`, `source`, `status`, calculated adherence values, diagnosis fields, treatment fields, or `missed` logs from the UI-created log requests.
+- Medication adherence is displayed as follow-up/organization only and never as treatment success or failure.
