@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:etamen_app/core/network/api_error.dart';
 import 'package:etamen_app/features/auth/data/models/login_request.dart';
 import 'package:etamen_app/features/auth/data/models/register_request.dart';
 import 'package:etamen_app/features/auth/domain/entities/auth_user.dart';
 import 'package:etamen_app/features/auth/presentation/providers/auth_providers.dart';
+import 'package:etamen_app/features/notifications/presentation/providers/notifications_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum AuthStatus { unknown, authenticated, unauthenticated }
@@ -59,6 +62,7 @@ class AuthController extends StateNotifier<AuthState> {
     result.when(
       success: (user) {
         state = AuthState(status: AuthStatus.authenticated, user: user);
+        _registerNotificationToken();
       },
       failure: (failure) {
         state = AuthState(
@@ -79,6 +83,7 @@ class AuthController extends StateNotifier<AuthState> {
     return result.when(
       success: (session) {
         state = AuthState(status: AuthStatus.authenticated, user: session.user);
+        _registerNotificationToken();
         return true;
       },
       failure: (failure) {
@@ -98,6 +103,7 @@ class AuthController extends StateNotifier<AuthState> {
     return result.when(
       success: (session) {
         state = AuthState(status: AuthStatus.authenticated, user: session.user);
+        _registerNotificationToken();
         return true;
       },
       failure: (failure) {
@@ -109,6 +115,9 @@ class AuthController extends StateNotifier<AuthState> {
 
   Future<void> logout() async {
     state = state.copyWith(isLoading: true);
+    await _ref
+        .read(notificationTokenControllerProvider.notifier)
+        .deleteLocalTokens();
     await _ref.read(logoutUseCaseProvider).call();
     state = const AuthState(status: AuthStatus.unauthenticated);
   }
@@ -122,6 +131,14 @@ class AuthController extends StateNotifier<AuthState> {
       status: AuthStatus.unauthenticated,
       error: error.message,
       validationErrors: error.validationErrors,
+    );
+  }
+
+  void _registerNotificationToken() {
+    unawaited(
+      _ref
+          .read(notificationTokenControllerProvider.notifier)
+          .registerLocalToken(),
     );
   }
 }

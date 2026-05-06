@@ -29,6 +29,21 @@ You can also use the project wrapper:
 .\scripts\project_flutter.ps1 run --dart-define=ETAMEN_API_BASE_URL=http://10.0.2.2:8000/api/v1
 ```
 
+The wrapper also redirects Gradle cache and temporary files away from full drives:
+
+- `GRADLE_USER_HOME` defaults to `I:\Etamen\.gradle`
+- `TEMP` / `TMP` default to `I:\Etamen\.tmp`
+
+This matters if your environment has something like `GRADLE_USER_HOME=D:\gradle_home` while `D:` has no free space. To run without the wrapper, set these variables first:
+
+```powershell
+New-Item -ItemType Directory -Force I:\Etamen\.gradle, I:\Etamen\.tmp
+$env:GRADLE_USER_HOME="I:\Etamen\.gradle"
+$env:TEMP="I:\Etamen\.tmp"
+$env:TMP="I:\Etamen\.tmp"
+C:\DevFlutter\flutter\bin\flutter.bat run --dart-define=ETAMEN_API_BASE_URL=http://10.0.2.2:8000/api/v1
+```
+
 If your Flutter 3.32+ SDK lives somewhere else:
 
 ```powershell
@@ -306,3 +321,37 @@ Safety notes:
 - Flutter displays care-plan and progress disclaimers clearly.
 - Flutter does not diagnose, claim treatment success/failure, promise weight loss, generate a diet, or advise medication changes.
 - Flutter never sends `patient_user_id`, `assigned_by_user_id`, `provider_id`, `source`, `visibility`, `status`, diagnosis fields, treatment fields, progress/adherence fields, or calories/macros in check-in or meal-log requests.
+
+## Sprint 22 Notifications Testing Notes
+
+1. Run the Laravel backend and login as a patient from Flutter.
+2. Open the notification bell from the home screen. Flutter calls:
+   - `GET /api/v1/notifications`
+   - `GET /api/v1/notifications/unread-count`
+3. Tap a notification to mark it as read and open details:
+   - `POST /api/v1/notifications/{notification}/read`
+   - `GET /api/v1/notifications/{notification}`
+4. Use the double-check action to mark all notifications as read:
+   `POST /api/v1/notifications/read-all`.
+5. Delete a notification from the details page:
+   `DELETE /api/v1/notifications/{notification}`.
+6. Open notification preferences from the bell page or Account page:
+   - `GET /api/v1/notification-preferences`
+   - `PUT /api/v1/notification-preferences`
+7. Token registration is a local foundation only in Sprint 22:
+   - Flutter creates a stable local development token in secure storage.
+   - Flutter registers it through `POST /api/v1/notification-tokens` after login/session restore.
+   - Flutter tries to delete local tokens on logout through `DELETE /api/v1/notification-tokens/{token}`.
+
+Known limitations for Sprint 22:
+
+- Real FCM/APNS setup is not configured yet.
+- No background push handling.
+- Notification action routing is intentionally limited to safe known IDs, and Flutter fetches the real resource from the backend after navigation.
+
+Privacy notes:
+
+- Flutter does not use admin notification endpoints.
+- Flutter never sends `user_id` or `patient_user_id` in token or preference requests.
+- Notification detail rendering sanitizes data keys containing private paths, secrets, tokens, API keys, HMAC values, raw prompts/responses, commission, or provider net fields.
+- Push/token support is an adapter foundation only; no server keys or production push credentials exist in Flutter.

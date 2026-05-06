@@ -54,6 +54,8 @@ GoogleService-Info.plist
 **/doctorfinder_timeslot-main/ios/Flutter/flutter_export_environment.sh
 
 # Local generated artifacts from this setup
+.gradle/
+.tmp/
 gradle-build*.log
 gradle-test.jar
 kotlin-test.jar

@@ -1,9 +1,11 @@
 import 'package:etamen_app/app/localization/app_localizations.dart';
 import 'package:etamen_app/core/localization/locale_provider.dart';
+import 'package:etamen_app/core/routing/route_names.dart';
 import 'package:etamen_app/core/widgets/app_scaffold.dart';
 import 'package:etamen_app/features/auth/presentation/providers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class AccountPage extends ConsumerWidget {
   const AccountPage({super.key});
@@ -38,6 +40,15 @@ class AccountPage extends ConsumerWidget {
                     ? l10n.get('arabic')
                     : l10n.get('english'),
               ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.notifications_none),
+              title: Text(l10n.get('notificationPreferences')),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push(RouteNames.notificationPreferences),
             ),
           ),
           const SizedBox(height: 12),

@@ -26,6 +26,11 @@ class ApiEndpoints {
   static const medicationRefills = '/medications/refills';
   static const carePlans = '/care-plans';
   static const carePlansSummary = '/care-plans/summary';
+  static const notifications = '/notifications';
+  static const notificationsUnreadCount = '/notifications/unread-count';
+  static const notificationsReadAll = '/notifications/read-all';
+  static const notificationTokens = '/notification-tokens';
+  static const notificationPreferences = '/notification-preferences';
 
   static String doctor(int id) => '/doctors/$id';
 
@@ -145,4 +150,10 @@ class ApiEndpoints {
       '/care-plans/$planId/meal-logs/$logId';
 
   static String carePlanProgress(int id) => '/care-plans/$id/progress';
+
+  static String notification(int id) => '/notifications/$id';
+
+  static String notificationRead(int id) => '/notifications/$id/read';
+
+  static String notificationToken(int id) => '/notification-tokens/$id';
 }

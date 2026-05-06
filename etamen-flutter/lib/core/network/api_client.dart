@@ -83,6 +83,22 @@ class ApiClient {
     );
   }
 
+  Future<ApiResult<T>> delete<T>(
+    String path, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    required T Function(Object? raw) parser,
+  }) {
+    return _request<T>(
+      () => _dio.delete<Object?>(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+      ),
+      parser,
+    );
+  }
+
   Future<ApiResult<T>> multipart<T>(
     String path, {
     required FormData formData,

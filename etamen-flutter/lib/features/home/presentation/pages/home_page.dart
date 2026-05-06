@@ -6,6 +6,7 @@ import 'package:etamen_app/features/doctors/presentation/pages/doctors_list_page
 import 'package:etamen_app/features/health/presentation/pages/health_dashboard_page.dart';
 import 'package:etamen_app/features/labs/presentation/pages/labs_page.dart';
 import 'package:etamen_app/features/medications/presentation/pages/medications_dashboard_page.dart';
+import 'package:etamen_app/features/notifications/presentation/widgets/notification_badge.dart';
 import 'package:etamen_app/features/pharmacy/presentation/pages/pharmacies_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -35,6 +36,9 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       body: SafeArea(child: pages[_index]),
+      floatingActionButton: NotificationBadge(
+        onTap: () => context.push(RouteNames.notifications),
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (value) {

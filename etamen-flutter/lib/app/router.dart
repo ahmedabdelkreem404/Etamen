@@ -33,6 +33,9 @@ import 'package:etamen_app/features/medications/presentation/pages/medication_re
 import 'package:etamen_app/features/medications/presentation/pages/medication_reminders_page.dart';
 import 'package:etamen_app/features/medications/presentation/pages/medications_dashboard_page.dart';
 import 'package:etamen_app/features/medications/presentation/pages/today_medications_page.dart';
+import 'package:etamen_app/features/notifications/presentation/pages/notification_details_page.dart';
+import 'package:etamen_app/features/notifications/presentation/pages/notification_preferences_page.dart';
+import 'package:etamen_app/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:etamen_app/features/payments/presentation/pages/manual_payment_page.dart';
 import 'package:etamen_app/features/payments/presentation/pages/payment_page.dart';
 import 'package:etamen_app/features/payments/presentation/pages/payment_status_page.dart';
@@ -121,6 +124,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.carePlans,
         builder: (context, state) => const CarePlansPage(),
+      ),
+      GoRoute(
+        path: RouteNames.notifications,
+        builder: (context, state) => const NotificationsPage(),
+      ),
+      GoRoute(
+        path: RouteNames.notificationPreferences,
+        builder: (context, state) => const NotificationPreferencesPage(),
+      ),
+      GoRoute(
+        path: '/notifications/:id',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          return NotificationDetailsPage(notificationId: id ?? 0);
+        },
       ),
       GoRoute(
         path: '/care-plans/:id',
