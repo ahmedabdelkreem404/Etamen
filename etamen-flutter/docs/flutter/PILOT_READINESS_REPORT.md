@@ -83,3 +83,44 @@ Real release signing remains a blocker before public distribution.
 ## Recommended Next Action
 
 Run one complete real-device E2E pass using staging data and assign owners for each failed checklist item before inviting pilot users.
+
+## Sprint 27 Real Walkthrough Update
+
+Sprint 27 performed an emulator walkthrough on `emulator-5554` using:
+
+`http://10.0.2.2:8000/api/v1`
+
+Validated successfully:
+
+- Backend health reachable from host.
+- Patient login with `sprint26195627@example.com`.
+- Home loads after login.
+- Session restore after app force-stop.
+- Account page loads `/me` data.
+- Logout confirmation clears local session and returns to login.
+- Main shell navigation works for Home, Services, Doctors empty state, and Account.
+- A visible Home quick-action overflow was fixed.
+- The visual palette was refreshed closer to the legacy Doctor Finder teal/cyan experience.
+
+Blocked or partial due missing seed data:
+
+- Doctors endpoint returned zero approved doctors.
+- Payment methods endpoint returned zero active methods.
+- Pharmacies endpoint returned zero approved pharmacies.
+- Labs endpoint returned zero approved labs.
+- No appointments, pharmacy orders, lab orders, care plans, or notifications existed for the test patient.
+- AI provider/refusal/red-flag paths were not fully exercised in this pass.
+
+Sprint 27 decision:
+
+**Not ready to invite the first 20 pilot users yet.**
+
+Reason: the app shell/auth is working, but the core pilot flows cannot be proven until pilot seed/admin data exists.
+
+Exact condition to invite supervised pilot users:
+
+1. Seed approved doctor, specialty, branch, slots, and fee.
+2. Seed active manual payment methods with instructions.
+3. Seed at least one pharmacy/product and one lab/test.
+4. Seed or create one care plan and one notification for the test patient.
+5. Rerun the documented Sprint 27 walkthrough and pass booking, payment proof upload, appointment confirmation, pharmacy/lab order basics, logout/session restore, and support/legal review.

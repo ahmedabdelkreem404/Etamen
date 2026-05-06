@@ -107,7 +107,7 @@ class HomeDashboardTab extends ConsumerWidget {
               crossAxisCount: narrow ? 2 : 4,
               mainAxisSpacing: 10,
               crossAxisSpacing: 10,
-              childAspectRatio: narrow ? 1.18 : 0.95,
+              childAspectRatio: narrow ? 1.02 : 0.86,
               children: [
                 FeatureActionCard(
                   icon: Icons.medical_services_outlined,
@@ -375,12 +375,12 @@ class FeatureActionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return SoftMedicalCard(
       onTap: onTap,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _IconBadge(icon: icon),
-          const Spacer(),
+          _IconBadge(icon: icon, size: 36),
+          const SizedBox(height: 10),
           Text(
             title,
             maxLines: 2,
@@ -392,7 +392,7 @@ class FeatureActionCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             subtitle,
-            maxLines: 2,
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: AppColors.muted,
