@@ -10,6 +10,11 @@ import 'package:etamen_app/features/auth/presentation/providers/auth_controller.
 import 'package:etamen_app/features/doctors/presentation/pages/doctor_profile_page.dart';
 import 'package:etamen_app/features/doctors/presentation/pages/doctors_list_page.dart';
 import 'package:etamen_app/features/home/presentation/pages/home_page.dart';
+import 'package:etamen_app/features/labs/presentation/pages/lab_cart_page.dart';
+import 'package:etamen_app/features/labs/presentation/pages/lab_order_details_page.dart';
+import 'package:etamen_app/features/labs/presentation/pages/lab_tests_page.dart';
+import 'package:etamen_app/features/labs/presentation/pages/labs_page.dart';
+import 'package:etamen_app/features/labs/presentation/pages/my_lab_orders_page.dart';
 import 'package:etamen_app/features/payments/presentation/pages/manual_payment_page.dart';
 import 'package:etamen_app/features/payments/presentation/pages/payment_page.dart';
 import 'package:etamen_app/features/payments/presentation/pages/payment_status_page.dart';
@@ -84,6 +89,32 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const PharmaciesPage(),
       ),
       GoRoute(
+        path: RouteNames.labs,
+        builder: (context, state) => const LabsPage(),
+      ),
+      GoRoute(
+        path: '/labs/:id/tests',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          return LabTestsPage(labId: id ?? 0);
+        },
+      ),
+      GoRoute(
+        path: RouteNames.labCart,
+        builder: (context, state) => const LabCartPage(),
+      ),
+      GoRoute(
+        path: RouteNames.labOrders,
+        builder: (context, state) => const MyLabOrdersPage(),
+      ),
+      GoRoute(
+        path: '/lab-orders/:id',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          return LabOrderDetailsPage(orderId: id ?? 0);
+        },
+      ),
+      GoRoute(
         path: '/pharmacies/:id/products',
         builder: (context, state) {
           final id = int.tryParse(state.pathParameters['id'] ?? '');
@@ -147,10 +178,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final pharmacyOrderId = int.tryParse(
             state.uri.queryParameters['pharmacyOrderId'] ?? '',
           );
+          final labOrderId = int.tryParse(
+            state.uri.queryParameters['labOrderId'] ?? '',
+          );
           return PaymentPage(
             paymentId: id ?? 0,
             appointmentId: appointmentId,
             pharmacyOrderId: pharmacyOrderId,
+            labOrderId: labOrderId,
           );
         },
       ),
@@ -167,11 +202,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final pharmacyOrderId = int.tryParse(
             state.uri.queryParameters['pharmacyOrderId'] ?? '',
           );
+          final labOrderId = int.tryParse(
+            state.uri.queryParameters['labOrderId'] ?? '',
+          );
           return ManualPaymentPage(
             paymentId: id ?? 0,
             methodId: methodId ?? 0,
             appointmentId: appointmentId,
             pharmacyOrderId: pharmacyOrderId,
+            labOrderId: labOrderId,
           );
         },
       ),
@@ -185,10 +224,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final pharmacyOrderId = int.tryParse(
             state.uri.queryParameters['pharmacyOrderId'] ?? '',
           );
+          final labOrderId = int.tryParse(
+            state.uri.queryParameters['labOrderId'] ?? '',
+          );
           return PaymentStatusPage(
             paymentId: id ?? 0,
             appointmentId: appointmentId,
             pharmacyOrderId: pharmacyOrderId,
+            labOrderId: labOrderId,
           );
         },
       ),
@@ -202,10 +245,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final pharmacyOrderId = int.tryParse(
             state.uri.queryParameters['pharmacyOrderId'] ?? '',
           );
+          final labOrderId = int.tryParse(
+            state.uri.queryParameters['labOrderId'] ?? '',
+          );
           return PaymobCheckoutPage(
             paymentId: id ?? 0,
             appointmentId: appointmentId,
             pharmacyOrderId: pharmacyOrderId,
+            labOrderId: labOrderId,
           );
         },
       ),

@@ -11,6 +11,9 @@ class RouteNames {
   static const pharmacyCart = '/pharmacy/cart';
   static const pharmacyOrders = '/pharmacy/orders';
   static const pharmacyPrescriptionUpload = '/pharmacy/prescription-upload';
+  static const labs = '/labs';
+  static const labCart = '/labs/cart';
+  static const labOrders = '/lab-orders';
   static const account = '/account';
 
   static String doctorProfile(int id) => '/doctors/$id';
@@ -25,10 +28,20 @@ class RouteNames {
 
   static String pharmacyOrderDetails(int id) => '/pharmacy/orders/$id';
 
-  static String payment(int id, {int? appointmentId, int? pharmacyOrderId}) {
+  static String labTests(int id) => '/labs/$id/tests';
+
+  static String labOrderDetails(int id) => '/lab-orders/$id';
+
+  static String payment(
+    int id, {
+    int? appointmentId,
+    int? pharmacyOrderId,
+    int? labOrderId,
+  }) {
     final suffix = _query({
       'appointmentId': appointmentId,
       'pharmacyOrderId': pharmacyOrderId,
+      'labOrderId': labOrderId,
     });
     return '/payments/$id$suffix';
   }
@@ -38,11 +51,13 @@ class RouteNames {
     required int methodId,
     int? appointmentId,
     int? pharmacyOrderId,
+    int? labOrderId,
   }) {
     final suffix = _query({
       'methodId': methodId,
       'appointmentId': appointmentId,
       'pharmacyOrderId': pharmacyOrderId,
+      'labOrderId': labOrderId,
     });
     return '/payments/$id/manual$suffix';
   }
@@ -51,10 +66,12 @@ class RouteNames {
     int id, {
     int? appointmentId,
     int? pharmacyOrderId,
+    int? labOrderId,
   }) {
     final suffix = _query({
       'appointmentId': appointmentId,
       'pharmacyOrderId': pharmacyOrderId,
+      'labOrderId': labOrderId,
     });
     return '/payments/$id/status$suffix';
   }
@@ -63,10 +80,12 @@ class RouteNames {
     int id, {
     int? appointmentId,
     int? pharmacyOrderId,
+    int? labOrderId,
   }) {
     final suffix = _query({
       'appointmentId': appointmentId,
       'pharmacyOrderId': pharmacyOrderId,
+      'labOrderId': labOrderId,
     });
     return '/payments/$id/paymob$suffix';
   }

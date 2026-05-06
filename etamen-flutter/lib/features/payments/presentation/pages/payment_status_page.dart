@@ -18,12 +18,14 @@ class PaymentStatusPage extends ConsumerStatefulWidget {
     required this.paymentId,
     this.appointmentId,
     this.pharmacyOrderId,
+    this.labOrderId,
     super.key,
   });
 
   final int paymentId;
   final int? appointmentId;
   final int? pharmacyOrderId;
+  final int? labOrderId;
 
   @override
   ConsumerState<PaymentStatusPage> createState() => _PaymentStatusPageState();
@@ -88,7 +90,9 @@ class _PaymentStatusPageState extends ConsumerState<PaymentStatusPage> {
     if (status == PaymentStatusEnum.verified) {
       return [
         AppButton(
-          label: widget.pharmacyOrderId != null
+          label: widget.labOrderId != null
+              ? l10n.get('labOrderDetails')
+              : widget.pharmacyOrderId != null
               ? l10n.get('pharmacyOrderDetails')
               : l10n.get('viewAppointment'),
           onPressed: () {
@@ -100,6 +104,10 @@ class _PaymentStatusPageState extends ConsumerState<PaymentStatusPage> {
               context.go(
                 RouteNames.pharmacyOrderDetails(widget.pharmacyOrderId!),
               );
+              return;
+            }
+            if (widget.labOrderId != null) {
+              context.go(RouteNames.labOrderDetails(widget.labOrderId!));
               return;
             }
             context.go(RouteNames.home);
@@ -125,6 +133,7 @@ class _PaymentStatusPageState extends ConsumerState<PaymentStatusPage> {
               widget.paymentId,
               appointmentId: widget.appointmentId,
               pharmacyOrderId: widget.pharmacyOrderId,
+              labOrderId: widget.labOrderId,
             ),
           ),
         ),

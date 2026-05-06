@@ -20,12 +20,14 @@ class PaymentPage extends ConsumerWidget {
     required this.paymentId,
     this.appointmentId,
     this.pharmacyOrderId,
+    this.labOrderId,
     super.key,
   });
 
   final int paymentId;
   final int? appointmentId;
   final int? pharmacyOrderId;
+  final int? labOrderId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -124,6 +126,7 @@ class PaymentPage extends ConsumerWidget {
                   paymentId,
                   appointmentId: appointmentId,
                   pharmacyOrderId: pharmacyOrderId,
+                  labOrderId: labOrderId,
                 ),
               ),
             ),
@@ -141,6 +144,7 @@ class PaymentPage extends ConsumerWidget {
           methodId: method.id,
           appointmentId: appointmentId,
           pharmacyOrderId: pharmacyOrderId,
+          labOrderId: labOrderId,
         ),
       );
       return;
@@ -152,6 +156,7 @@ class PaymentPage extends ConsumerWidget {
           paymentId,
           appointmentId: appointmentId,
           pharmacyOrderId: pharmacyOrderId,
+          labOrderId: labOrderId,
         ),
       );
     }

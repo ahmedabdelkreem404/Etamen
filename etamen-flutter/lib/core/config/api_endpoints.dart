@@ -11,6 +11,8 @@ class ApiEndpoints {
   static const pharmacies = '/pharmacies';
   static const pharmacyPrescriptions = '/pharmacy/prescriptions';
   static const pharmacyOrders = '/pharmacy/orders';
+  static const labs = '/labs';
+  static const labOrders = '/lab/orders';
 
   static String doctor(int id) => '/doctors/$id';
 
@@ -38,4 +40,16 @@ class ApiEndpoints {
   static String pharmacyOrder(int id) => '/pharmacy/orders/$id';
 
   static String pharmacyOrderPay(int id) => '/pharmacy/orders/$id/pay';
+
+  static String lab(int id) => '/labs/$id';
+
+  static String labTests(int labId) => '/labs/$labId/tests';
+
+  static String labPackages(int labId) => '/labs/$labId/packages';
+
+  static String labOrder(int id) => '/lab/orders/$id';
+
+  static String labOrderPay(int id) => '/lab/orders/$id/pay';
+
+  static String labResultDownload(int id) => '/lab/results/$id/download';
 }

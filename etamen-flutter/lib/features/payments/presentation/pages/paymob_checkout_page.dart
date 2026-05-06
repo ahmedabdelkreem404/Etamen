@@ -14,12 +14,14 @@ class PaymobCheckoutPage extends ConsumerWidget {
     required this.paymentId,
     this.appointmentId,
     this.pharmacyOrderId,
+    this.labOrderId,
     super.key,
   });
 
   final int paymentId;
   final int? appointmentId;
   final int? pharmacyOrderId;
+  final int? labOrderId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -90,6 +92,7 @@ class PaymobCheckoutPage extends ConsumerWidget {
                 paymentId,
                 appointmentId: appointmentId,
                 pharmacyOrderId: pharmacyOrderId,
+                labOrderId: labOrderId,
               ),
             ),
           ),

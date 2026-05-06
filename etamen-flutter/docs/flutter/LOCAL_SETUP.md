@@ -128,3 +128,39 @@ Known limitations for Sprint 17:
 - No pharmacy provider dashboard.
 
 Flutter never sends `patient_user_id`, trusted prices, order totals, commission fields, provider net fields, `order_status`, or `payment_status` when creating pharmacy orders.
+
+## Sprint 18 Labs Testing Notes
+
+1. Run the Laravel backend and seed an approved active lab with active tests/packages.
+2. Login as a patient from Flutter.
+3. Open **المعامل** from the bottom navigation.
+4. Choose a lab and open tests/packages:
+   `GET /api/v1/labs/{lab}/tests`
+   and, when available, `GET /api/v1/labs/{lab}/packages`.
+5. Add tests/packages to the local lab order cart. The displayed subtotal is local only; the backend calculates final totals.
+6. Choose sample collection:
+   - **زيارة الفرع**
+   - **سحب عينة من المنزل** with a required home address.
+7. Create the order:
+   `POST /api/v1/lab/orders`.
+8. Open **طلبات المعمل** to list current patient orders:
+   `GET /api/v1/lab/orders`.
+9. Open order details:
+   `GET /api/v1/lab/orders/{order}`.
+10. If the order is payable, Flutter calls:
+    `POST /api/v1/lab/orders/{order}/pay`
+    and then reuses the existing payment UI.
+11. If a result is ready and visible, download it through:
+    `GET /api/v1/lab/results/{result}/download`.
+
+Known limitations for Sprint 18:
+
+- No map tracking.
+- No patient lab order cancellation UI.
+- Result opening is a foundation only: Flutter downloads the authorized file to a temporary local path and shows that path in-app. A later sprint can add native file opening.
+
+Contract note:
+
+- Current backend routes and Sprint 13 OpenAPI use `/lab/orders` and `/lab/results/{result}/download`. If a future contract aliases `/lab-orders`, update `ApiEndpoints` in one place.
+
+Flutter never sends `patient_user_id`, trusted prices, order totals, commission fields, provider net fields, `order_status`, or `payment_status` when creating lab orders, and never uploads lab results from the patient app.
