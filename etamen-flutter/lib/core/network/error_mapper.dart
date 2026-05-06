@@ -8,7 +8,7 @@ class ErrorMapper {
   ApiError fromDio(Object error) {
     if (error is! DioException) {
       return const ApiError(
-        message: 'حدث خطأ غير متوقع',
+        message: 'حدث خطأ غير متوقع، حاول مرة أخرى',
         type: ApiErrorType.unknown,
       );
     }
@@ -57,10 +57,13 @@ class ErrorMapper {
 
   String _messageForStatus(int? statusCode) {
     if (statusCode == 401) return 'انتهت الجلسة، سجل دخول مرة أخرى';
-    if (statusCode == 403) return 'ليس لديك صلاحية لتنفيذ هذا الإجراء';
+    if (statusCode == 403) return 'ليس لديك صلاحية';
+    if (statusCode == 404) return 'البيانات غير موجودة';
     if (statusCode == 422) return 'راجع البيانات المطلوبة';
-    if (statusCode == 429) return 'محاولات كثيرة، حاول بعد قليل';
-    if (statusCode != null && statusCode >= 500) return 'حدث خطأ غير متوقع';
+    if (statusCode == 429) return 'طلبات كثيرة، حاول بعد قليل';
+    if (statusCode != null && statusCode >= 500) {
+      return 'حدث خطأ غير متوقع، حاول مرة أخرى';
+    }
 
     return 'تعذر الاتصال بالسيرفر';
   }

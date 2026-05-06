@@ -431,3 +431,105 @@ Safety/legal notes:
 - Flutter does not claim Etamen replaces doctors, does not claim AI diagnoses or prescribes treatment, and does not promise automatic refunds.
 - Refund automation is still not implemented; paid cancellations and refunds require support/admin review.
 - Support contact values must be provided through configuration, not hardcoded in random UI files.
+
+## Sprint 25 Pilot Testing Notes
+
+Sprint 25 focuses on launch-candidate hardening and real-device smoke testing. It does not add new business features.
+
+### Run Backend Locally
+
+```powershell
+cd I:\Etamen\etamen-backend
+php artisan serve --host=0.0.0.0 --port=8000
+```
+
+Check health:
+
+```powershell
+Invoke-WebRequest http://127.0.0.1:8000/api/v1/system/health
+```
+
+### Run Flutter On Android Emulator
+
+```powershell
+cd I:\Etamen\etamen-flutter
+.\scripts\project_flutter.ps1 run `
+  --dart-define=ETAMEN_API_BASE_URL=http://10.0.2.2:8000/api/v1 `
+  --dart-define=ETAMEN_ENV=local
+```
+
+### Run Flutter On Real Android Device
+
+1. Put the phone and PC on the same network.
+2. Run Laravel with `--host=0.0.0.0`.
+3. Find the PC LAN IP:
+
+```powershell
+ipconfig
+```
+
+4. Use that IP from Flutter:
+
+```powershell
+.\scripts\project_flutter.ps1 run `
+  --dart-define=ETAMEN_API_BASE_URL=http://YOUR_LAN_IP:8000/api/v1 `
+  --dart-define=ETAMEN_ENV=local
+```
+
+If the app shows "تعذر الاتصال بالسيرفر":
+
+- Do not use `127.0.0.1` on a physical device.
+- Confirm Windows Firewall allows port `8000`.
+- Open `http://YOUR_LAN_IP:8000/api/v1/system/health` from the phone browser.
+- Confirm backend is still running.
+
+### Local Test Account
+
+The local Sprint 25 smoke account created during testing:
+
+- Email: `codexpatient@testlocal.com`
+- Password: `Password123`
+
+Use only in local/dev. Create fresh controlled accounts for staging/pilot.
+
+### Reset App State
+
+For emulator/device testing:
+
+```powershell
+adb shell pm clear com.etamen.etamen_app
+```
+
+Then run the app again and login.
+
+### Upload Proof Image Troubleshooting
+
+- Use a small JPG/PNG screenshot from gallery.
+- If picker does not open on device, check Android photo permissions prompt.
+- If backend rejects the proof, show the backend validation error and keep the payment/order state.
+- Flutter never stores the local proof path after the current UI state and never verifies payment itself.
+
+### Lab Result Download Troubleshooting
+
+- Confirm a result exists and is marked ready by backend/admin.
+- Download must go through the authorized backend endpoint.
+- If opening the downloaded file is not supported on a device, record the failure and keep the download foundation message; do not expose backend raw storage paths.
+
+### AI Unavailable Troubleshooting
+
+- If AI credentials are not configured on backend, Flutter should show "المساعد غير متاح مؤقتًا، جرّب لاحقًا".
+- Refusal and red-flag prompts are backend-safety decisions; Flutter displays the returned safe state and never bypasses it.
+
+### Pilot Docs
+
+Use these documents before giving the app to pilot users:
+
+- `docs/flutter/ENVIRONMENT_SETUP.md`
+- `docs/flutter/ANDROID_RELEASE_CHECKLIST.md`
+- `docs/flutter/E2E_TEST_PLAN.md`
+- `docs/flutter/SECURITY_PRIVACY_CHECK.md`
+- `docs/flutter/PILOT_FEATURE_MATRIX.md`
+- `docs/flutter/PILOT_READINESS_REPORT.md`
+- `../docs/PILOT_LAUNCH_CHECKLIST.md`
+
+Legal text is still a draft foundation and must be reviewed legally before public launch.
