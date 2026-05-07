@@ -124,3 +124,43 @@ Exact condition to invite supervised pilot users:
 3. Seed at least one pharmacy/product and one lab/test.
 4. Seed or create one care plan and one notification for the test patient.
 5. Rerun the documented Sprint 27 walkthrough and pass booking, payment proof upload, appointment confirmation, pharmacy/lab order basics, logout/session restore, and support/legal review.
+
+## Sprint 28 Seeded Demo Data Update
+
+Sprint 28 added a local/staging-only `PilotDemoSeeder` and converted the missing-data blockers into concrete demo data:
+
+- Patient: `pilot.patient@example.test` / `Password1234`.
+- Approved demo doctor with Cardiology specialty, branch, schedule, fee, and slots.
+- Active manual Vodafone Cash and InstaPay methods with fake local-only instructions.
+- Approved pharmacy with one normal product and one prescription-required product.
+- Approved lab with tests, package, and one demo lab-result file.
+- Health profile, latest vitals, medication reminder, active care plan, and welcome notification.
+
+Sprint 28 also fixed blockers discovered during setup:
+
+- MySQL migration reset failed because of long generated index names in several tables. Affected indexes now have safe explicit names.
+- MySQL rejected non-null appointment timestamp fields with no default. Doctor holiday and appointment slot start/end values now use `dateTime`.
+- Baseline AI provider seeding failed because encrypted config data was stored in a JSON column. The column now uses text storage that matches Laravel's encrypted cast output, with no AI secrets added.
+- Doctor slots failed in Flutter because the slots request used `per_page`; the backend endpoint expects `limit`. Flutter now sends `limit`.
+
+Seed/API verification status:
+
+- Host API login with `pilot.patient@example.test` passed.
+- `/doctors`, `/doctors/{id}/slots`, `/payment-methods`, `/pharmacies`, `/pharmacies/{id}/products`, `/labs`, `/labs/{id}/tests`, `/health/profile`, `/health/vitals/latest`, `/medications/today`, `/care-plans`, and `/notifications` returned seeded data.
+
+Sprint 28 real walkthrough status:
+
+- Emulator launch/login/home/services/doctors list were verified with screenshots under `I:/Etamen/.tmp/pilot-screenshots/`.
+- Doctor profile/booking reached a real slots mismatch, which was fixed.
+- Full post-fix walkthrough remains pending because automated ADB text input repeatedly truncated the `.test` email after app data clearing. Credentials were verified through the backend API, so this is a walkthrough automation limitation, not a credential/backend failure.
+
+Sprint 28 decision:
+
+**Ready after one manual seeded walkthrough pass. Not ready to invite the first 20 supervised pilot users yet.**
+
+Exact condition to invite users:
+
+1. Clear app data or reinstall after `migrate:fresh`.
+2. Manually login on emulator/real device with `pilot.patient@example.test`.
+3. Complete and record booking, manual payment proof upload/admin review, appointment confirmation, pharmacy order, lab order/result, vitals, medications, care plan check-in/meal log, notifications, AI safety prompts, account/legal/support, logout/session restore.
+4. If all pass with no blockers, move the decision to "Ready for supervised pilot".

@@ -34,15 +34,18 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 
-            $table->index(['doctor_schedule_id', 'day_of_week', 'is_active']);
+            $table->index(
+                ['doctor_schedule_id', 'day_of_week', 'is_active'],
+                'doctor_schedule_days_schedule_day_active_idx',
+            );
         });
 
         Schema::create('doctor_holidays', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('doctor_profile_id')->constrained('doctor_profiles')->cascadeOnDelete();
             $table->foreignId('provider_id')->constrained('providers')->cascadeOnDelete();
-            $table->timestamp('starts_at');
-            $table->timestamp('ends_at');
+            $table->dateTime('starts_at');
+            $table->dateTime('ends_at');
             $table->text('reason')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
@@ -55,8 +58,8 @@ return new class extends Migration
             $table->foreignId('doctor_profile_id')->constrained('doctor_profiles')->cascadeOnDelete();
             $table->foreignId('provider_id')->constrained('providers')->cascadeOnDelete();
             $table->foreignId('branch_id')->nullable()->constrained('provider_branches')->nullOnDelete();
-            $table->timestamp('starts_at');
-            $table->timestamp('ends_at');
+            $table->dateTime('starts_at');
+            $table->dateTime('ends_at');
             $table->enum('status', AppointmentSlotStatus::values())->default(AppointmentSlotStatus::Available->value);
             $table->timestamp('hold_expires_at')->nullable();
             $table->foreignId('generated_from_schedule_id')->nullable()->constrained('doctor_schedules')->nullOnDelete();

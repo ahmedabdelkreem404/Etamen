@@ -2,88 +2,107 @@
 
 This checklist defines the minimum backend/admin data needed before inviting real pilot users or claiming a complete real-device walkthrough.
 
+## Sprint 28 Update
+
+Sprint 28 added a dedicated backend seeder:
+
+```powershell
+cd I:\Etamen\etamen-backend
+php artisan db:seed --class=PilotDemoSeeder
+```
+
+The seeder is local/staging/testing only, guarded against production, idempotent, and contains no real payment credentials or real patient private data.
+
+Demo login for local walkthrough:
+
+- Patient email: `pilot.patient@example.test`
+- Password: `Password1234`
+
+Important after running `migrate:fresh`: clear the installed Flutter app data or reinstall the app, because old Sanctum/mobile tokens become invalid.
+
 ## Patient
 
-- [x] Local test patient exists: `sprint26195627@example.com`.
+- [x] Local demo patient exists: `pilot.patient@example.test`.
 - [x] Test password documented for local QA: `Password1234`.
 - [x] `/me` works after login.
 - [x] Health profile endpoint responds.
-- [ ] Pilot patient profiles are prepared with realistic names/phones if needed.
+- [x] Health profile is seeded for local/staging demo.
+- [ ] Pilot patient profiles are prepared with realistic non-demo names/phones if needed.
 
 ## Doctors
 
-- [ ] At least one approved doctor is visible publicly.
-- [ ] Specialty exists.
-- [ ] Branch/location exists.
-- [ ] Doctor schedule exists.
-- [ ] Available slots exist.
-- [ ] Consultation fee is configured by backend/admin.
-- [ ] Doctor appears in Flutter doctors list.
+- [x] At least one approved doctor is visible publicly.
+- [x] Specialty exists: Cardiology / `قلب وأوعية دموية`.
+- [x] Branch/location exists: Cairo / Nasr City.
+- [x] Doctor schedule exists.
+- [x] Available slots exist for the next 14 days.
+- [x] Consultation fee is configured by backend/admin.
+- [x] Doctor appears in Flutter doctors list.
 
-Current Sprint 27 finding: `/api/v1/doctors` returned an empty list.
+Sprint 28 verification: `/api/v1/doctors` returned the demo doctor, and `/api/v1/doctors/{doctor}/slots` returned available slots. Flutter was fixed to use the backend `limit` query parameter for slots.
 
 ## Payments
 
-- [ ] `manual_vodafone_cash` method is active.
-- [ ] `manual_instapay` method is active.
-- [ ] Arabic and English payment instructions are filled.
-- [ ] Proof upload endpoint accepts image proof.
+- [x] `manual_vodafone_cash` method is active.
+- [x] `manual_instapay` method is active.
+- [x] Arabic and English payment instructions are filled with fake local-only instructions.
+- [ ] Proof upload endpoint accepts image proof in full walkthrough.
 - [ ] Admin payment review path is known and staffed.
-- [ ] Test pending payment appointment exists.
-- [ ] Paymob mode is known: configured, disabled, or unavailable.
+- [ ] Test pending payment appointment exists after booking during walkthrough.
+- [x] Paymob mode is known: left inactive unless real sandbox config exists.
 
-Current Sprint 27 finding: `/api/v1/payment-methods` returned an empty list.
+Sprint 28 verification: `/api/v1/payment-methods` returned two active manual methods.
 
 ## Pharmacy
 
-- [ ] Approved pharmacy exists.
-- [ ] Active product without prescription exists.
-- [ ] Active product requiring prescription exists.
+- [x] Approved pharmacy exists.
+- [x] Active product without prescription exists: `Panadol Demo`.
+- [x] Active product requiring prescription exists: `Prescription Demo Medicine`.
 - [ ] Stock/order acceptance path is known.
 - [ ] Pharmacy order review path is known.
 - [ ] Pharmacy payment path is known.
 
-Current Sprint 27 finding: `/api/v1/pharmacies` returned an empty list.
+Sprint 28 verification: `/api/v1/pharmacies` returned the demo pharmacy and `/api/v1/pharmacies/{pharmacy}/products` returned two products.
 
 ## Labs
 
-- [ ] Approved lab exists.
-- [ ] Active lab test exists.
-- [ ] Package exists if packages are part of pilot.
+- [x] Approved lab exists.
+- [x] Active lab tests exist: `CBC Demo` and `Blood Sugar Demo`.
+- [x] Package exists: `Basic Checkup Demo`.
 - [ ] Branch visit order can be created.
 - [ ] Home collection order can be created if supported.
 - [ ] Admin/provider result upload path is known.
-- [ ] Result download endpoint has a test result.
+- [x] Result download endpoint has a seeded demo result file.
 
-Current Sprint 27 finding: `/api/v1/labs` returned an empty list.
+Sprint 28 verification: `/api/v1/labs`, `/api/v1/labs/{lab}/tests`, and `/api/v1/labs/{lab}/packages` returned demo data.
 
 ## Health / Medications
 
 - [x] Health profile endpoint responds.
-- [ ] Test vitals records exist or can be created during QA.
-- [ ] Medication reminder can be created.
-- [ ] Today medications can show a schedule item.
+- [x] Test vitals records exist.
+- [x] Medication reminder exists.
+- [x] Today medications can show schedule items.
 - [ ] Taken/skipped logs can be created.
 
-Current Sprint 27 finding: medications endpoint returned an empty list.
+Sprint 28 verification: latest vitals and today medications returned seeded demo data.
 
 ## Care Plans
 
-- [ ] Active care plan assigned to the test patient, or patient-created active plan exists.
-- [ ] Plan has meals/instructions/foods if testing full details.
+- [x] Active care plan assigned to the test patient, or patient-created active plan exists.
+- [x] Plan has meals/instructions/foods if testing full details.
 - [ ] Check-in and meal-log path can be tested.
 - [ ] Progress endpoint has data after logging.
 
-Current Sprint 27 finding: `/api/v1/care-plans` returned an empty list.
+Sprint 28 verification: `/api/v1/care-plans` returned the demo nutrition follow-up plan.
 
 ## Notifications
 
-- [ ] At least one notification can be seeded or generated.
+- [x] At least one notification can be seeded or generated.
 - [ ] Unread count changes when marking read.
 - [ ] Preferences can be loaded and saved.
 - [ ] Local token registration mode is known.
 
-Current Sprint 27 finding: notifications endpoint reachable, empty list.
+Sprint 28 verification: `/api/v1/notifications` returned one safe demo welcome notification.
 
 ## AI
 
@@ -95,7 +114,7 @@ Current Sprint 27 finding: notifications endpoint reachable, empty list.
 
 ## Minimum Before First 20 Pilot Users
 
-- [ ] One complete doctor booking flow passes.
+- [ ] One complete doctor booking flow passes on emulator/real device after manual credential entry.
 - [ ] One manual payment proof upload and admin verification passes.
 - [ ] My Appointments reflects confirmed appointment after payment.
 - [ ] One pharmacy order flow passes or is explicitly deferred from pilot.

@@ -91,7 +91,7 @@ return new class extends Migration
             $table->enum('provider', [AiProvider::DeepSeek->value, AiProvider::Gemini->value])->unique();
             $table->boolean('is_active')->default(false);
             $table->string('model')->nullable();
-            $table->json('encrypted_config')->nullable();
+            $table->text('encrypted_config')->nullable();
             $table->enum('safety_level', AiSafetyLevel::values())->default(AiSafetyLevel::Strict->value);
             $table->timestamps();
         });

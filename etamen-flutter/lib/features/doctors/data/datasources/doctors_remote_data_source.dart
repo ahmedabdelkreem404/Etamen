@@ -46,7 +46,7 @@ class DoctorsRemoteDataSource {
     return _client.get<List<DoctorSlotModel>>(
       ApiEndpoints.doctorSlots(doctorId),
       queryParameters: {
-        'per_page': perPage,
+        'limit': perPage,
         if (date(startDate) != null) 'start_date': date(startDate),
         if (date(endDate) != null) 'end_date': date(endDate),
       },

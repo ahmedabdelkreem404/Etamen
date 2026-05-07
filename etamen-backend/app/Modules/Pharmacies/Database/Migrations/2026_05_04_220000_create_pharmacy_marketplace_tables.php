@@ -40,7 +40,10 @@ return new class extends Migration
             $table->json('metadata')->nullable();
             $table->timestamps();
 
-            $table->index(['patient_user_id', 'pharmacy_provider_id']);
+            $table->index(
+                ['patient_user_id', 'pharmacy_provider_id'],
+                'pharmacy_prescriptions_patient_provider_idx',
+            );
         });
 
         Schema::create('pharmacy_orders', function (Blueprint $table): void {

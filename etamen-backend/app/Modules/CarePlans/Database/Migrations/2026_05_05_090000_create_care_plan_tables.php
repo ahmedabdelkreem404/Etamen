@@ -111,7 +111,10 @@ return new class extends Migration
             $table->text('general_notes')->nullable();
             $table->timestamps();
 
-            $table->unique(['care_plan_id', 'patient_user_id', 'checkin_date']);
+            $table->unique(
+                ['care_plan_id', 'patient_user_id', 'checkin_date'],
+                'care_plan_checkins_plan_patient_date_unique',
+            );
             $table->index(['patient_user_id', 'checkin_date']);
         });
 

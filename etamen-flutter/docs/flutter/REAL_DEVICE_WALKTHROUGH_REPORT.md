@@ -97,3 +97,73 @@ Exact condition to invite supervised pilot users:
 3. Seed at least one pharmacy and lab with active products/tests.
 4. Create/assign one care plan and one notification for the test patient.
 5. Rerun flows A through M and pass booking, manual payment, pharmacy order, lab order, health, logout, and legal/support checks.
+
+---
+
+# Sprint 28 Seeded Walkthrough Update
+
+## Walkthrough Context
+
+- Date/time: 2026-05-06, Africa/Cairo.
+- Device used: Android emulator `emulator-5554`.
+- Build type: local debug APK.
+- Flutter API base URL: `http://10.0.2.2:8000/api/v1`.
+- Backend host health URL: `http://127.0.0.1:8000/api/v1/system/health`.
+- Demo patient account: `pilot.patient@example.test`.
+- Demo password: `Password1234`.
+- Backend data source: `PilotDemoSeeder`.
+
+## Environment And Seed Status
+
+| Area | Status | Evidence / Notes |
+| --- | --- | --- |
+| Backend migrations | PASS | `migrate:fresh --seed` passed after MySQL-compatible index/timestamp/AI-config schema fixes. |
+| Pilot demo seeder | PASS | `php artisan db:seed --class=PilotDemoSeeder` creates local/staging demo data only. |
+| Patient login API | PASS | Host API login returns `pilot.patient@example.test`. |
+| Doctors | PASS | One approved demo doctor is returned by `/doctors`. |
+| Doctor slots | PASS | `/doctors/{id}/slots` returns available slots; Flutter was fixed to use `limit`. |
+| Payment methods | PASS | Vodafone Cash and InstaPay manual methods are active with fake local-only instructions. |
+| Pharmacy | PASS | One approved pharmacy and two active products are returned. |
+| Labs | PASS | One approved lab, two tests, one package, and one demo result are seeded. |
+| Health | PASS | Health profile and latest vitals are seeded. |
+| Medications | PASS | A twice-daily medication reminder produces today schedule items. |
+| Care plans | PASS | One active nutrition care plan with meals, foods, and instructions is seeded. |
+| Notifications | PASS | One safe demo notification is seeded. |
+| AI | PARTIAL | No AI secrets are seeded; provider mode must be checked from backend config during manual pass. |
+
+## Sprint 28 Walkthrough Results
+
+| Flow | Status | Evidence / Screenshot | Issue | Fix | Remaining Action |
+| --- | --- | --- | --- | --- | --- |
+| Login / Home | PASS | `I:/Etamen/.tmp/pilot-screenshots/01-login.png`, `02-home.png` | None in first seeded pass. | None. | Retest after every database reset with cleared app data. |
+| Services tab | PASS | `03-services.png` | None. | None. | Continue manual visual QA. |
+| Doctors list | PASS | `04-doctors.png` | Demo doctor visible. | Seeder added approved doctor and public profile. | None. |
+| Doctor profile / slots | PARTIAL -> FIXED | `05-doctor-profile.png`, `06-booking.png` | Slots area showed a network error because Flutter sent `per_page` but backend expects `limit`. | Updated doctor remote data source query parameter to `limit`. | Manually retest booking after clean login. |
+| Manual payment | NOT TESTED | Pending screenshot. | Full appointment/payment path was not completed after slots fix. | Payment methods are now seeded. | Book appointment, choose manual method, upload proof, admin review. |
+| My appointments | NOT TESTED | Pending screenshot. | Needs booked appointment. | Seeder now enables booking prerequisites. | Retest after booking. |
+| Pharmacy | NOT TESTED | Pending screenshot. | Order creation not completed in automated pass. | Seeder added pharmacy/products. | Create order with and without prescription. |
+| Labs | NOT TESTED | Pending screenshot. | Order creation/result download not completed in automated pass. | Seeder added lab/tests/package/demo result. | Create branch/home orders and test result download. |
+| Health / Vitals | PARTIAL | Pending screenshot. | Seeded data exists; add-vital form not completed in automated pass. | Seeder added vitals/profile. | Add new blood pressure/blood sugar/weight manually. |
+| Medications | PARTIAL | Pending screenshot. | Today schedule seeded; taken/skipped not completed. | Seeder added reminder. | Mark taken/skipped manually. |
+| Care Plans | PARTIAL | Pending screenshot. | Plan seeded; check-in/meal log not completed. | Seeder added active plan. | Submit check-in and meal log. |
+| Notifications | PARTIAL | Pending screenshot. | Notification seeded; read/read-all/delete not completed. | Seeder added welcome notification. | Retest badge and read actions. |
+| AI Assistant | PARTIAL | Pending screenshot. | Provider/refusal/red-flag paths not exercised. | No secrets added. | Verify configured provider mode and prompts manually. |
+| Account / Legal / Support | PARTIAL | Existing Sprint 27 evidence. | Not repeated after final DB reset. | None. | Retest account/legal/language/logout in final manual pass. |
+
+## Issues Found And Fixed
+
+- Backend MySQL migration failed on overly long auto-generated index names. Fixed by adding explicit shorter index names in affected appointment, pharmacy, medication, and care plan migrations.
+- Backend MySQL migration rejected non-null appointment timestamp fields with no default. Fixed by using `dateTime` for doctor holiday and appointment slot start/end values.
+- Baseline AI provider seeding failed because encrypted config data was stored in a JSON column. Fixed by using text storage for Laravel's encrypted cast output, without adding any AI secrets.
+- Doctor slots failed in Flutter because the app used `per_page` for a backend endpoint that accepts `limit`. Fixed in the doctors remote data source.
+- Stale Flutter tokens after `migrate:fresh` caused unauthenticated protected routes. Documented app data clearing/reinstall after database resets.
+
+## Automation Limitation
+
+After the database reset and app data clear, ADB text entry repeatedly truncated the `.test` email in the emulator. The backend credentials were verified through the host API, but a full post-fix click-by-click walkthrough still needs manual credential entry on emulator or a physical Android device.
+
+## Sprint 28 Decision
+
+Decision: **Ready after one manual seeded walkthrough pass, not ready to invite the first 20 users yet.**
+
+The seed data and two blocking technical issues are fixed. The exact remaining condition is one successful manual pass through booking, manual payment proof upload/admin review, My Appointments, pharmacy order, lab order/result, vitals, medications, care plans, notifications, AI safety prompts, account/legal/support, and logout/session restore using `pilot.patient@example.test`.

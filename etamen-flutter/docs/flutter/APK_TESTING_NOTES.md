@@ -1,5 +1,32 @@
 # Sprint 27 APK Testing Notes
 
+## Sprint 28 Build Notes
+
+Sprint 28 used the same debug APK flow. Rebuild after seed/data fixes:
+
+```powershell
+cd I:\Etamen\etamen-flutter
+.\scripts\project_flutter.ps1 build apk --debug --target-platform android-arm64 --dart-define=ETAMEN_API_BASE_URL=http://10.0.2.2:8000/api/v1 --dart-define=ETAMEN_ENV=local
+```
+
+For the Android emulator, an x64 debug APK can also be built and installed:
+
+```powershell
+.\scripts\project_flutter.ps1 build apk --debug --target-platform android-x64 --dart-define=ETAMEN_API_BASE_URL=http://10.0.2.2:8000/api/v1 --dart-define=ETAMEN_ENV=local
+adb -s emulator-5554 install -r build\app\outputs\flutter-apk\app-debug.apk
+```
+
+After `php artisan migrate:fresh`, clear app data before relogin:
+
+```powershell
+adb -s emulator-5554 shell pm clear com.etamen.etamen_app
+```
+
+Demo login:
+
+- Email: `pilot.patient@example.test`
+- Password: `Password1234`
+
 ## Emulator Build Used For Walkthrough
 
 Use Android x64 for the currently running emulator:

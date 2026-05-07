@@ -67,7 +67,10 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(['medication_reminder_id', 'scheduled_for']);
-            $table->index(['patient_user_id', 'scheduled_for']);
+            $table->index(
+                ['patient_user_id', 'scheduled_for'],
+                'med_logs_patient_schedule_idx',
+            );
             $table->index(['medication_reminder_id', 'action']);
         });
 
@@ -97,8 +100,14 @@ return new class extends Migration
             $table->text('failure_reason')->nullable();
             $table->timestamps();
 
-            $table->index(['patient_user_id', 'scheduled_for']);
-            $table->index(['medication_reminder_id', 'status']);
+            $table->index(
+                ['patient_user_id', 'scheduled_for'],
+                'med_notification_queue_patient_schedule_idx',
+            );
+            $table->index(
+                ['medication_reminder_id', 'status'],
+                'med_notification_queue_reminder_status_idx',
+            );
             $table->unique(['medication_reminder_id', 'scheduled_for', 'notification_type', 'channel'], 'med_notification_unique');
         });
     }
