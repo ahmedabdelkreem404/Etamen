@@ -54,3 +54,36 @@ Sprint 30 reworked the app shell, Home, Doctor list, Doctor profile, Booking, Pa
 - Overall old app/site parity: **88%**.
 
 The new Etamen app is now close to the old Doctor Finder feeling in the doctor journey, but it is not an exact 1:1 restoration because real doctor imagery, ratings, and full old public website content are still missing.
+
+## Sprint 31 Final Old UI/UX Clone Pass
+
+Sprint 31 moved from "inspired by old UI" to a stricter visual clone pass. Screenshots were captured under `I:/Etamen/.tmp/sprint31-new-screenshots/`.
+
+| Area | Old UI Reference Quality | New UI Current Quality | Parity % | Missing Pieces | Fix Applied In Sprint 31 | Remaining Gap |
+| --- | --- | --- | ---: | --- | --- | --- |
+| Color palette | Bright cyan/teal with orange action accents | Old primary cyan `#01D8C9`, white cards, orange selected/active states | 94% | Exact template color calibration | Tightened theme colors and nav/slot orange accents | Minor shade/contrast review |
+| Typography | Bold simple Doctor Finder headings | Stronger old-like weights and smaller Home hero title | 88% | Exact old font family | Adjusted Home and card hierarchy | Product-owner font approval |
+| Home screen | Teal header, search, promo banner, appointment card, specialties, nearby doctors | Matches old first-viewport structure closely | 94% | Real doctor/banner image and exact English-first layout | Rebuilt Home into old-style header/search/banner/appointment/speciality/nearby flow | Not 95% because imagery is placeholder |
+| Bottom navigation / shell | White 5-tab shell with orange active icon | White five-tab shell with orange active state | 92% | Exact old icon set/animation | Removed generic selected Material surface | Microspacing differs |
+| Doctor cards | Photo-based premium white doctor cards | Large safe avatar block, rating row, chips, fee/location/experience, old-style CTA area | 92% | Real doctor photo and verified rating fields | Rebuilt avatar/card density and placeholder treatment | Backend data gap prevents 95% |
+| Doctor profile | Strong info card, photo, rating, grouped chips, about, slots | White old-style info card, avatar placeholder, rating row, chips, about, compact slots | 93% | Real photo, reviews, map/credential data | Reworked profile hero away from generic gradient and shortened slots | Backend data gap |
+| Booking flow | MakeAppointment day/time selector and orange selected state | Stepper, doctor summary, horizontal day selector, orange selected day/time, confirmation card | 94% | Exact old date language/animation | Rebuilt SlotPicker to show day row + active-day slots only | CTA still below fold on some devices |
+| Payment flow | Consumer method cards and proof flow | Polished manual method cards, proof upload card, friendly pending review copy | 90% | Full old gateway art/branding | Retained safe Sprint 30 payment polish and verified screenshots | Cannot copy old payment logic/assets |
+| Empty states | Friendly visuals | Friendly white-card/icon empty states | 86% | Owned illustration set | Placeholder/icon style retained | Optional custom illustration pack |
+| Cards/buttons/chips | Rounded white cards, teal chips, orange actions | Strong white cards, soft borders, teal chips, orange active states | 93% | Exact pixel spacing | Theme/card/chip/slot updates | Small-device polish remains |
+| Arabic copy | Simple patient copy mixed with old English template | Arabic-first patient copy, with old English visual labels where helpful | 88% | Product-owner tone approval | Confirmed no raw technical payment status in visible flow | PO/legal review still needed |
+| Website/landing parity | Old Doctor Finder public landing first viewport | Dark strip, white nav, orange CTA, peach/teal hero, `Find A Doctor!`, search pill, service cards | 90% | Full old marketing site/CMS/search flow | Tightened `welcome.blade.php` to old first viewport | Public launch content gap |
+| Overall patient feeling | Polished consumer Doctor Finder product | Doctor-booking path feels close to old app/site, not admin-like | 91% | Real photos/ratings/full website | Final clone pass applied safely | Still not exact old app |
+
+## Sprint 31 Final Parity Estimate
+
+- Home: **94%**.
+- Doctor list: **92%**.
+- Doctor profile: **93%**.
+- Booking flow: **94%**.
+- Payment visual flow: **90%**.
+- Website landing first viewport: **90%**.
+- Overall mobile app: **91%**.
+- Overall app/site: **91%**.
+
+The requested 95%+ doctor journey target was not honestly reached because real doctor photos, real ratings/reviews, exact old assets, and some old copy/layout details are missing. The new visual layer is now close enough for product-owner screenshot review, but it should not be described as "the same as the old app".

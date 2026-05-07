@@ -114,115 +114,119 @@ class HomeDashboardTab extends ConsumerWidget {
         : name.split(' ').first;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 26),
+      padding: EdgeInsets.zero,
       children: [
         _LegacyHomeHero(
           name: firstName,
           onSearchTap: () => context.push(RouteNames.doctors),
           onBookDoctorTap: () => context.push(RouteNames.doctors),
         ),
-        const SizedBox(height: 14),
-        _DoctorBookingHighlightCard(
-          onTap: () => context.push(RouteNames.doctors),
-        ),
-        const SizedBox(height: 22),
-        HomeSectionHeader(
-          title: uxCopy(
-            context,
-            'التخصصات والخدمات',
-            'Specialties and services',
-          ),
-          subtitle: uxCopy(
-            context,
-            'ابدأ بالحجز الطبي، ثم الصيدلية والمعمل والمتابعة.',
-            'Start with doctor booking, then pharmacy, labs, and follow-up.',
-          ),
-        ),
-        const SizedBox(height: 10),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final narrow = constraints.maxWidth < 380;
-            return GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: narrow ? 2 : 4,
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              childAspectRatio: narrow ? 1.06 : 0.88,
-              children: [
-                FeatureActionCard(
-                  icon: Icons.medical_services_outlined,
-                  title: uxCopy(context, 'دكتور', 'Doctor'),
-                  subtitle: uxCopy(context, 'احجز موعد', 'Book a slot'),
-                  onTap: () => context.push(RouteNames.doctors),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 26),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _OldFinderPromoBanner(
+                onTap: () => context.push(RouteNames.doctors),
+              ),
+              const SizedBox(height: 12),
+              _OldUpcomingAppointmentCard(onTap: () => onOpenTab(1)),
+              const SizedBox(height: 16),
+              HomeSectionHeader(
+                title: uxCopy(context, 'التخصصات', 'Speciality'),
+                subtitle: uxCopy(
+                  context,
+                  'اختر تخصصًا وابدأ الحجز مثل التطبيق القديم.',
+                  'Choose a category and start like the old app.',
                 ),
-                FeatureActionCard(
-                  icon: Icons.local_pharmacy_outlined,
-                  title: uxCopy(context, 'صيدلية', 'Pharmacy'),
-                  subtitle: uxCopy(context, 'منتجات وروشتة', 'Orders and Rx'),
-                  onTap: () => context.push(RouteNames.pharmacies),
+              ),
+              const SizedBox(height: 10),
+              _OldSpecialityStrip(
+                onDoctorsTap: () => context.push(RouteNames.doctors),
+                onPharmacyTap: () => context.push(RouteNames.pharmacies),
+                onLabsTap: () => context.push(RouteNames.labs),
+              ),
+              const SizedBox(height: 18),
+              HomeSectionHeader(
+                title: uxCopy(context, 'أطباء قريبون', 'Nearby Doctors'),
+                subtitle: uxCopy(
+                  context,
+                  'كروت مختصرة للحجز السريع.',
+                  'Compact cards for quick booking.',
                 ),
-                FeatureActionCard(
-                  icon: Icons.biotech_outlined,
-                  title: uxCopy(context, 'معمل', 'Labs'),
-                  subtitle: uxCopy(context, 'تحاليل وباقات', 'Tests'),
-                  onTap: () => context.push(RouteNames.labs),
+              ),
+              const SizedBox(height: 10),
+              _OldNearbyDoctorsPreview(
+                onTap: () => context.push(RouteNames.doctors),
+              ),
+              const SizedBox(height: 22),
+              HomeSectionHeader(
+                title: uxCopy(context, 'خدمات أخرى', 'More services'),
+                subtitle: uxCopy(
+                  context,
+                  'الصيدلية والمعمل والمتابعة تظهر بعد تجربة الحجز الأساسية.',
+                  'Pharmacy, labs, and follow-up stay below the booking path.',
                 ),
-                FeatureActionCard(
-                  icon: Icons.monitor_heart_outlined,
-                  title: uxCopy(context, 'متابعة', 'Vitals'),
-                  subtitle: uxCopy(context, 'قياسات اليوم', 'Track today'),
-                  onTap: () => context.push(RouteNames.addVital()),
+              ),
+              const SizedBox(height: 10),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final narrow = constraints.maxWidth < 380;
+                  return GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                    childAspectRatio: narrow ? 1.08 : 1.18,
+                    children: [
+                      FeatureActionCard(
+                        icon: Icons.local_pharmacy_outlined,
+                        title: uxCopy(context, 'صيدلية', 'Pharmacy'),
+                        subtitle: uxCopy(
+                          context,
+                          'منتجات وروشتة',
+                          'Orders and Rx',
+                        ),
+                        onTap: () => context.push(RouteNames.pharmacies),
+                      ),
+                      FeatureActionCard(
+                        icon: Icons.biotech_outlined,
+                        title: uxCopy(context, 'معمل', 'Labs'),
+                        subtitle: uxCopy(context, 'تحاليل وباقات', 'Tests'),
+                        onTap: () => context.push(RouteNames.labs),
+                      ),
+                      FeatureActionCard(
+                        icon: Icons.monitor_heart_outlined,
+                        title: uxCopy(context, 'متابعة', 'Vitals'),
+                        subtitle: uxCopy(context, 'قياسات اليوم', 'Track'),
+                        onTap: () => context.push(RouteNames.addVital()),
+                      ),
+                      FeatureActionCard(
+                        icon: Icons.smart_toy_outlined,
+                        title: uxCopy(context, 'المساعد', 'AI'),
+                        subtitle: uxCopy(context, 'تنظيم فقط', 'Safe help'),
+                        onTap: () => context.push(RouteNames.ai),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 18),
+              PatientSummaryCard(
+                icon: Icons.health_and_safety_outlined,
+                title: uxCopy(context, 'متابعة صحتك', 'Health follow-up'),
+                body: uxCopy(
+                  context,
+                  'قياسات وأدوية وخطط متابعة في مكان واحد.',
+                  'Vitals, reminders, and care plans together.',
                 ),
-              ],
-            );
-          },
-        ),
-        const SizedBox(height: 22),
-        HomeSectionHeader(
-          title: uxCopy(context, 'متابعة اليوم', 'Today follow-up'),
-          subtitle: uxCopy(
-            context,
-            'مواعيدك وقياساتك وتنبيهاتك في كروت هادئة وواضحة.',
-            'Appointments, vitals, and reminders in clear cards.',
+                actionLabel: uxCopy(context, 'فتح', 'Open'),
+                onTap: () => onOpenTab(3),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 10),
-        PatientSummaryCard(
-          icon: Icons.event_available_outlined,
-          title: uxCopy(context, 'المواعيد القادمة', 'Upcoming appointments'),
-          body: uxCopy(
-            context,
-            'راجع موعدك القادم وحالة الدفع بدون تفاصيل معقدة.',
-            'Review your next visit and payment state without clutter.',
-          ),
-          actionLabel: uxCopy(context, 'عرض', 'View'),
-          onTap: () => onOpenTab(1),
-        ),
-        PatientSummaryCard(
-          icon: Icons.medication_outlined,
-          title: uxCopy(context, 'جرعات اليوم', 'Today medications'),
-          body: uxCopy(
-            context,
-            'تنظيم الجرعات للتذكير فقط، وليس وصفًا أو تعديلًا للعلاج.',
-            'Dose tracking for reminders only, never treatment advice.',
-          ),
-          actionLabel: uxCopy(context, 'جرعاتي', 'Doses'),
-          onTap: () => context.push(RouteNames.todayMedications),
-        ),
-        PatientSummaryCard(
-          icon: Icons.health_and_safety_outlined,
-          title: uxCopy(context, 'متابعة صحتك', 'Health follow-up'),
-          body: uxCopy(
-            context,
-            'قياسات وأدوية وخطط متابعة في مكان واحد.',
-            'Vitals, reminders, and care plans together.',
-          ),
-          actionLabel: uxCopy(context, 'فتح', 'Open'),
-          onTap: () => onOpenTab(3),
-        ),
-        const SizedBox(height: 16),
-        _AiSafeCta(),
       ],
     );
   }
@@ -659,146 +663,120 @@ class _LegacyHomeHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final greeting = name == null
-        ? uxCopy(context, 'أهلًا بك في اطمن', 'Welcome to Etamen')
-        : uxCopy(context, 'أهلًا يا $name', 'Hello, $name');
+        ? uxCopy(context, 'Welcome, User', 'Welcome, User')
+        : uxCopy(context, 'Welcome, $name', 'Welcome, $name');
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
-      decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.24),
-            blurRadius: 22,
-            offset: const Offset(0, 12),
-          ),
-        ],
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(
+        14,
+        MediaQuery.paddingOf(context).top + 12,
+        14,
+        18,
       ),
-      child: Stack(
+      decoration: const BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(12)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          PositionedDirectional(
-            top: -28,
-            end: -30,
-            child: Transform.rotate(
-              angle: -0.35,
-              child: Container(
-                width: 140,
-                height: 170,
-                color: Colors.white.withValues(alpha: 0.10),
-              ),
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          greeting,
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900,
-                                height: 1.08,
-                              ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          uxCopy(
-                            context,
-                            'ابحث عن طبيب واحجز موعدك بخطوات بسيطة.',
-                            'Find a doctor and book in simple steps.',
-                          ),
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                color: Colors.white.withValues(alpha: 0.90),
-                                height: 1.4,
-                              ),
-                        ),
-                      ],
-                    ),
+              Expanded(
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: greeting.contains(',')
+                            ? '${greeting.split(',').first}, '
+                            : '',
+                        style: const TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      TextSpan(
+                        text: greeting.contains(',')
+                            ? greeting.split(',').skip(1).join(',').trim()
+                            : greeting,
+                        style: const TextStyle(fontWeight: FontWeight.w900),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  const _HeroDoctorBadge(),
-                ],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Colors.white,
+                    fontSize: 24,
+                    height: 1.1,
+                  ),
+                ),
               ),
-              const SizedBox(height: 18),
-              Material(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(999),
-                elevation: 0,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(999),
-                  onTap: onSearchTap,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 8),
-                        const Icon(Icons.search, color: AppColors.primary),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            uxCopy(
-                              context,
-                              'ابحث باسم الدكتور أو التخصص',
-                              'Search doctor name or specialty',
+              const SizedBox(width: 10),
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Center(
+                  child: NotificationBadge(
+                    onTap: () => context.push(RouteNames.notifications),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: Material(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(9),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(9),
+                    onTap: onSearchTap,
+                    child: SizedBox(
+                      height: 48,
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Text(
+                              uxCopy(
+                                context,
+                                'Search doctor by name',
+                                'Search doctor by name',
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: Colors.grey.shade400,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(
-                                  color: AppColors.softText,
-                                  fontWeight: FontWeight.w700,
-                                ),
                           ),
-                        ),
-                        Container(
-                          width: 42,
-                          height: 42,
-                          decoration: const BoxDecoration(
-                            color: AppColors.appointmentOrange,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.arrow_forward,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _HeroShortcut(
-                    icon: Icons.event_available_outlined,
-                    label: uxCopy(context, 'احجز الآن', 'Book now'),
-                    onTap: onBookDoctorTap,
+              const SizedBox(width: 8),
+              Material(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: onBookDoctorTap,
+                  child: const SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: Icon(Icons.search, color: AppColors.primary),
                   ),
-                  _HeroShortcut(
-                    icon: Icons.medical_services_outlined,
-                    label: uxCopy(context, 'التخصصات', 'Specialties'),
-                    onTap: onBookDoctorTap,
-                  ),
-                  _HeroShortcut(
-                    icon: Icons.notifications_none_outlined,
-                    label: uxCopy(context, 'تنبيهاتك', 'Alerts'),
-                    onTap: () => context.push(RouteNames.notifications),
-                  ),
-                ],
+                ),
               ),
             ],
           ),
@@ -808,63 +786,129 @@ class _LegacyHomeHero extends StatelessWidget {
   }
 }
 
-class _HeroDoctorBadge extends StatelessWidget {
-  const _HeroDoctorBadge();
+class _OldFinderPromoBanner extends StatelessWidget {
+  const _OldFinderPromoBanner({required this.onTap});
+
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 76,
-      height: 88,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primaryDark.withValues(alpha: 0.18),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Positioned(
-            top: 10,
-            child: Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: AppColors.medicalMint,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Icon(
-                Icons.person_outline,
-                color: AppColors.primary,
-                size: 30,
-              ),
+    return Material(
+      color: AppColors.legacyPanel,
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: onTap,
+        child: Container(
+          height: 132,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            gradient: const LinearGradient(
+              begin: AlignmentDirectional.centerStart,
+              end: AlignmentDirectional.centerEnd,
+              colors: [AppColors.primary, AppColors.legacyPanel],
             ),
           ),
-          Positioned(
-            bottom: 12,
-            child: Container(
-              width: 52,
-              height: 8,
-              decoration: BoxDecoration(
-                color: AppColors.border,
-                borderRadius: BorderRadius.circular(999),
+          child: Stack(
+            children: [
+              PositionedDirectional(
+                end: -20,
+                top: -22,
+                child: Container(
+                  width: 124,
+                  height: 160,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.28),
+                    borderRadius: BorderRadius.circular(60),
+                  ),
+                ),
               ),
-            ),
+              PositionedDirectional(
+                end: 8,
+                bottom: 0,
+                child: Container(
+                  width: 84,
+                  height: 108,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Icon(
+                    Icons.medical_services_outlined,
+                    color: AppColors.primary,
+                    size: 46,
+                  ),
+                ),
+              ),
+              PositionedDirectional(
+                start: 2,
+                top: 0,
+                bottom: 0,
+                end: 104,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.add_box_outlined,
+                          color: Colors.white,
+                          size: 14,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          uxCopy(context, 'MEDICAL CENTER', 'MEDICAL CENTER'),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
+                                color: Colors.white,
+                                fontSize: 8,
+                                fontWeight: FontWeight.w900,
+                              ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      uxCopy(
+                        context,
+                        'Search Doctors\nNearby With Sorted\nby Speciality',
+                        'Search Doctors\nNearby With Sorted\nby Speciality',
+                      ),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        height: 1.05,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      uxCopy(
+                        context,
+                        'Choose from different categories',
+                        'Choose from different categories',
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.80),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _DoctorBookingHighlightCard extends StatelessWidget {
-  const _DoctorBookingHighlightCard({required this.onTap});
+class _OldUpcomingAppointmentCard extends StatelessWidget {
+  const _OldUpcomingAppointmentCard({required this.onTap});
 
   final VoidCallback onTap;
 
@@ -872,52 +916,40 @@ class _DoctorBookingHighlightCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return SoftMedicalCard(
       onTap: onTap,
-      padding: const EdgeInsets.all(14),
-      child: Row(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Column(
         children: [
-          Container(
-            width: 74,
-            height: 74,
-            decoration: BoxDecoration(
-              color: AppColors.medicalMint,
-              borderRadius: BorderRadius.circular(22),
+          Text(
+            uxCopy(
+              context,
+              "You don't have any appointment",
+              "You don't have any appointment",
             ),
-            child: const Icon(
-              Icons.person_search_outlined,
-              color: AppColors.primary,
-              size: 36,
-            ),
+            textAlign: TextAlign.center,
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          const SizedBox(height: 5),
+          Text.rich(
+            TextSpan(
+              text: uxCopy(
+                context,
+                'Find best doctors near you by speciality, ',
+                'Find best doctors near you by speciality, ',
+              ),
               children: [
-                Text(
-                  uxCopy(context, 'حجز الأطباء أولًا', 'Doctor booking first'),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  uxCopy(
-                    context,
-                    'اختر التخصص والطبيب ثم الموعد المتاح.',
-                    'Choose specialty, doctor, then the available slot.',
-                  ),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.muted,
-                    height: 1.35,
-                  ),
+                TextSpan(
+                  text: uxCopy(context, 'click here', 'click here'),
+                  style: const TextStyle(color: AppColors.appointmentOrange),
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: 8),
-          FilledButton(
-            onPressed: onTap,
-            child: Text(uxCopy(context, 'ابدأ', 'Start')),
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: AppColors.muted,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -925,43 +957,260 @@ class _DoctorBookingHighlightCard extends StatelessWidget {
   }
 }
 
-class _HeroShortcut extends StatelessWidget {
-  const _HeroShortcut({
+class _OldSpecialityStrip extends StatelessWidget {
+  const _OldSpecialityStrip({
+    required this.onDoctorsTap,
+    required this.onPharmacyTap,
+    required this.onLabsTap,
+  });
+
+  final VoidCallback onDoctorsTap;
+  final VoidCallback onPharmacyTap;
+  final VoidCallback onLabsTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final items = [
+      _OldSpecialityItem(
+        icon: Icons.medical_services_outlined,
+        label: uxCopy(context, 'Dentist', 'Dentist'),
+        color: const Color(0xFFFF6D7E),
+        onTap: onDoctorsTap,
+      ),
+      _OldSpecialityItem(
+        icon: Icons.favorite_border,
+        label: uxCopy(context, 'Cardiologist', 'Cardiologist'),
+        color: const Color(0xFF8ADFE8),
+        onTap: onDoctorsTap,
+      ),
+      _OldSpecialityItem(
+        icon: Icons.local_pharmacy_outlined,
+        label: uxCopy(context, 'Pharmacy', 'Pharmacy'),
+        color: const Color(0xFFFF8EB8),
+        onTap: onPharmacyTap,
+      ),
+      _OldSpecialityItem(
+        icon: Icons.biotech_outlined,
+        label: uxCopy(context, 'Laboratory', 'Laboratory'),
+        color: const Color(0xFFFFB15C),
+        onTap: onLabsTap,
+      ),
+    ];
+
+    return SizedBox(
+      height: 54,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: items.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, index) => items[index],
+      ),
+    );
+  }
+}
+
+class _OldSpecialityItem extends StatelessWidget {
+  const _OldSpecialityItem({
     required this.icon,
     required this.label,
+    required this.color,
     required this.onTap,
   });
 
   final IconData icon;
   final String label;
+  final Color color;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white.withValues(alpha: 0.16),
-      borderRadius: BorderRadius.circular(999),
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(9),
       child: InkWell(
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(9),
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: Container(
+          width: 126,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(9),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, color: Colors.white, size: 16),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
+              Icon(icon, color: color, size: 22),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _OldNearbyDoctorsPreview extends StatelessWidget {
+  const _OldNearbyDoctorsPreview({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _OldNearbyDoctorMiniCard(
+            initials: 'دأ',
+            name: uxCopy(context, 'د. أحمد التجريبي', 'Dr. Myles Abbott'),
+            specialty: uxCopy(context, 'قلب وأوعية', 'Orthopedic'),
+            onTap: onTap,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _OldNearbyDoctorMiniCard(
+            initials: 'DO',
+            name: uxCopy(context, 'Demo Doctor', 'Dr Mark Smith'),
+            specialty: uxCopy(context, 'Pediatrics', 'Ayurveda'),
+            onTap: onTap,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _OldNearbyDoctorMiniCard extends StatelessWidget {
+  const _OldNearbyDoctorMiniCard({
+    required this.initials,
+    required this.name,
+    required this.specialty,
+    required this.onTap,
+  });
+
+  final String initials;
+  final String name;
+  final String specialty;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SoftMedicalCard(
+      onTap: onTap,
+      padding: const EdgeInsets.all(8),
+      child: Column(
+        children: [
+          Container(
+            height: 118,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: AppColors.medicalMint,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.softBorder),
+            ),
+            child: Center(
+              child: DoctorFinderSilhouette(initials: initials, size: 74),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w900),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            specialty,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: AppColors.muted,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class DoctorFinderSilhouette extends StatelessWidget {
+  const DoctorFinderSilhouette({
+    required this.initials,
+    this.size = 72,
+    super.key,
+  });
+
+  final String initials;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: size,
+          height: size,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+          ),
+        ),
+        Positioned(
+          top: size * 0.17,
+          child: Container(
+            width: size * 0.36,
+            height: size * 0.36,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.14),
+              shape: BoxShape.circle,
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: size * 0.20,
+          child: Container(
+            width: size * 0.62,
+            height: size * 0.30,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(size * 0.24),
+                bottom: Radius.circular(size * 0.08),
+              ),
+            ),
+          ),
+        ),
+        Text(
+          initials,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: AppColors.primaryPressed,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -1019,51 +1268,6 @@ class _TabIntroCard extends StatelessWidget {
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AiSafeCta extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return SoftMedicalCard(
-      onTap: () => context.push(RouteNames.ai),
-      child: Row(
-        children: [
-          _IconBadge(icon: Icons.smart_toy_outlined, size: 46),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  uxCopy(
-                    context,
-                    'اسأل المساعد بأمان',
-                    'Ask the assistant safely',
-                  ),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  uxCopy(
-                    context,
-                    'ينظم المعلومات ولا يستبدل الطبيب أو الطوارئ.',
-                    'Organizes information; it does not replace doctors or emergency care.',
-                  ),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.muted,
-                    height: 1.35,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Icon(Icons.chevron_right, color: AppColors.muted),
         ],
       ),
     );

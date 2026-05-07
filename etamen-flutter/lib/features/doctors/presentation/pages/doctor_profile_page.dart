@@ -141,17 +141,14 @@ class _DoctorHero extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.primaryDark, AppColors.primary, AppColors.cyan],
-        ),
-        borderRadius: BorderRadius.circular(24),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.softBorder),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.22),
-            blurRadius: 22,
-            offset: const Offset(0, 12),
+            color: AppColors.primaryDark.withValues(alpha: 0.10),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -160,7 +157,7 @@ class _DoctorHero extends StatelessWidget {
         children: [
           Row(
             children: [
-              DoctorAvatar(name: doctor.name, size: 96),
+              DoctorAvatar(name: doctor.name, size: 88),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -169,7 +166,7 @@ class _DoctorHero extends StatelessWidget {
                     Text(
                       doctor.name,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Colors.white,
+                        color: AppColors.text,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
@@ -178,7 +175,7 @@ class _DoctorHero extends StatelessWidget {
                       Text(
                         doctor.specialties.join('، '),
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.86),
+                          color: AppColors.muted,
                           height: 1.35,
                         ),
                       ),
@@ -235,14 +232,14 @@ class _HeroChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.16),
+        color: AppColors.medicalMint,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.20)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 15, color: Colors.white),
+          Icon(icon, size: 15, color: AppColors.primary),
           const SizedBox(width: 5),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 220),
@@ -251,7 +248,7 @@ class _HeroChip extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: Colors.white,
+                color: AppColors.primaryDark,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -282,7 +279,7 @@ class _ProfileRatingRow extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: Colors.white.withValues(alpha: 0.88),
+              color: AppColors.muted,
               fontWeight: FontWeight.w800,
             ),
           ),

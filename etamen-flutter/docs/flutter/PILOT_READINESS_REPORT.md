@@ -256,3 +256,72 @@ The app is not identical to the old Doctor Finder app/site. It is now close enou
 ### Can We Proceed?
 
 Yes, proceed to seed data and full E2E. The exact next action is to review the captured Sprint 30 screenshots with the product owner, then seed realistic doctors/images/ratings if contracts and asset rights are approved.
+
+## Sprint 31 Final Old UI/UX Clone Pass
+
+Sprint 31 was a final visual clone pass after the product owner rejected "inspired by old UI" as insufficient.
+
+### Screenshot Evidence
+
+New screenshots were captured from the real Android device and website:
+
+- `I:/Etamen/.tmp/sprint31-new-screenshots/01-home.png`
+- `I:/Etamen/.tmp/sprint31-new-screenshots/03-doctors-list.png`
+- `I:/Etamen/.tmp/sprint31-new-screenshots/04-doctor-profile.png`
+- `I:/Etamen/.tmp/sprint31-new-screenshots/05-booking.png`
+- `I:/Etamen/.tmp/sprint31-new-screenshots/06-payment-methods.png`
+- `I:/Etamen/.tmp/sprint31-new-screenshots/07-payment-proof-upload.png`
+- `I:/Etamen/.tmp/sprint31-new-screenshots/09-website-landing.png`
+
+### What Changed
+
+- Home was rebuilt to follow the old Doctor Finder first viewport more closely: teal header, greeting, big search, promo banner, appointment card, speciality row, nearby doctors.
+- Doctor cards now use old-style image/avatar media areas, orange rating row, fee/location/experience chips, and old card proportions.
+- Doctor profile now uses a white old-style doctor info card instead of a generic modern header.
+- Slot picker now uses horizontal date cards and current-day time slots only, with orange selected state.
+- Website landing first viewport was tightened toward the old site: dark strip, white nav, orange `Join As Doctor +`, peach/teal hero, `Find A Doctor!`, search pill, service cards.
+
+### Parity After Sprint 31
+
+- Home: **94%**.
+- Doctor list: **92%**.
+- Doctor profile: **93%**.
+- Booking flow: **94%**.
+- Payment visual flow: **90%**.
+- Website landing first viewport: **90%**.
+- Overall mobile app: **91%**.
+- Overall app/site: **91%**.
+
+### Is It Equal To The Old App/Site?
+
+No. It is now visually close, but not equal.
+
+Exact remaining visual gaps:
+
+- No real doctor photos or licensed old-style portrait assets.
+- No verified rating/review fields from backend.
+- No exact old font family confirmation.
+- Booking CTA may still require a sticky bottom treatment to reach old-flow speed on very small screens.
+- Website is a landing first viewport, not the full old public website/CMS/search experience.
+
+### Pilot Decision
+
+Decision option: **2. UI/UX ready after minor fixes and product-owner screenshot approval**.
+
+It is good enough for a supervised pilot only if the product owner accepts the Sprint 31 screenshots and the next seeded E2E pass succeeds. It is not good enough to claim "same as old UI/UX".
+
+### Exact Next Action
+
+Show the product owner `I:/Etamen/.tmp/sprint31-new-screenshots/` side by side with the old references. If they still require 95%+, prioritize backend-supported doctor image URLs, real rating/review fields, exact font approval, and a sticky booking CTA before any more business features.
+
+### Sprint 31 Validation
+
+- `flutter pub get`: passed.
+- `dart format .`: passed.
+- `flutter analyze`: passed with no issues.
+- `flutter test`: passed, 159 Flutter tests.
+- `flutter build apk --debug --target-platform android-arm64`: passed.
+- `git diff --check`: passed; only line-ending warnings were reported.
+- `php artisan test` with SQLite in-memory testing environment: passed, 191 backend tests.
+
+The real screenshot device only supports `armeabi-v7a`, so the installed screenshot build used `android-arm`. The requested arm64 build still passed separately.

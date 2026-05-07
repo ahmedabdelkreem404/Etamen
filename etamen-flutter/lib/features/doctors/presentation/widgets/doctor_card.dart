@@ -50,7 +50,7 @@ class DoctorCard extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    DoctorAvatar(name: doctor.name, size: 82),
+                    DoctorAvatar(name: doctor.name, size: 94),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -194,11 +194,11 @@ class DoctorAvatar extends StatelessWidget {
     final initials = _initials(name);
     return Container(
       width: size,
-      height: size + 14,
+      height: size + 18,
       decoration: BoxDecoration(
         color: AppColors.medicalMint,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white, width: 3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white, width: 4),
         boxShadow: [
           BoxShadow(
             color: AppColors.primaryDark.withValues(alpha: 0.12),
@@ -210,32 +210,24 @@ class DoctorAvatar extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Positioned(
-            top: 12,
+          PositionedDirectional(
+            top: 8,
+            start: 8,
             child: Container(
-              width: size * 0.58,
-              height: size * 0.58,
+              width: 12,
+              height: 12,
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(size * 0.22),
+                color: AppColors.success,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
               ),
-              child: Center(
-                child: initials.isEmpty
-                    ? Icon(
-                        Icons.person_outline,
-                        color: AppColors.primary,
-                        size: size * 0.35,
-                      )
-                    : Text(
-                        initials,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w900,
-                            ),
-                      ),
-              ),
+            ),
+          ),
+          Positioned(
+            top: 14,
+            child: DoctorFinderSilhouette(
+              initials: initials.isEmpty ? 'Dr' : initials,
+              size: size * 0.72,
             ),
           ),
           Positioned(
@@ -246,19 +238,6 @@ class DoctorAvatar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.border,
                 borderRadius: BorderRadius.circular(999),
-              ),
-            ),
-          ),
-          PositionedDirectional(
-            top: 8,
-            end: 8,
-            child: Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: AppColors.success,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
               ),
             ),
           ),

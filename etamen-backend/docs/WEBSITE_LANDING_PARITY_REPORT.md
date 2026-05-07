@@ -49,3 +49,38 @@ The reused visual asset is `banner-bg-1.jpg` from the inspected old website publ
 - After Sprint 30: about 84% visual parity for the first public landing viewport.
 - Pilot blocker: no, if the pilot is app-first and supervised.
 - Public launch blocker: yes, because content, SEO, legal pages, real CTA targets, and final licensed marketing assets still need review.
+
+## Sprint 31 Website Clone Pass
+
+Sprint 31 tightened the landing first viewport further toward the old website screenshot.
+
+Updated file:
+
+- `I:/Etamen/etamen-backend/resources/views/welcome.blade.php`
+
+New captured screenshot:
+
+- `I:/Etamen/.tmp/sprint31-new-screenshots/09-website-landing.png`
+
+### What Now Matches Better
+
+- Old-style dark top strip remains.
+- White navigation now uses old labels: `Home`, `About Us`, `Specialist`, `Doctors`.
+- Orange CTA now reads closer to old: `Join As Doctor +`.
+- Hero headline now uses the old visual phrase `Find A Doctor!`.
+- Search pill and orange circular action are placed in the first viewport.
+- Peach/teal split and medical image dominate the first viewport like the old screenshot.
+- Service/category cards sit directly below the hero.
+
+### Remaining Gap
+
+- It is still a lightweight public landing, not the full old website.
+- Public doctor search, doctor join workflow, CMS content, SEO pages, analytics/cookie/legal public launch details, and final licensed marketing assets are not complete.
+- The landing is Arabic-first around the old English visual labels, so it is not a literal text clone.
+
+### Parity
+
+- Before Sprint 31: **84%** first-viewport website parity.
+- After Sprint 31: **90%** first-viewport website parity.
+- Public launch readiness: **not ready** without content/legal/SEO/search workflow review.
+- Supervised pilot readiness: acceptable as a visual landing if the pilot remains controlled and app-first.

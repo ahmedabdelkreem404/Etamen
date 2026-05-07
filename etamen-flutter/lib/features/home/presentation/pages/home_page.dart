@@ -35,8 +35,8 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: AppColors.pageBackground,
-      appBar: MainShellTopBar(title: titles[_index]),
-      body: SafeArea(child: pages[_index]),
+      appBar: _index == 0 ? null : MainShellTopBar(title: titles[_index]),
+      body: _index == 0 ? pages[_index] : SafeArea(child: pages[_index]),
       bottomNavigationBar: _LegacyBottomNav(
         selectedIndex: _index,
         onDestinationSelected: (value) => setState(() => _index = value),
@@ -142,7 +142,7 @@ class _LegacyNavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.primary : AppColors.muted;
+    final color = selected ? AppColors.appointmentOrange : Colors.grey.shade500;
     return Semantics(
       selected: selected,
       button: true,
@@ -153,14 +153,11 @@ class _LegacyNavButton extends StatelessWidget {
         child: AnimatedContainer(
           key: ValueKey('legacy_nav_${item.label}'),
           duration: const Duration(milliseconds: 180),
-          height: 58,
+          height: 56,
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
           decoration: BoxDecoration(
-            color: selected ? AppColors.medicalMint : Colors.transparent,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: selected ? AppColors.border : Colors.transparent,
-            ),
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

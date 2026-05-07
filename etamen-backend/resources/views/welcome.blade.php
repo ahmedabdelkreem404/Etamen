@@ -464,12 +464,12 @@
                 <span>اطمن</span>
             </a>
             <div class="links">
-                <a href="#doctors">الأطباء</a>
-                <a href="#services">الخدمات</a>
-                <a href="#app">التطبيق</a>
-                <a href="#pilot">التجربة</a>
+                <a href="#doctors">Home</a>
+                <a href="#services">About Us</a>
+                <a href="#app">Specialist</a>
+                <a href="#pilot">Doctors</a>
             </div>
-            <a class="doctor-cta" href="#pilot">انضم للتجربة</a>
+            <a class="doctor-cta" href="#pilot">+ Join As Doctor</a>
         </nav>
     </header>
 
@@ -477,11 +477,11 @@
         <section class="hero" id="doctors">
             <div class="section">
                 <div class="hero-copy">
-                    <h1>ابحث عن طبيب</h1>
-                    <p class="lead">واجهة اطمن الجديدة تعيد إحساس Doctor Finder القديم: بحث واضح، ألوان طبية، وحجز بسيط من أول شاشة.</p>
+                    <h1>Find A Doctor!</h1>
+                    <p class="lead">واجهة اطمن الجديدة تعيد تجربة Doctor Finder القديمة: بحث واضح، ألوان طبية، وحجز بسيط من أول شاشة.</p>
                     <a class="search-box" href="#pilot" aria-label="ابدأ البحث عن طبيب">
-                        <span>مثال: دكتور قلب أو أطفال</span>
-                        <span class="search-button">‹</span>
+                        <span>Ex. Doctor Name</span>
+                        <span class="search-button">›</span>
                     </a>
                     <div class="category-kicker">CATEGORY</div>
                 </div>

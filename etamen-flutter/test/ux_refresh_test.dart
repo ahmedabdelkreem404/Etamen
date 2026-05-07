@@ -35,16 +35,18 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Hello, Patient'), findsOneWidget);
-    expect(find.text('Doctor booking first'), findsOneWidget);
-    expect(find.text('Search doctor name or specialty'), findsOneWidget);
-    expect(find.text('Specialties and services'), findsOneWidget);
-    await tester.drag(find.byType(ListView), const Offset(0, -360));
+    expect(find.textContaining('Welcome, Patient'), findsOneWidget);
+    expect(find.text('Search doctor by name'), findsOneWidget);
+    expect(find.textContaining('Search Doctors'), findsOneWidget);
+    expect(find.text('Speciality'), findsOneWidget);
+    expect(find.text('Nearby Doctors'), findsOneWidget);
+    await tester.drag(find.byType(ListView).first, const Offset(0, -360));
     await tester.pumpAndSettle();
-    expect(find.text('Today follow-up'), findsOneWidget);
-    await tester.drag(find.byType(ListView), const Offset(0, -700));
+    expect(find.text('More services'), findsOneWidget);
+    expect(find.text('Health follow-up'), findsOneWidget);
+    await tester.drag(find.byType(ListView).first, const Offset(0, -700));
     await tester.pumpAndSettle();
-    expect(find.text('Ask the assistant safely'), findsOneWidget);
+    expect(find.text('AI'), findsOneWidget);
   });
 
   testWidgets('Services tab groups doctors pharmacy and labs', (tester) async {
