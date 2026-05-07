@@ -1,10 +1,21 @@
 import 'package:etamen_app/app/localization/app_localizations.dart';
 import 'package:etamen_app/app/theme/app_theme.dart';
+import 'package:etamen_app/core/network/api_result.dart';
+import 'package:etamen_app/core/widgets/empty_view.dart';
 import 'package:etamen_app/features/auth/domain/entities/auth_user.dart';
 import 'package:etamen_app/features/auth/presentation/providers/auth_controller.dart';
 import 'package:etamen_app/features/doctors/domain/entities/doctor.dart';
 import 'package:etamen_app/features/doctors/presentation/widgets/doctor_card.dart';
+import 'package:etamen_app/features/home/presentation/pages/home_page.dart';
 import 'package:etamen_app/features/home/presentation/widgets/home_experience_widgets.dart';
+import 'package:etamen_app/features/notifications/data/models/register_notification_token_request.dart';
+import 'package:etamen_app/features/notifications/data/models/update_notification_preferences_request.dart';
+import 'package:etamen_app/features/notifications/domain/entities/app_notification.dart';
+import 'package:etamen_app/features/notifications/domain/entities/notification_preference.dart';
+import 'package:etamen_app/features/notifications/domain/entities/notification_token.dart';
+import 'package:etamen_app/features/notifications/domain/entities/notification_unread_count.dart';
+import 'package:etamen_app/features/notifications/domain/repositories/notifications_repository.dart';
+import 'package:etamen_app/features/notifications/presentation/providers/notifications_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,8 +36,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Hello, Patient'), findsOneWidget);
+    expect(find.text('Doctor booking is front and center'), findsOneWidget);
+    expect(
+      find.text('Search doctors, specialties, or services'),
+      findsOneWidget,
+    );
     expect(find.text('Quick actions'), findsOneWidget);
-    expect(find.text('Today overview'), findsOneWidget);
+    await tester.drag(find.byType(ListView), const Offset(0, -360));
+    await tester.pumpAndSettle();
+    expect(find.text('Today follow-up'), findsOneWidget);
     await tester.drag(find.byType(ListView), const Offset(0, -700));
     await tester.pumpAndSettle();
     expect(find.text('Ask the AI assistant safely'), findsOneWidget);
@@ -70,8 +88,45 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Dr. Mona'), findsOneWidget);
+    expect(find.text('DM'), findsOneWidget);
     expect(find.text('Book now'), findsOneWidget);
     expect(find.textContaining('Open profile'), findsOneWidget);
+    expect(find.text('Details'), findsOneWidget);
+  });
+
+  testWidgets('Friendly empty state copy is patient-facing', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        const EmptyView(
+          message:
+              'No doctors are available right now. Doctors will be added soon.',
+          icon: Icons.medical_services_outlined,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Doctors will be added soon'), findsOneWidget);
+    expect(find.byIcon(Icons.medical_services_outlined), findsOneWidget);
+  });
+
+  testWidgets('Main navigation keeps the patient shell to five tabs', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authControllerProvider.overrideWith(TestAuthController.new),
+          notificationsRepositoryProvider.overrideWithValue(
+            _UxNotificationsRepository(),
+          ),
+        ],
+        child: _wrap(const HomePage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NavigationDestination), findsNWidgets(5));
   });
 }
 
@@ -101,5 +156,87 @@ class TestAuthController extends AuthController {
         roles: ['patient'],
       ),
     );
+  }
+}
+
+class _UxNotificationsRepository implements NotificationsRepository {
+  @override
+  Future<ApiResult<void>> deleteNotification(int id) {
+    return Future.value(const ApiSuccess<void>(null));
+  }
+
+  @override
+  Future<ApiResult<void>> deleteToken(int id) {
+    return Future.value(const ApiSuccess<void>(null));
+  }
+
+  @override
+  Future<ApiResult<AppNotification>> getNotificationDetails(int id) {
+    return Future.value(
+      const ApiSuccess(
+        AppNotification(
+          id: 1,
+          category: NotificationCategory.system,
+          type: 'system_notice',
+          title: 'System',
+          body: 'Notice',
+          priority: NotificationPriority.normal,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Future<ApiResult<List<AppNotification>>> getNotifications() {
+    return Future.value(const ApiSuccess([]));
+  }
+
+  @override
+  Future<ApiResult<List<NotificationPreference>>> getPreferences() {
+    return Future.value(const ApiSuccess([]));
+  }
+
+  @override
+  Future<ApiResult<List<NotificationToken>>> getTokens() {
+    return Future.value(const ApiSuccess([]));
+  }
+
+  @override
+  Future<ApiResult<NotificationUnreadCount>> getUnreadCount() {
+    return Future.value(
+      const ApiSuccess(NotificationUnreadCount(unreadCount: 2)),
+    );
+  }
+
+  @override
+  Future<ApiResult<int>> markAllRead() {
+    return Future.value(const ApiSuccess(0));
+  }
+
+  @override
+  Future<ApiResult<AppNotification>> markRead(int id) {
+    return getNotificationDetails(id);
+  }
+
+  @override
+  Future<ApiResult<NotificationToken>> registerToken(
+    RegisterNotificationTokenRequest request,
+  ) {
+    return Future.value(
+      const ApiSuccess(
+        NotificationToken(
+          id: 1,
+          provider: NotificationTokenProvider.local,
+          deviceType: NotificationDeviceType.android,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Future<ApiResult<List<NotificationPreference>>> updatePreferences(
+    UpdateNotificationPreferencesRequest request,
+  ) {
+    return Future.value(ApiSuccess(request.preferences));
   }
 }

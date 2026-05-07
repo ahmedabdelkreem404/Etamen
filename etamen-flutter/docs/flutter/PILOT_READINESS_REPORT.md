@@ -164,3 +164,56 @@ Exact condition to invite users:
 2. Manually login on emulator/real device with `pilot.patient@example.test`.
 3. Complete and record booking, manual payment proof upload/admin review, appointment confirmation, pharmacy order, lab order/result, vitals, medications, care plan check-in/meal log, notifications, AI safety prompts, account/legal/support, logout/session restore.
 4. If all pass with no blockers, move the decision to "Ready for supervised pilot".
+
+## Sprint 29 Legacy Visual Parity Update
+
+Sprint 29 was a visual/UX parity sprint, not a feature or backend business-logic sprint.
+
+### UI/UX Decision
+
+**Decision option: 2. UI/UX ready after minor fixes.**
+
+The new Flutter app is now close enough to continue toward a supervised app pilot after seed data and a full E2E walkthrough, but it is not equal to the old Doctor Finder app/site.
+
+Estimated app visual parity after Sprint 29: **73%**.
+
+### What Improved
+
+- Theme moved further toward teal/cyan medical identity instead of dark-green/admin styling.
+- Home now has a stronger teal hero, greeting, search, doctor booking highlight, quick actions, health follow-up grouping, notification badge, and calmer AI CTA.
+- Doctor cards now look more premium with white cards, initials avatar placeholders, specialty/location/fee chips, and clear `احجز الآن` / `عرض التفاصيل` actions.
+- Doctor profile now has a stronger teal header, avatar placeholder, grouped details, about fallback, and cleaner slot area.
+- Booking has clearer step progression, doctor summary, and improved slot grouping.
+- Payment and manual payment screens have softer summary/review cards and less technical copy.
+- Empty states now use patient-friendly copy and no longer look like broken missing data.
+- Arabic copy was cleaned up in Home, doctors, booking, payment, empty states, and AI empty state.
+
+### Still Visually Weaker Than The Old App
+
+- Doctor photos are still missing because the current backend contract does not expose a safe doctor image/avatar URL.
+- Ratings/reviews, rich address/map details, and real next-available slot summaries are not present.
+- Pharmacy and lab screens still need real images/data to match old visual richness.
+- New UI screenshots still need to be captured after seeded walkthrough.
+- The old public Doctor Finder website had a polished landing page; the new project does not currently include a matching public marketing website.
+
+### Website / Landing Status
+
+- `etamen-backend/public` is Laravel public infrastructure only.
+- `etamen-backend/resources/views/welcome.blade.php` is a default/simple welcome-style view, not a Doctor Finder marketing site.
+- `etamen-flutter/web/index.html` is the default Flutter web shell metadata.
+- Therefore, the new project does **not** currently include a public marketing website matching the old website screenshots.
+
+This is not a blocker for a supervised app-only pilot, but it is a blocker/gap for public launch or website parity claims.
+
+### Can We Proceed To Seed Data / Full E2E?
+
+Yes. Sprint 29 visual polish is sufficient to proceed to the next seeded/manual E2E pass. The pilot should not invite broader users until that pass proves the booking/payment/pharmacy/lab/health/AI/account flows with real screenshots.
+
+### Should We Do Another Visual Sprint Before Pilot?
+
+Not mandatory before a tightly supervised app pilot if seed data and E2E pass cleanly. Recommended minor fixes before pilot:
+
+1. Add backend-supported doctor `avatar_url` / `image_url` if available and rights are clear.
+2. Capture real screenshots on small and normal Android devices.
+3. Run product-owner review on Arabic tone and Home/Doctor screens.
+4. Verify no overflow in Arabic with long doctor names, specialties, and branch names.

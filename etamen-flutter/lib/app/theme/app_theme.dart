@@ -8,13 +8,14 @@ class AppTheme {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: AppColors.primary,
       primary: AppColors.primary,
+      secondary: AppColors.legacyTeal,
       surface: AppColors.surface,
     );
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: AppColors.cream,
+      scaffoldBackgroundColor: AppColors.pageBackground,
       fontFamily: 'Roboto',
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.primary,
@@ -25,10 +26,11 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: AppColors.surface,
-        elevation: 1,
-        shadowColor: AppColors.primaryDark.withValues(alpha: 0.08),
+        elevation: 2,
+        surfaceTintColor: Colors.white,
+        shadowColor: AppColors.primaryDark.withValues(alpha: 0.10),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           side: const BorderSide(color: AppColors.border),
         ),
       ),
@@ -44,9 +46,12 @@ class AppTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        height: 72,
+        height: 74,
         backgroundColor: Colors.white,
-        indicatorColor: AppColors.legacyTeal.withValues(alpha: 0.18),
+        surfaceTintColor: Colors.white,
+        elevation: 10,
+        shadowColor: AppColors.primaryDark.withValues(alpha: 0.08),
+        indicatorColor: AppColors.legacyTeal.withValues(alpha: 0.20),
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => TextStyle(
             fontSize: 11,
@@ -79,9 +84,11 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
+          disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.24),
+          disabledForegroundColor: Colors.white.withValues(alpha: 0.80),
           minimumSize: const Size.fromHeight(48),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
       ),
@@ -90,9 +97,23 @@ class AppTheme {
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.primary,
+          side: const BorderSide(color: AppColors.border),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.primary,
+        elevation: 3,
       ),
     );
   }

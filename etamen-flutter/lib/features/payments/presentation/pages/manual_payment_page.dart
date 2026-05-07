@@ -12,6 +12,7 @@ import 'package:etamen_app/features/payments/presentation/providers/payment_cont
 import 'package:etamen_app/features/payments/presentation/providers/payment_status_controller.dart';
 import 'package:etamen_app/features/payments/presentation/widgets/manual_instructions_card.dart';
 import 'package:etamen_app/features/payments/presentation/widgets/proof_upload_box.dart';
+import 'package:etamen_app/features/home/presentation/widgets/home_experience_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -84,15 +85,67 @@ class _ManualPaymentPageState extends ConsumerState<ManualPaymentPage> {
         padding: const EdgeInsets.all(16),
         children: [
           if (statusState.status != null)
-            Card(
-              child: ListTile(
-                title: Text(l10n.get('amount')),
-                subtitle: Text(
-                  '${statusState.status!.amount} ${statusState.status!.currency}',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+            SoftMedicalCard(
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                children: [
+                  Container(
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      color: AppColors.medicalMint,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.payments_outlined,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.get('amount'),
+                          style: Theme.of(context).textTheme.labelMedium
+                              ?.copyWith(color: AppColors.muted),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          '${statusState.status!.amount} ${statusState.status!.currency}',
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w900),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
+          if (statusState.status != null) const SizedBox(height: 12),
+          SoftMedicalCard(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.verified_user_outlined,
+                  color: AppColors.primary,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    l10n.get('paymentAdminReviewNotice'),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.softText,
+                      height: 1.35,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
           if (state.isSelectingMethod)
             const LoadingView()
           else

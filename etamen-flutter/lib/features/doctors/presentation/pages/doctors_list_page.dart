@@ -1,4 +1,5 @@
 import 'package:etamen_app/app/localization/app_localizations.dart';
+import 'package:etamen_app/app/theme/app_colors.dart';
 import 'package:etamen_app/core/routing/route_names.dart';
 import 'package:etamen_app/core/widgets/app_scaffold.dart';
 import 'package:etamen_app/core/widgets/empty_view.dart';
@@ -42,7 +43,18 @@ class _DoctorsListPageState extends ConsumerState<DoctorsListPage> {
             );
           }
           if (state.isEmpty) {
-            return EmptyView(message: l10n.get('emptyDoctors'));
+            return ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16),
+              children: [
+                const _DoctorsListHero(),
+                const SizedBox(height: 14),
+                EmptyView(
+                  message: l10n.get('emptyDoctors'),
+                  icon: Icons.medical_services_outlined,
+                ),
+              ],
+            );
           }
 
           final specialties = _specialtiesFrom(state.doctors);
@@ -72,6 +84,8 @@ class _DoctorsListPageState extends ConsumerState<DoctorsListPage> {
                 ),
                 const SizedBox(height: 16),
               ],
+              const _DoctorsListHero(),
+              const SizedBox(height: 14),
               TextField(
                 onChanged: (value) => setState(() => _query = value),
                 decoration: InputDecoration(
@@ -114,9 +128,10 @@ class _DoctorsListPageState extends ConsumerState<DoctorsListPage> {
                 EmptyView(
                   message: uxCopy(
                     context,
-                    'لا توجد نتائج مطابقة للبحث الحالي',
-                    'No doctors match the current filters',
+                    'لا توجد نتائج مطابقة للبحث الحالي. جرّب اسمًا أو تخصصًا مختلفًا.',
+                    'No doctors match the current filters. Try another name or specialty.',
                   ),
+                  icon: Icons.search_off_outlined,
                 )
               else
                 for (final doctor in doctors)
@@ -157,5 +172,59 @@ class _DoctorsListPageState extends ConsumerState<DoctorsListPage> {
       final queryMatch = query.isEmpty || haystack.contains(query);
       return specialtyMatch && queryMatch;
     }).toList();
+  }
+}
+
+class _DoctorsListHero extends StatelessWidget {
+  const _DoctorsListHero();
+
+  @override
+  Widget build(BuildContext context) {
+    return SoftMedicalCard(
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: AppColors.medicalMint,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: const Icon(
+              Icons.medical_services_outlined,
+              color: AppColors.primary,
+              size: 30,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  uxCopy(context, 'ابحث واحجز بسهولة', 'Find and book easily'),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  uxCopy(
+                    context,
+                    'بطاقات الأطباء تعرض التخصص، المكان، السعر، وخطوة الحجز بوضوح.',
+                    'Doctor cards show specialty, location, fee, and booking clearly.',
+                  ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.muted,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

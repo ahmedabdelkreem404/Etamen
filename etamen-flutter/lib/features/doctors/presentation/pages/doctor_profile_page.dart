@@ -7,6 +7,7 @@ import 'package:etamen_app/core/widgets/error_view.dart';
 import 'package:etamen_app/core/widgets/loading_view.dart';
 import 'package:etamen_app/features/doctors/domain/entities/doctor.dart';
 import 'package:etamen_app/features/doctors/presentation/providers/doctors_providers.dart';
+import 'package:etamen_app/features/doctors/presentation/widgets/doctor_card.dart';
 import 'package:etamen_app/features/doctors/presentation/widgets/slot_picker.dart';
 import 'package:etamen_app/features/home/presentation/widgets/home_experience_widgets.dart';
 import 'package:flutter/material.dart';
@@ -34,21 +35,33 @@ class DoctorProfilePage extends ConsumerWidget {
             children: [
               _DoctorHero(doctor: doctor),
               const SizedBox(height: 14),
-              if (doctor.bio != null && doctor.bio!.trim().isNotEmpty)
-                SoftMedicalCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        uxCopy(context, 'نبذة عن الدكتور', 'About the doctor'),
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w800),
+              SoftMedicalCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      uxCopy(context, 'نبذة عن الطبيب', 'About the doctor'),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
                       ),
-                      const SizedBox(height: 8),
-                      Text(doctor.bio!, style: const TextStyle(height: 1.45)),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      doctor.bio == null || doctor.bio!.trim().isEmpty
+                          ? uxCopy(
+                              context,
+                              'لم تُضف نبذة الطبيب بعد. يمكنك مراجعة التخصص والمكان والمواعيد المتاحة قبل الحجز.',
+                              'The doctor bio has not been added yet. Review specialty, location, and slots before booking.',
+                            )
+                          : doctor.bio!,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.softText,
+                        height: 1.45,
+                      ),
+                    ),
+                  ],
                 ),
+              ),
               const SizedBox(height: 14),
               SoftMedicalCard(
                 child: Column(
@@ -100,8 +113,8 @@ class DoctorProfilePage extends ConsumerWidget {
               Text(
                 uxCopy(
                   context,
-                  'التكلفة وحالة الموعد يتم تأكيدهم من السيرفر بعد الحجز.',
-                  'Fee and appointment state are confirmed by the backend.',
+                  'التكلفة وحالة الموعد يتم تأكيدهما من النظام بعد الحجز.',
+                  'Fee and appointment state are confirmed by the system.',
                 ),
                 textAlign: TextAlign.center,
                 style: Theme.of(
@@ -128,23 +141,26 @@ class _DoctorHero extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(22),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppColors.primaryDark, AppColors.primary, AppColors.cyan],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.22),
+            blurRadius: 22,
+            offset: const Offset(0, 12),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(22),
-                ),
-                child: const Icon(Icons.person, color: Colors.white, size: 38),
-              ),
+              DoctorAvatar(name: doctor.name, size: 76),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -163,6 +179,7 @@ class _DoctorHero extends StatelessWidget {
                         doctor.specialties.join('، '),
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.white.withValues(alpha: 0.86),
+                          height: 1.35,
                         ),
                       ),
                     ],
@@ -192,6 +209,11 @@ class _DoctorHero extends StatelessWidget {
                 ),
               for (final branch in doctor.branches.take(2))
                 _HeroChip(icon: Icons.location_on_outlined, label: branch),
+              if (doctor.branches.isEmpty)
+                _HeroChip(
+                  icon: Icons.location_on_outlined,
+                  label: uxCopy(context, 'المكان يضاف قريبًا', 'Location soon'),
+                ),
             ],
           ),
         ],
@@ -211,19 +233,25 @@ class _HeroChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.13),
+        color: Colors.white.withValues(alpha: 0.16),
         borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.20)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 15, color: Colors.white),
           const SizedBox(width: 5),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 220),
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ],

@@ -55,53 +55,51 @@ class PaymentPage extends ConsumerWidget {
               title: uxCopy(context, 'اختار طريقة الدفع', 'Choose payment'),
               subtitle: uxCopy(
                 context,
-                'الدفع اليدوي يتم مراجعته من الإدارة قبل تأكيد الخدمة.',
+                'الدفع اليدوي يراجعه فريق المراجعة قبل تأكيد الخدمة.',
                 'Manual payments are reviewed before confirmation.',
               ),
             ),
             const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.get('paymentSummary'),
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
+            SoftMedicalCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.get('paymentSummary'),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
                     ),
-                    const SizedBox(height: 8),
-                    if (statusState.isLoading && status == null)
-                      const LoadingView()
-                    else if (status != null) ...[
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              '${status.amount} ${status.currency}',
-                              style: Theme.of(context).textTheme.headlineSmall,
-                            ),
+                  ),
+                  const SizedBox(height: 8),
+                  if (statusState.isLoading && status == null)
+                    const LoadingView()
+                  else if (status != null) ...[
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            '${status.amount} ${status.currency}',
+                            style: Theme.of(context).textTheme.headlineSmall
+                                ?.copyWith(fontWeight: FontWeight.w900),
                           ),
-                          PaymentStatusBadge(status: status.status),
-                        ],
-                      ),
-                      if (status.appointmentStatus != null) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          '${l10n.get('appointmentStatus')}: ${status.appointmentStatus}',
                         ),
+                        PaymentStatusBadge(status: status.status),
                       ],
-                    ] else
-                      Text(l10n.get('paymentStatusUnavailable')),
-                    const SizedBox(height: 12),
-                    Text(
-                      l10n.get('paymentAdminReviewNotice'),
-                      style: const TextStyle(color: AppColors.muted),
                     ),
-                  ],
-                ),
+                    if (status.appointmentStatus != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        '${l10n.get('appointmentStatus')}: ${status.appointmentStatus}',
+                      ),
+                    ],
+                  ] else
+                    Text(l10n.get('paymentStatusUnavailable')),
+                  const SizedBox(height: 12),
+                  Text(
+                    l10n.get('paymentAdminReviewNotice'),
+                    style: const TextStyle(color: AppColors.muted),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
@@ -115,7 +113,10 @@ class PaymentPage extends ConsumerWidget {
                     .loadMethods(),
               )
             else if (state.methods.isEmpty)
-              EmptyView(message: l10n.get('emptyPaymentMethods'))
+              EmptyView(
+                message: l10n.get('emptyPaymentMethods'),
+                icon: Icons.payments_outlined,
+              )
             else ...[
               Text(
                 l10n.get('choosePaymentMethod'),
@@ -186,8 +187,17 @@ class _PaymentFlowBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(18),
+        gradient: const LinearGradient(
+          colors: [AppColors.primaryDark, AppColors.primary, AppColors.cyan],
+        ),
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.20),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Row(
         children: [

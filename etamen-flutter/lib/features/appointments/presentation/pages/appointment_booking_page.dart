@@ -11,6 +11,7 @@ import 'package:etamen_app/features/appointments/presentation/providers/appointm
 import 'package:etamen_app/features/doctors/domain/entities/doctor.dart';
 import 'package:etamen_app/features/doctors/domain/entities/doctor_slot.dart';
 import 'package:etamen_app/features/doctors/presentation/providers/doctors_providers.dart';
+import 'package:etamen_app/features/doctors/presentation/widgets/doctor_card.dart';
 import 'package:etamen_app/features/doctors/presentation/widgets/slot_picker.dart';
 import 'package:etamen_app/features/home/presentation/widgets/home_experience_widgets.dart';
 import 'package:flutter/material.dart';
@@ -55,7 +56,7 @@ class _AppointmentBookingPageState
           success: (doctor) => ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              const _BookingStepper(currentStep: 1),
+              _BookingStepper(currentStep: _selectedSlot == null ? 0 : 1),
               const SizedBox(height: 16),
               _DoctorSummary(doctor: doctor),
               const SizedBox(height: 16),
@@ -148,8 +149,8 @@ class _AppointmentBookingPageState
               Text(
                 uxCopy(
                   context,
-                  'لن نرسل سعر أو حالة حجز من التطبيق؛ السيرفر هو مصدر التأكيد.',
-                  'The backend confirms price and booking state.',
+                  'لا يعتمد النظام على سعر أو حالة حجز من التطبيق؛ التأكيد يتم من الخادم.',
+                  'The server confirms price and booking state.',
                 ),
                 textAlign: TextAlign.center,
                 style: Theme.of(
@@ -226,18 +227,17 @@ class _DoctorSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final specialty = doctor.specialties.isEmpty
+        ? uxCopy(context, 'تخصص غير محدد', 'Specialty pending')
+        : doctor.specialties.join('، ');
+    final branch = doctor.branches.isEmpty
+        ? uxCopy(context, 'المكان يضاف قريبًا', 'Location soon')
+        : doctor.branches.first;
     return SoftMedicalCard(
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Icon(Icons.person, color: AppColors.primary),
-          ),
+          DoctorAvatar(name: doctor.name, size: 56),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -250,15 +250,64 @@ class _DoctorSummary extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  doctor.consultationFee == null
-                      ? doctor.specialties.join('، ')
-                      : '${doctor.specialties.join('، ')}\n${l10n.get('fee')}: ${doctor.consultationFee} EGP',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: AppColors.muted),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  children: [
+                    _SummaryChip(
+                      icon: Icons.medical_services_outlined,
+                      label: specialty,
+                    ),
+                    _SummaryChip(
+                      icon: Icons.location_on_outlined,
+                      label: branch,
+                    ),
+                    if (doctor.consultationFee != null)
+                      _SummaryChip(
+                        icon: Icons.payments_outlined,
+                        label:
+                            '${l10n.get('fee')}: ${doctor.consultationFee} EGP',
+                      ),
+                  ],
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SummaryChip extends StatelessWidget {
+  const _SummaryChip({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      decoration: BoxDecoration(
+        color: AppColors.medicalMint,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: AppColors.primary),
+          const SizedBox(width: 4),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 180),
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: AppColors.primaryDark,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
         ],
