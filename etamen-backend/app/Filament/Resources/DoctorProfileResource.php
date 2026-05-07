@@ -31,6 +31,8 @@ class DoctorProfileResource extends Resource
                     ->columnSpanFull(),
                 Forms\Components\Textarea::make('bio_en')
                     ->columnSpanFull(),
+                Forms\Components\TextInput::make('avatar_path')
+                    ->helperText('Public-safe relative path only, for example legacy-doctorfinder/demo-doctor-avatar.png. Do not use private document paths.'),
                 Forms\Components\TextInput::make('consultation_fee')
                     ->numeric(),
                 Forms\Components\TextInput::make('years_of_experience')
@@ -50,6 +52,9 @@ class DoctorProfileResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('title')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('avatar_path')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('consultation_fee')
                     ->numeric()
                     ->sortable(),

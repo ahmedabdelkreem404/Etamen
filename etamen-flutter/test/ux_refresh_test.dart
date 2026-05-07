@@ -93,6 +93,25 @@ void main() {
     expect(find.text('Details'), findsOneWidget);
   });
 
+  testWidgets('DoctorCard renders real rating copy when provided', (
+    tester,
+  ) async {
+    const doctor = Doctor(
+      id: 8,
+      name: 'Dr. Rating',
+      isActive: true,
+      ratingAverage: 4.7,
+      reviewsCount: 3,
+      specialties: ['Cardiology'],
+      branches: ['Nasr City'],
+    );
+
+    await tester.pumpWidget(_wrap(DoctorCard(doctor: doctor, onTap: () {})));
+    await tester.pump();
+
+    expect(find.textContaining('4.7'), findsOneWidget);
+  });
+
   testWidgets('Friendly empty state copy is patient-facing', (tester) async {
     await tester.pumpWidget(
       _wrap(

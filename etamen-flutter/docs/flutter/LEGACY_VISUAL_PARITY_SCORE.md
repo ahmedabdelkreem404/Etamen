@@ -87,3 +87,36 @@ Sprint 31 moved from "inspired by old UI" to a stricter visual clone pass. Scree
 - Overall app/site: **91%**.
 
 The requested 95%+ doctor journey target was not honestly reached because real doctor photos, real ratings/reviews, exact old assets, and some old copy/layout details are missing. The new visual layer is now close enough for product-owner screenshot review, but it should not be described as "the same as the old app".
+
+## Sprint 32 Visual Data Completion + Seeded E2E Gate
+
+Sprint 32 closed the largest visual-data gap by adding safe doctor avatar/rating contract fields, richer demo data, and final seeded screenshots under `I:/Etamen/.tmp/sprint32-final-screenshots/`.
+
+| Area | Old UI Reference Quality | New UI Current Quality | Parity % | Missing Pieces | Fix Applied In Sprint 32 | Remaining Gap |
+| --- | --- | --- | ---: | --- | --- | --- |
+| Color palette | Bright teal/cyan with orange action accents | Still aligned with Sprint 31 old-style palette | 94% | Exact old calibration | No major color churn; kept teal/orange identity | Product-owner color approval |
+| Typography | Old template-like bold headings | Readable Arabic/English hierarchy, still not exact old font | 89% | Licensed old font unknown | Typography report documents font decision | Needs approved font asset for exact parity |
+| Home screen | Doctor-first old app home | Captured with old-style hero/search/service/doctor emphasis | 94% | Real hero/doctor imagery in app | Seeded doctor visual cards appear on Home | Real production imagery |
+| Bottom navigation / shell | White five-tab shell | Old-style five-tab shell remains stable | 92% | Exact old icon set/animation | Navigation still max 5 tabs and accessible | Minor icon parity |
+| Doctor cards | Photo/rating-rich Doctor Finder cards | Safe avatar image URL, real visible demo rating summary, branch/city/fee | 94% | Licensed real doctor photo assets | Added `avatar_url`, `rating_average`, `reviews_count`; Flutter renders them | Demo avatar is not a real photo |
+| Doctor profile | Photo/rating/details profile | Avatar/rating/fee/location/slots all visible in screenshot | 94% | Real photo, public review content, map/credentials | Flutter profile consumes visual fields | Production content gap |
+| Booking flow | Central day/time selector and obvious CTA | Slot selected, sticky CTA visible, booking submitted | 95% | Exact old animation/date language | Sticky small-screen CTA fix verified by screenshot | Physical small-screen recheck |
+| Payment flow | Consumer proof/payment flow | Method cards and proof-upload screen visible and friendly | 91% | Actual proof upload not completed in automated pass | Polished proof upload screen captured | Real device proof upload/admin review |
+| Empty states | Friendly visuals | Existing friendly empty states remain | 86% | Owned illustration pack | No major Sprint 32 change | Optional illustrations |
+| Cards/buttons/chips | Rounded white cards, teal chips, orange actions | Captured cards/buttons look close across seeded flows | 94% | Pixel-perfect old spacing | Data makes cards feel richer | Minor QA |
+| Arabic copy | Simple patient copy | Safer patient-friendly copy in booking/payment/AI/legal | 89% | PO/legal tone pass | No raw backend statuses seen in E2E screenshots | Product-owner/legal review |
+| Website/landing parity | Old Doctor Finder first viewport | Hero/search/service cards now render with actual visual image | 91% | Full old website pages/CMS/search flow | Fixed landing hero image visibility | Landing-only, not full old site |
+| Overall patient feeling | Polished consumer Doctor Finder product | Seeded doctor path now feels much closer and less empty/admin-like | 93% | Real approved production photos/reviews and complete website | Visual data and seeded E2E screenshots completed | Not a 100% clone |
+
+## Sprint 32 Final Parity Estimate
+
+- Home: **94%**.
+- Doctor list: **94%**.
+- Doctor profile: **94%**.
+- Booking flow: **95%** on seeded emulator.
+- Payment visual flow: **91%**.
+- Website landing first viewport: **91%**.
+- Overall mobile app: **93%**.
+- Overall app/site: **92%**.
+
+This is visually acceptable for product-owner supervised review and close to the old Doctor Finder feeling, but it is still not the same UI/UX. Exact 95%+ across the full app requires licensed real doctor imagery, final typography approval, physical-device proof upload/admin review, and a fuller public website if public launch parity is required.

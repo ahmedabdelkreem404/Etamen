@@ -84,3 +84,33 @@ New captured screenshot:
 - After Sprint 31: **90%** first-viewport website parity.
 - Public launch readiness: **not ready** without content/legal/SEO/search workflow review.
 - Supervised pilot readiness: acceptable as a visual landing if the pilot remains controlled and app-first.
+
+## Sprint 32 Final Landing Visual Data Check
+
+Updated file:
+
+- `I:/Etamen/etamen-backend/resources/views/welcome.blade.php`
+
+Final captured screenshot:
+
+- `I:/Etamen/.tmp/sprint32-final-screenshots/18-website-landing.png`
+
+### What Changed In Sprint 32
+
+- The first viewport now renders the medical hero image clearly in the peach/teal split area.
+- The old Doctor Finder visual rhythm remains: dark top strip, white nav, orange CTA, `Find A Doctor!` headline, search pill, and service cards.
+- The image is embedded as a small Data URI because the local Laravel server returned the landing HTML for `/legacy-doctorfinder/doctor-finder-hero.jpg` during screenshot capture. This keeps the pilot screenshot reliable without adding routes or backend logic.
+
+### Performance / Asset Note
+
+- The embedded hero image source file is about 123 KB.
+- This is acceptable for the lightweight pilot landing screenshot.
+- For public launch, prefer a normal static public asset or CDN URL and remove the Data URI if performance/SEO review requires it.
+- No private image, screenshot, secret, payment logic, auth logic, or old backend controller was copied.
+
+### Sprint 32 Parity
+
+- Before Sprint 32: **90%** first-viewport parity.
+- After Sprint 32: **91%** first-viewport parity.
+
+The landing is visually reviewable and close to the old website first viewport, but it is still not the full old website. Public doctor search, doctor onboarding, CMS/SEO content, analytics/cookie handling, and final legal/marketing content remain public-launch gaps.

@@ -157,7 +157,11 @@ class _DoctorHero extends StatelessWidget {
         children: [
           Row(
             children: [
-              DoctorAvatar(name: doctor.name, size: 88),
+              DoctorAvatar(
+                name: doctor.name,
+                imageUrl: doctor.avatarUrl,
+                size: 88,
+              ),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -181,7 +185,10 @@ class _DoctorHero extends StatelessWidget {
                       ),
                     ],
                     const SizedBox(height: 8),
-                    const _ProfileRatingRow(),
+                    _ProfileRatingRow(
+                      ratingAverage: doctor.ratingAverage,
+                      reviewsCount: doctor.reviewsCount,
+                    ),
                   ],
                 ),
               ),
@@ -260,22 +267,44 @@ class _HeroChip extends StatelessWidget {
 }
 
 class _ProfileRatingRow extends StatelessWidget {
-  const _ProfileRatingRow();
+  const _ProfileRatingRow({
+    required this.ratingAverage,
+    required this.reviewsCount,
+  });
+
+  final double? ratingAverage;
+  final int reviewsCount;
 
   @override
   Widget build(BuildContext context) {
+    final hasRealRating = ratingAverage != null && reviewsCount > 0;
+    final filledStars = hasRealRating ? ratingAverage!.round().clamp(0, 5) : 0;
     return Row(
       children: [
         for (var i = 0; i < 5; i++)
-          const Icon(
-            Icons.star_rounded,
-            color: AppColors.appointmentOrange,
+          Icon(
+            hasRealRating && i < filledStars
+                ? Icons.star_rounded
+                : Icons.star_border_rounded,
+            color: hasRealRating
+                ? AppColors.appointmentOrange
+                : AppColors.muted.withValues(alpha: 0.55),
             size: 17,
           ),
         const SizedBox(width: 6),
         Flexible(
           child: Text(
-            uxCopy(context, 'تقييمات المرضى قريبًا', 'Patient reviews soon'),
+            hasRealRating
+                ? uxCopy(
+                    context,
+                    '${ratingAverage!.toStringAsFixed(1)} من 5 - $reviewsCount تقييم',
+                    '${ratingAverage!.toStringAsFixed(1)} of 5 - $reviewsCount reviews',
+                  )
+                : uxCopy(
+                    context,
+                    'تقييمات المرضى قريبًا',
+                    'Patient reviews soon',
+                  ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(

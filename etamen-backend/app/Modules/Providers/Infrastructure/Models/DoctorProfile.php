@@ -3,6 +3,7 @@
 namespace App\Modules\Providers\Infrastructure\Models;
 
 use App\Models\User;
+use App\Modules\Appointments\Infrastructure\Models\AppointmentReview;
 use App\Modules\Appointments\Infrastructure\Models\Appointment;
 use App\Modules\Appointments\Infrastructure\Models\AppointmentSlot;
 use App\Modules\Appointments\Infrastructure\Models\DoctorHoliday;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class DoctorProfile extends Model
 {
@@ -20,6 +22,7 @@ class DoctorProfile extends Model
         'title',
         'bio_ar',
         'bio_en',
+        'avatar_path',
         'consultation_fee',
         'years_of_experience',
     ];
@@ -45,6 +48,29 @@ class DoctorProfile extends Model
     public function specialties(): BelongsToMany
     {
         return $this->belongsToMany(Specialty::class, 'doctor_specialties')->withTimestamps();
+    }
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if (! $this->avatar_path) {
+            return null;
+        }
+
+        $path = ltrim(str_replace('\\', '/', $this->avatar_path), '/');
+
+        if (
+            Str::contains($path, ['..', '://']) ||
+            Str::startsWith($path, ['storage/medical', 'medical-private', 'medical_private', 'private', 'provider-documents'])
+        ) {
+            return null;
+        }
+
+        return asset($path);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(AppointmentReview::class);
     }
 
     public function schedules(): HasMany

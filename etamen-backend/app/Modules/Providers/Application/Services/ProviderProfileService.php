@@ -16,7 +16,7 @@ class ProviderProfileService
     public function currentProviderFor(User $user): Provider
     {
         $provider = $user->ownedProviders()
-            ->with(['doctorProfile.specialties', 'pharmacyProfile', 'labProfile', 'branches'])
+            ->with(['doctorProfile.specialties', 'pharmacyProfile', 'labProfile', 'branches.city', 'branches.area'])
             ->first();
 
         if (! $provider) {

@@ -17,6 +17,7 @@ import 'package:etamen_app/features/home/presentation/widgets/home_experience_wi
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 class AppointmentBookingPage extends ConsumerStatefulWidget {
   const AppointmentBookingPage({required this.doctorId, super.key});
@@ -53,109 +54,111 @@ class _AppointmentBookingPageState
         loading: () => const LoadingView(),
         error: (error, _) => ErrorView(message: error.toString()),
         data: (doctorResult) => doctorResult.when(
-          success: (doctor) => ListView(
-            padding: const EdgeInsets.all(16),
+          success: (doctor) => Column(
             children: [
-              _BookingStepper(currentStep: _selectedSlot == null ? 0 : 1),
-              const SizedBox(height: 16),
-              _DoctorSummary(doctor: doctor),
-              const SizedBox(height: 16),
-              SoftMedicalCard(
-                child: slots.when(
-                  loading: () => const LoadingView(),
-                  error: (error, _) => ErrorView(message: error.toString()),
-                  data: (slotResult) => slotResult.when(
-                    success: (items) => SlotPicker(
-                      slots: items.where((slot) => slot.isAvailable).toList(),
-                      selectedSlot: _selectedSlot,
-                      onSelected: (slot) =>
-                          setState(() => _selectedSlot = slot),
-                    ),
-                    failure: (failure) =>
-                        ErrorView(message: failure.error.message),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              SoftMedicalCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
                   children: [
-                    Text(
-                      uxCopy(context, 'أكد بيانات الحجز', 'Confirm details'),
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
+                    _BookingStepper(currentStep: _selectedSlot == null ? 0 : 1),
+                    const SizedBox(height: 16),
+                    _DoctorSummary(doctor: doctor),
+                    const SizedBox(height: 16),
+                    SoftMedicalCard(
+                      child: slots.when(
+                        loading: () => const LoadingView(),
+                        error: (error, _) =>
+                            ErrorView(message: error.toString()),
+                        data: (slotResult) => slotResult.when(
+                          success: (items) => SlotPicker(
+                            slots: items
+                                .where((slot) => slot.isAvailable)
+                                .toList(),
+                            selectedSlot: _selectedSlot,
+                            onSelected: (slot) =>
+                                setState(() => _selectedSlot = slot),
+                          ),
+                          failure: (failure) =>
+                              ErrorView(message: failure.error.message),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      l10n.get('consultationType'),
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    SegmentedButton<ConsultationType>(
-                      segments: [
-                        ButtonSegment(
-                          value: ConsultationType.clinic,
-                          label: Text(l10n.get('clinic')),
-                          icon: const Icon(Icons.local_hospital_outlined),
-                        ),
-                        ButtonSegment(
-                          value: ConsultationType.online,
-                          label: Text(l10n.get('online')),
-                          icon: const Icon(Icons.videocam_outlined),
-                        ),
-                      ],
-                      selected: {_consultationType},
-                      onSelectionChanged: (value) {
-                        setState(() => _consultationType = value.first);
-                      },
                     ),
                     const SizedBox(height: 16),
-                    TextField(
-                      controller: _problemController,
-                      minLines: 3,
-                      maxLines: 5,
-                      decoration: InputDecoration(
-                        labelText: l10n.get('problemDescription'),
+                    SoftMedicalCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            uxCopy(
+                              context,
+                              'أكد بيانات الحجز',
+                              'Confirm details',
+                            ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w800),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            l10n.get('consultationType'),
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          SegmentedButton<ConsultationType>(
+                            segments: [
+                              ButtonSegment(
+                                value: ConsultationType.clinic,
+                                label: Text(l10n.get('clinic')),
+                                icon: const Icon(Icons.local_hospital_outlined),
+                              ),
+                              ButtonSegment(
+                                value: ConsultationType.online,
+                                label: Text(l10n.get('online')),
+                                icon: const Icon(Icons.videocam_outlined),
+                              ),
+                            ],
+                            selected: {_consultationType},
+                            onSelectionChanged: (value) {
+                              setState(() => _consultationType = value.first);
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          TextField(
+                            controller: _problemController,
+                            minLines: 3,
+                            maxLines: 5,
+                            decoration: InputDecoration(
+                              labelText: l10n.get('problemDescription'),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+                    if (bookingState.error != null) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        _friendlyBookingError(
+                          context,
+                          bookingState.error!.message,
+                        ),
+                        style: const TextStyle(color: AppColors.danger),
+                      ),
+                    ],
+                    if (bookingState.appointment != null) ...[
+                      const SizedBox(height: 16),
+                      _BookingResultCard(
+                        appointment: bookingState.appointment!,
+                      ),
+                    ],
+                    const SizedBox(height: 12),
                   ],
                 ),
               ),
-              if (bookingState.error != null) ...[
-                const SizedBox(height: 12),
-                Text(
-                  _friendlyBookingError(context, bookingState.error!.message),
-                  style: const TextStyle(color: AppColors.danger),
-                ),
-              ],
-              if (bookingState.appointment != null) ...[
-                const SizedBox(height: 16),
-                _BookingResultCard(appointment: bookingState.appointment!),
-              ],
-              const SizedBox(height: 24),
-              AppButton(
-                label: l10n.get('confirmBooking'),
+              _BookingActionBar(
+                selectedSlot: _selectedSlot,
                 isLoading: bookingState.isLoading,
-                onPressed:
-                    _selectedSlot == null ||
-                        doctor.doctorProfileId == null ||
-                        bookingState.isLoading
-                    ? null
-                    : () => _book(doctor),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                uxCopy(
-                  context,
-                  'لا يعتمد النظام على سعر أو حالة حجز من التطبيق؛ التأكيد يتم من الخادم.',
-                  'The server confirms price and booking state.',
-                ),
-                textAlign: TextAlign.center,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: AppColors.muted),
+                canSubmit:
+                    _selectedSlot != null && doctor.doctorProfileId != null,
+                onSubmit: () => _book(doctor),
               ),
             ],
           ),
@@ -219,6 +222,90 @@ class _AppointmentBookingPageState
   }
 }
 
+class _BookingActionBar extends StatelessWidget {
+  const _BookingActionBar({
+    required this.selectedSlot,
+    required this.isLoading,
+    required this.canSubmit,
+    required this.onSubmit,
+  });
+
+  final DoctorSlot? selectedSlot;
+  final bool isLoading;
+  final bool canSubmit;
+  final VoidCallback onSubmit;
+
+  @override
+  Widget build(BuildContext context) {
+    final slot = selectedSlot;
+    final summary = slot == null
+        ? uxCopy(context, 'اختر اليوم والموعد أولًا', 'Choose a day and time')
+        : DateFormat('EEE d MMM - HH:mm').format(slot.startsAt.toLocal());
+
+    return SafeArea(
+      top: false,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(top: BorderSide(color: AppColors.softBorder)),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primaryDark.withValues(alpha: 0.12),
+              blurRadius: 18,
+              offset: const Offset(0, -8),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.event_available_outlined,
+                  color: AppColors.appointmentOrange,
+                  size: 18,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    summary,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: slot == null ? AppColors.muted : AppColors.text,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            AppButton(
+              label: AppLocalizations.of(context).get('confirmBooking'),
+              isLoading: isLoading,
+              onPressed: canSubmit && !isLoading ? onSubmit : null,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              uxCopy(
+                context,
+                'السعر وحالة الحجز يتم تأكيدهما من الخادم.',
+                'Price and booking state are confirmed by the server.',
+              ),
+              textAlign: TextAlign.center,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: AppColors.muted),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _DoctorSummary extends StatelessWidget {
   const _DoctorSummary({required this.doctor});
 
@@ -237,7 +324,7 @@ class _DoctorSummary extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          DoctorAvatar(name: doctor.name, size: 56),
+          DoctorAvatar(name: doctor.name, imageUrl: doctor.avatarUrl, size: 56),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

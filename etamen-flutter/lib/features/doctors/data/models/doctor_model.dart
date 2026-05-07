@@ -6,6 +6,9 @@ class DoctorModel extends Doctor {
     required super.name,
     required super.isActive,
     super.bio,
+    super.avatarUrl,
+    super.ratingAverage,
+    super.reviewsCount,
     super.doctorProfileId,
     super.consultationFee,
     super.yearsOfExperience,
@@ -36,13 +39,28 @@ class DoctorModel extends Doctor {
           return [areaName, cityName].whereType<Object>().join(' - ');
         })
         .where((item) => item.isNotEmpty)
-        .toList(growable: false);
+        .toList();
+    if (branches.isEmpty) {
+      final primaryLocation = [
+        json['primary_branch_name']?.toString(),
+        json['primary_area_name']?.toString(),
+        json['primary_city_name']?.toString(),
+      ].whereType<String>().where((item) => item.trim().isNotEmpty).join(' - ');
+      if (primaryLocation.isNotEmpty) {
+        branches.add(primaryLocation);
+      }
+    }
 
     return DoctorModel(
       id: (json['id'] as num).toInt(),
       name: (json['name_ar'] ?? json['name_en'] ?? '').toString(),
       isActive: json['is_active'] == true,
       bio: (profile['bio_ar'] ?? profile['bio_en'])?.toString(),
+      avatarUrl: _stringOrNull(profile['avatar_url']),
+      ratingAverage: _doubleOrNull(profile['rating_average']),
+      reviewsCount: profile['reviews_count'] == null
+          ? 0
+          : (profile['reviews_count'] as num).toInt(),
       doctorProfileId: profile['id'] == null
           ? null
           : (profile['id'] as num).toInt(),
@@ -53,5 +71,23 @@ class DoctorModel extends Doctor {
       specialties: specialties,
       branches: branches,
     );
+  }
+
+  static String? _stringOrNull(Object? value) {
+    final text = value?.toString().trim();
+    if (text == null || text.isEmpty) {
+      return null;
+    }
+    return text;
+  }
+
+  static double? _doubleOrNull(Object? value) {
+    if (value == null) {
+      return null;
+    }
+    if (value is num) {
+      return value.toDouble();
+    }
+    return double.tryParse(value.toString());
   }
 }

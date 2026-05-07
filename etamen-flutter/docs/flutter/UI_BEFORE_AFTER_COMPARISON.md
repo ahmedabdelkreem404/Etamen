@@ -130,3 +130,33 @@ Final Sprint 31 parity:
 - Overall app/site: **91%**.
 
 The product owner should review the Sprint 31 screenshots before more coding. If they still require 95%+, the next blockers are concrete: licensed doctor imagery, real rating fields, exact font choice, and exact old website section sequence.
+
+## Sprint 32 Final Seeded Comparison
+
+Screenshot evidence:
+
+- Old references remain: `present31.png`, `present32.png`, `present33.png`, `present34.png`, `timeline11min.jpg`, `doctor-finder-website-wait.png`.
+- Sprint 32 screenshots: `I:/Etamen/.tmp/sprint32-final-screenshots/`.
+
+| Screen | New Sprint 32 screenshot | What now matches better | What still does not match |
+| --- | --- | --- | --- |
+| Home | `01-home.png` | Seeded doctor cards make the old Doctor Finder home feel more real; teal hero and search remain prominent. | App still uses safe avatar placeholders, not real licensed doctor photos. |
+| Doctors list | `03-doctors-list-with-avatar.png` | Doctor cards now show safe avatar URL, real demo rating average/count, location, fee, experience, and `احجز الآن`. | Avatar is generated/demo, not a true doctor photo; no public review excerpts. |
+| Doctor profile | `04-doctor-profile-with-avatar.png` | Header/profile card has avatar, rating, fee, city/area, about, and slots in one patient-facing flow. | Exact old photo/map/credential blocks are still missing. |
+| Booking | `05-booking-slot-selection.png`, `06-booking-confirmation.png` | Slot selection and sticky CTA are visible on the emulator viewport; selected state uses old orange accent. | Physical small-screen proof still required. |
+| Payment | `07-payment-methods.png`, `08-payment-proof-upload.png` | Payment method and proof upload screens feel consumer-facing and avoid raw backend status. | Native file picker proof upload and admin review were not completed in this pass. |
+| My appointments | `09-my-appointments.png` | Newly booked appointment appears with friendly pending-payment wording. | Date formatting still mixes English month labels. |
+| Pharmacy / Labs | `10-pharmacy-products.png`, `11-labs-tests.png` | Richer demo names prevent empty/broken-looking lists. | Full order/payment/result journeys were not completed. |
+| Health / AI / Account | `12-health-dashboard.png` to `17-account.png` | Supporting screens remain visually aligned with the teal/white card system and safe copy. | These screens were not core old Doctor Finder clone targets. |
+| Website landing | `18-website-landing.png` | Landing first viewport now shows dark top strip, white nav, orange CTA, peach/teal split, doctor hero image, search pill, and service cards. | It is still a landing page only, not the full old website. |
+
+## Sprint 32 Decision
+
+Final Sprint 32 parity estimate:
+
+- Doctor journey: **94-95%** on seeded emulator.
+- Overall mobile app: **93%**.
+- Website first viewport: **91%**.
+- Overall app/site: **92%**.
+
+The new app is now visually acceptable for supervised product-owner review and very close to the old Doctor Finder patient journey. It is not the same as the old app/site because production photos, public review content, exact font, and full old website pages are still missing.

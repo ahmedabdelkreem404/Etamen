@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Modules\Appointments\Domain\Enums\AppointmentSlotStatus;
+use App\Modules\Appointments\Infrastructure\Models\AppointmentReview;
 use App\Modules\Appointments\Infrastructure\Models\AppointmentSlot;
 use App\Modules\CarePlans\Domain\Enums\CarePlanStatus;
 use App\Modules\CarePlans\Infrastructure\Models\CarePlan;
@@ -44,6 +45,11 @@ class PilotDemoDataTest extends TestCase
         $this->assertSame(ProviderType::Doctor, $doctor->type);
         $this->assertSame(ProviderStatus::Approved, $doctor->status);
         $this->assertTrue($doctor->is_active);
+        $this->assertSame('legacy-doctorfinder/demo-doctor-avatar-1.png', $doctor->doctorProfile->avatar_path);
+        $this->assertGreaterThanOrEqual(3, AppointmentReview::query()
+            ->where('doctor_profile_id', $doctor->doctorProfile->id)
+            ->where('is_visible', true)
+            ->count());
         $this->assertSame(ProviderType::Pharmacy, $pharmacy->type);
         $this->assertSame(ProviderType::Lab, $lab->type);
 
@@ -95,6 +101,20 @@ class PilotDemoDataTest extends TestCase
 
         $doctorId = $this->getJson('/api/v1/doctors')
             ->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => [
+                        'primary_branch_name',
+                        'primary_area_name',
+                        'primary_city_name',
+                        'doctor_profile' => [
+                            'avatar_url',
+                            'rating_average',
+                            'reviews_count',
+                        ],
+                    ],
+                ],
+            ])
             ->json('data.0.id');
         $this->assertGreaterThanOrEqual(4, Provider::query()->where('type', ProviderType::Doctor)->count());
 

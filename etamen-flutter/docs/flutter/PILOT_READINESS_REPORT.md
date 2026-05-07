@@ -325,3 +325,107 @@ Show the product owner `I:/Etamen/.tmp/sprint31-new-screenshots/` side by side w
 - `php artisan test` with SQLite in-memory testing environment: passed, 191 backend tests.
 
 The real screenshot device only supports `armeabi-v7a`, so the installed screenshot build used `android-arm`. The requested arm64 build still passed separately.
+
+## Sprint 32 Visual Data Completion + Final Seeded E2E Pilot Gate
+
+Sprint 32 focused on the remaining visual/data blockers from Sprint 31: doctor avatar URL, rating summary, richer demo data, sticky booking CTA, final screenshots, and seeded walkthrough evidence.
+
+### What Changed
+
+- Backend public doctor contract now exposes safe visual fields: `doctor_profile.avatar_url`, `rating_average`, `reviews_count`, plus primary branch/area/city names.
+- `doctor_profiles.avatar_path` was added as nullable, public-safe visual data only. It is not required for booking and is blocked from patient/provider request payloads.
+- Pilot demo seed data now creates generated-style safe doctor avatar assets, richer Arabic demo doctors, and visible demo appointment reviews for rating summaries.
+- Flutter doctor model/card/profile/booking summary now renders avatar URLs with loading/error fallback and only shows ratings when real rating data exists.
+- Booking screen now has a bottom safe-area action bar with selected slot summary and visible CTA.
+- Website landing first viewport was adjusted so the Doctor Finder hero image renders in the captured screenshot.
+
+### Screenshot Evidence
+
+Final screenshots:
+
+`I:/Etamen/.tmp/sprint32-final-screenshots/`
+
+Key files:
+
+- `01-home.png`
+- `03-doctors-list-with-avatar.png`
+- `04-doctor-profile-with-avatar.png`
+- `05-booking-slot-selection.png`
+- `07-payment-methods.png`
+- `08-payment-proof-upload.png`
+- `18-website-landing.png`
+
+### Parity After Sprint 32
+
+- Home: **94%**.
+- Doctor list: **94%**.
+- Doctor profile: **94%**.
+- Booking flow: **95%** on seeded emulator.
+- Payment visual flow: **91%**.
+- Website landing first viewport: **91%**.
+- Overall mobile app: **93%**.
+- Overall app/site: **92%**.
+
+### Seeded E2E Result
+
+Core doctor flow on seeded emulator: **PASS**.
+
+Passed:
+
+- Login.
+- Session restore.
+- Home.
+- Doctors list with avatar/rating visual data.
+- Doctor profile.
+- Booking slot selection.
+- Booking submission.
+- Payment method screen.
+- My appointments.
+- Notifications.
+- Account/legal/support entry points.
+
+Partial / not complete:
+
+- Manual payment proof upload: upload screen reached, but native file picker upload was not completed in this automated pass.
+- Admin payment review: not tested in Flutter pass.
+- Pharmacy order, lab order/result, care plan actions, AI prompt variants, and logout: not fully completed.
+
+### Sprint 32 Validation
+
+- Backend `php artisan migrate:fresh --seed`: passed on the Etamen local database.
+- Backend `php artisan db:seed --class=PilotDemoSeeder`: passed after the fresh seed.
+- Backend `php artisan test`: passed, 196 tests / 1642 assertions.
+- Flutter `flutter pub get`: passed.
+- Flutter `dart format .`: passed, 0 files changed after final lint fix.
+- Flutter `flutter analyze`: passed with no issues.
+- Flutter `flutter test`: passed, 162 tests.
+- Flutter `flutter build apk --debug --target-platform android-arm64 --dart-define=ETAMEN_API_BASE_URL=http://10.0.2.2:8000/api/v1`: passed.
+- Flutter `git diff --check`: passed; only Windows line-ending warnings were reported.
+- Build environment note: ARM64 build initially failed because `GRADLE_USER_HOME` pointed to a full `D:/gradle_home`; rerunning with the session Gradle cache on the user profile disk succeeded.
+
+### Pilot Decision
+
+Decision option: **2. Ready after minor verification fixes**.
+
+The app is now visually acceptable versus the old Doctor Finder direction for a supervised pilot review, but we should not invite the first 5-20 external pilot users until:
+
+1. A physical-device test uploads a real payment proof image.
+2. Admin accepts/rejects that proof in the backend workflow.
+3. Logout/session restore is repeated on physical device.
+4. Pharmacy/lab order basics are either passed or explicitly scoped out of the first pilot cohort.
+
+### Public Launch Status
+
+Not public-launch ready.
+
+Remaining public launch blockers:
+
+- Licensed real doctor photos or approved provider avatars.
+- Production review/rating policy and real public review data.
+- Full public website, not only landing first viewport.
+- Production payment, push, monitoring, legal, support, and store assets.
+- Final legal/product-owner review.
+
+### Exact Next Action
+
+Run one supervised physical-device E2E pass using `pilot.patient@example.test`: upload a real proof image, review it from admin, verify appointment status, then re-open the app and test logout/session restore. If that passes, the product owner can decide whether to invite the first 5-20 supervised pilot users.

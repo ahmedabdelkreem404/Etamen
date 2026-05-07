@@ -6,9 +6,9 @@
     <title>اطمن | Find A Doctor</title>
     @php
         $legacyHeroPath = public_path('legacy-doctorfinder/doctor-finder-hero.jpg');
-        $legacyHeroData = file_exists($legacyHeroPath)
+        $legacyHeroUrl = is_file($legacyHeroPath)
             ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($legacyHeroPath))
-            : '';
+            : asset('legacy-doctorfinder/doctor-finder-hero.jpg');
     @endphp
     <style>
         :root {
@@ -123,9 +123,10 @@
             position: absolute;
             inset: 0 0 0 49%;
             background:
-                linear-gradient(rgba(1, 216, 201, 0.04), rgba(0, 184, 175, 0.04)),
-                url('{{ $legacyHeroData }}') 38% center / cover no-repeat;
+                linear-gradient(rgba(1, 216, 201, 0.10), rgba(0, 184, 175, 0.04)),
+                url('{{ $legacyHeroUrl }}') center center / cover no-repeat;
             clip-path: polygon(9% 0, 100% 0, 100% 100%, 0 100%);
+            filter: saturate(1.08);
         }
 
         .hero::after {
@@ -205,6 +206,33 @@
             margin-top: 44px;
             color: var(--orange);
             font-weight: 900;
+        }
+
+        .hero-visual {
+            justify-self: stretch;
+            align-self: stretch;
+            min-height: 520px;
+            overflow: hidden;
+            clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%);
+            position: relative;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+        }
+
+        .hero-visual img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: 35% center;
+            display: block;
+            filter: saturate(1.18) contrast(1.16);
+        }
+
+        .hero-visual::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(255, 233, 210, 0.04), rgba(1, 216, 201, 0.10));
+            pointer-events: none;
         }
 
         .service-grid {
@@ -394,9 +422,7 @@
             }
 
             .hero::before {
-                inset: 0;
-                clip-path: none;
-                opacity: 0.18;
+                display: none;
             }
 
             .hero::after {
@@ -408,6 +434,10 @@
                 grid-template-columns: 1fr;
                 align-items: start;
                 padding-top: 74px;
+            }
+
+            .hero-visual {
+                display: none;
             }
 
             .service-grid,
@@ -484,6 +514,9 @@
                         <span class="search-button">›</span>
                     </a>
                     <div class="category-kicker">CATEGORY</div>
+                </div>
+                <div class="hero-visual" aria-hidden="true">
+                    <img src="{{ $legacyHeroUrl }}" alt="">
                 </div>
             </div>
         </section>

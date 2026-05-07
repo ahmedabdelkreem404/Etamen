@@ -167,3 +167,62 @@ After the database reset and app data clear, ADB text entry repeatedly truncated
 Decision: **Ready after one manual seeded walkthrough pass, not ready to invite the first 20 users yet.**
 
 The seed data and two blocking technical issues are fixed. The exact remaining condition is one successful manual pass through booking, manual payment proof upload/admin review, My Appointments, pharmacy order, lab order/result, vitals, medications, care plans, notifications, AI safety prompts, account/legal/support, and logout/session restore using `pilot.patient@example.test`.
+
+---
+
+# Sprint 32 Seeded E2E Walkthrough
+
+## Context
+
+- Date: 2026-05-07.
+- Device: Android emulator `emulator-5554` using `Pixel_8_Pro` AVD.
+- App package: `com.etamen.etamen_app`.
+- Screenshot build: debug APK for `android-x64`.
+- Backend URL in app: `http://10.0.2.2:8000/api/v1`.
+- Backend host: `http://127.0.0.1:8000`.
+- Demo account: `pilot.patient@example.test` / `Password1234`.
+- Screenshot folder: `I:/Etamen/.tmp/sprint32-final-screenshots/`.
+
+## Results
+
+| Flow | Result | Screenshot | Notes | Remaining blocker |
+| --- | --- | --- | --- | --- |
+| Login | PASS | `00-login-clear.png` | Login succeeded after correcting ADB email entry for `@`. | Repeat on physical device. |
+| Session restore | PASS | `01-home.png` | App relaunched and restored the patient session. | None on emulator. |
+| Home | PASS | `01-home.png` | Old-style hero/search/doctor emphasis visible. | Product-owner review. |
+| Doctors list | PASS | `03-doctors-list-with-avatar.png` | Avatar placeholder URL, visible rating summary, branch/city/fee shown. | Real licensed doctor photos still missing. |
+| Doctor profile | PASS | `04-doctor-profile-with-avatar.png` | Avatar, rating, fee, location, about, and slots visible. | Real photo/review content for production. |
+| Booking slot selection | PASS | `05-booking-slot-selection.png` | Selected slot uses orange state and CTA is visible above system navigation. | Physical small-screen recheck. |
+| Booking submission | PASS | `06-booking-confirmation.png` | Booking submitted and moved to payment flow; appointment appeared in My Appointments. | None on emulator. |
+| Payment method selection | PASS | `07-payment-methods.png` | Friendly method cards and summary shown; no raw backend status. | Admin payment operation still needs staff workflow. |
+| Manual proof upload | PARTIAL | `08-payment-proof-upload.png` | Upload screen reached; file picker upload was not completed in automated pass. | Must upload a real test image on physical device. |
+| Admin payment review | NOT TESTED | N/A | Outside Flutter patient app. | Filament/admin operator walkthrough required. |
+| My appointments | PASS | `09-my-appointments.png` | New pending-payment appointment visible with friendly copy. | None on emulator. |
+| Pharmacy products/order | PARTIAL | `10-pharmacy-products.png` | Pharmacy list and product entry shown; order was not completed. | Complete order E2E before wider pilot. |
+| Lab tests/order/result | PARTIAL | `11-labs-tests.png` | Lab list and test entry shown; order/result flow not completed. | Complete lab order/result E2E. |
+| Vitals / health dashboard | PASS | `12-health-dashboard.png` | Health hub loads with non-diagnostic wording. | Add-vital action not exercised. |
+| Medication reminder today | PASS | `13-medications-today.png` | Demo medication and adherence summary visible. | Notification timing needs real-device QA. |
+| Care plan check-in / meal log | PARTIAL | `14-care-plan.png` | Demo care plan visible; check-in/meal log not submitted. | Complete care-plan actions. |
+| Notifications | PASS | `15-notifications.png` | Notification center loads seeded notification. | Push delivery remains production setup item. |
+| AI safe/refusal/red-flag prompts | PARTIAL | `16-ai-chat.png` | AI safety disclaimer/entry visible. Prompts were not completed. | Exercise prompts with configured AI backend. |
+| Account/legal/support | PASS | `17-account.png` | Account and legal/support entry points visible. | Final legal/owner approval. |
+| Logout | NOT TESTED | N/A | Session restore was verified; logout was not completed. | Include in final physical-device smoke test. |
+| Website landing | PASS | `18-website-landing.png` | First viewport captured with Doctor Finder style hero/search/service cards. | Full old website remains out of scope. |
+
+## Decision
+
+Core doctor booking path is **PASS on seeded emulator**. The app should not be treated as fully pilot-cleared until a physical-device pass completes payment proof upload, admin payment review, and logout.
+
+## Sprint 32 Validation Commands
+
+| Command | Result | Notes |
+| --- | --- | --- |
+| Backend `php artisan migrate:fresh --seed` | PASS | Ran on the Etamen local database before final tests. |
+| Backend `php artisan db:seed --class=PilotDemoSeeder` | PASS | Recreated seeded visual walkthrough data. |
+| Backend `php artisan test` | PASS | 196 tests / 1642 assertions. |
+| Flutter `flutter pub get` | PASS | Dependency resolution completed. |
+| Flutter `dart format .` | PASS | 0 files changed after final lint cleanup. |
+| Flutter `flutter analyze` | PASS | No issues found. |
+| Flutter `flutter test` | PASS | 162 tests passed. |
+| Flutter ARM64 debug APK build | PASS | Built `build/app/outputs/flutter-apk/app-debug.apk`. |
+| `git diff --check` | PASS | No whitespace errors; Windows line-ending warnings only. |

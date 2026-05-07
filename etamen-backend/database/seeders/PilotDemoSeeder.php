@@ -4,6 +4,10 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Modules\Appointments\Domain\Enums\AppointmentSlotStatus;
+use App\Modules\Appointments\Domain\Enums\AppointmentStatus;
+use App\Modules\Appointments\Domain\Enums\ConsultationType;
+use App\Modules\Appointments\Infrastructure\Models\Appointment;
+use App\Modules\Appointments\Infrastructure\Models\AppointmentReview;
 use App\Modules\Appointments\Infrastructure\Models\AppointmentSlot;
 use App\Modules\Appointments\Infrastructure\Models\DoctorSchedule;
 use App\Modules\Appointments\Infrastructure\Models\DoctorScheduleDay;
@@ -105,6 +109,7 @@ class PilotDemoSeeder extends Seeder
             [$city, $area] = $this->seedLocation();
             [$doctorProvider, $doctorProfile, $branch] = $this->seedDoctor($doctorUser, $admin, $city, $area);
             $this->seedDoctorScheduleAndSlots($doctorProvider, $doctorProfile, $branch);
+            $this->seedDoctorReviews($patient, $doctorProvider, $doctorProfile, $branch);
             $this->seedPaymentMethods();
             $pharmacyProvider = $this->seedPharmacy($pharmacyUser, $admin, $city, $area);
             $labProvider = $this->seedLab($labUser, $admin, $city, $area);
@@ -200,6 +205,7 @@ class PilotDemoSeeder extends Seeder
                 'title' => 'استشاري',
                 'bio_ar' => 'ملف تجريبي آمن لاختبار تجربة حجز طبيب. لا يمثل طبيبًا حقيقيًا.',
                 'bio_en' => 'Safe demo profile for doctor booking testing.',
+                'avatar_path' => 'legacy-doctorfinder/demo-doctor-avatar-1.png',
                 'consultation_fee' => 300,
                 'years_of_experience' => 8,
             ],
@@ -221,6 +227,71 @@ class PilotDemoSeeder extends Seeder
         );
 
         return [$provider, $doctorProfile, $branch];
+    }
+
+    private function seedDoctorReviews(User $patient, Provider $provider, DoctorProfile $doctorProfile, ProviderBranch $branch): void
+    {
+        $reviewRows = [
+            [
+                'number' => 'APT-PILOT-REVIEW-'.$doctorProfile->id.'-1',
+                'email' => $patient->email,
+                'name' => $patient->name,
+                'rating' => 5,
+                'comment' => 'Demo visible review for rating summary only.',
+            ],
+            [
+                'number' => 'APT-PILOT-REVIEW-'.$doctorProfile->id.'-2',
+                'email' => 'demo.review.patient.1@example.test',
+                'name' => 'Demo Review Patient One',
+                'rating' => 4,
+                'comment' => 'Second demo visible review for rating summary only.',
+            ],
+            [
+                'number' => 'APT-PILOT-REVIEW-'.$doctorProfile->id.'-3',
+                'email' => 'demo.review.patient.2@example.test',
+                'name' => 'Demo Review Patient Two',
+                'rating' => 5,
+                'comment' => 'Third demo visible review for rating summary only.',
+            ],
+        ];
+
+        foreach ($reviewRows as $index => $row) {
+            $reviewPatient = $row['email'] === $patient->email
+                ? $patient
+                : $this->demoUser($row['email'], $row['name'], UserRole::Patient);
+
+            $appointment = Appointment::query()->updateOrCreate(
+                ['appointment_number' => $row['number']],
+                [
+                    'patient_user_id' => $reviewPatient->id,
+                    'doctor_profile_id' => $doctorProfile->id,
+                    'provider_id' => $provider->id,
+                    'branch_id' => $branch->id,
+                    'appointment_slot_id' => null,
+                    'consultation_type' => ConsultationType::Clinic,
+                    'problem_description' => 'Demo completed appointment for visible rating summary only.',
+                    'price' => $doctorProfile->consultation_fee ?? 0,
+                    'currency' => 'EGP',
+                    'status' => AppointmentStatus::Completed,
+                    'payment_id' => null,
+                    'booked_at' => now()->subDays(10 + $index),
+                    'confirmed_at' => now()->subDays(10 + $index),
+                    'accepted_at' => now()->subDays(10 + $index),
+                    'completed_at' => now()->subDays(9 + $index),
+                ],
+            );
+
+            AppointmentReview::query()->updateOrCreate(
+                ['appointment_id' => $appointment->id],
+                [
+                    'patient_user_id' => $reviewPatient->id,
+                    'doctor_profile_id' => $doctorProfile->id,
+                    'rating' => $row['rating'],
+                    'comment' => $row['comment'],
+                    'is_visible' => true,
+                ],
+            );
+        }
     }
 
     private function seedDoctorScheduleAndSlots(Provider $provider, DoctorProfile $doctorProfile, ProviderBranch $branch): void
@@ -743,40 +814,43 @@ class PilotDemoSeeder extends Seeder
                 'email' => 'demo.doctor.derma@example.test',
                 'name' => 'Demo Dermatology Doctor',
                 'slug' => 'demo-dermatology-doctor',
-                'name_ar' => 'Demo Dermatology Doctor',
+                'name_ar' => 'د. سارة التجريبية',
                 'name_en' => 'Dr Sara Skin Demo',
                 'specialty_slug' => 'dermatology-demo',
-                'specialty_ar' => 'Dermatology Demo',
+                'specialty_ar' => 'جلدية تجريبية',
                 'specialty_en' => 'Dermatology',
                 'phone' => '01000002001',
                 'fee' => 250,
                 'experience' => 6,
+                'avatar_path' => 'legacy-doctorfinder/demo-doctor-avatar-2.png',
             ],
             [
                 'email' => 'demo.doctor.pedia@example.test',
                 'name' => 'Demo Pediatrics Doctor',
                 'slug' => 'demo-pediatrics-doctor',
-                'name_ar' => 'Demo Pediatrics Doctor',
+                'name_ar' => 'د. يوسف التجريبي',
                 'name_en' => 'Dr Youssef Kids Demo',
                 'specialty_slug' => 'pediatrics-demo',
-                'specialty_ar' => 'Pediatrics Demo',
+                'specialty_ar' => 'أطفال تجريبي',
                 'specialty_en' => 'Pediatrics',
                 'phone' => '01000002002',
                 'fee' => 220,
                 'experience' => 10,
+                'avatar_path' => 'legacy-doctorfinder/demo-doctor-avatar-3.png',
             ],
             [
                 'email' => 'demo.doctor.ortho@example.test',
                 'name' => 'Demo Orthopedics Doctor',
                 'slug' => 'demo-orthopedics-doctor',
-                'name_ar' => 'Demo Orthopedics Doctor',
+                'name_ar' => 'د. كريم التجريبي',
                 'name_en' => 'Dr Karim Bones Demo',
                 'specialty_slug' => 'orthopedics-demo',
-                'specialty_ar' => 'Orthopedics Demo',
+                'specialty_ar' => 'عظام تجريبي',
                 'specialty_en' => 'Orthopedics',
                 'phone' => '01000002003',
                 'fee' => 350,
                 'experience' => 12,
+                'avatar_path' => 'legacy-doctorfinder/demo-doctor-avatar-1.png',
             ],
         ];
 
@@ -887,6 +961,7 @@ class PilotDemoSeeder extends Seeder
                 'title' => 'Consultant',
                 'bio_ar' => 'Expanded demo doctor profile for local/staging QA only.',
                 'bio_en' => 'Expanded demo doctor profile for local/staging QA only.',
+                'avatar_path' => $doctor['avatar_path'] ?? 'legacy-doctorfinder/demo-doctor-avatar-1.png',
                 'consultation_fee' => $doctor['fee'],
                 'years_of_experience' => $doctor['experience'],
             ],
@@ -908,6 +983,10 @@ class PilotDemoSeeder extends Seeder
         );
 
         $this->seedDoctorScheduleAndSlots($provider, $doctorProfile, $branch);
+        $seedPatient = User::query()->where('email', 'pilot.patient@example.test')->first();
+        if ($seedPatient) {
+            $this->seedDoctorReviews($seedPatient, $provider, $doctorProfile, $branch);
+        }
     }
 
     private function seedAdditionalPharmacy(User $pharmacyUser, User $admin, City $city, Area $area, array $pharmacy): void

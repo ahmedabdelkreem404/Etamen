@@ -56,7 +56,7 @@ class PublicProviderController extends ApiController
             Provider::query()
                 ->publiclyVisible()
                 ->where('type', $type)
-                ->with(['doctorProfile.specialties', 'pharmacyProfile', 'labProfile', 'branches.city', 'branches.area'])
+                ->with($this->publicProviderRelations())
                 ->orderBy('name_en')
                 ->limit($this->perPage($request))
                 ->get(),
@@ -68,8 +68,22 @@ class PublicProviderController extends ApiController
         abort_if($provider->type !== $type || ! $provider->is_active || $provider->status->value !== 'approved', 404);
 
         return $this->success(
-            new ProviderResource($provider->load(['doctorProfile.specialties', 'pharmacyProfile', 'labProfile', 'branches.city', 'branches.area'])),
+            new ProviderResource($provider->load($this->publicProviderRelations())),
             $message,
         );
+    }
+
+    private function publicProviderRelations(): array
+    {
+        return [
+            'doctorProfile' => fn ($query) => $query
+                ->with('specialties')
+                ->withAvg(['reviews as rating_average' => fn ($reviewQuery) => $reviewQuery->where('is_visible', true)], 'rating')
+                ->withCount(['reviews as reviews_count' => fn ($reviewQuery) => $reviewQuery->where('is_visible', true)]),
+            'pharmacyProfile',
+            'labProfile',
+            'branches.city',
+            'branches.area',
+        ];
     }
 }

@@ -50,7 +50,11 @@ class DoctorCard extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    DoctorAvatar(name: doctor.name, size: 94),
+                    DoctorAvatar(
+                      name: doctor.name,
+                      imageUrl: doctor.avatarUrl,
+                      size: 94,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -75,7 +79,10 @@ class DoctorCard extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 6),
-                          const _RatingRow(),
+                          _RatingRow(
+                            ratingAverage: doctor.ratingAverage,
+                            reviewsCount: doctor.reviewsCount,
+                          ),
                           const SizedBox(height: 8),
                           Wrap(
                             spacing: 6,
@@ -184,9 +191,15 @@ class DoctorCard extends StatelessWidget {
 }
 
 class DoctorAvatar extends StatelessWidget {
-  const DoctorAvatar({required this.name, this.size = 64, super.key});
+  const DoctorAvatar({
+    required this.name,
+    this.imageUrl,
+    this.size = 64,
+    super.key,
+  });
 
   final String name;
+  final String? imageUrl;
   final double size;
 
   @override
@@ -225,7 +238,8 @@ class DoctorAvatar extends StatelessWidget {
           ),
           Positioned(
             top: 14,
-            child: DoctorFinderSilhouette(
+            child: _AvatarVisual(
+              imageUrl: imageUrl,
               initials: initials.isEmpty ? 'Dr' : initials,
               size: size * 0.72,
             ),
@@ -258,28 +272,87 @@ class DoctorAvatar extends StatelessWidget {
 }
 
 class _RatingRow extends StatelessWidget {
-  const _RatingRow();
+  const _RatingRow({required this.ratingAverage, required this.reviewsCount});
+
+  final double? ratingAverage;
+  final int reviewsCount;
 
   @override
   Widget build(BuildContext context) {
+    final hasRealRating = ratingAverage != null && reviewsCount > 0;
+    final filledStars = hasRealRating ? ratingAverage!.round().clamp(0, 5) : 0;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         for (var i = 0; i < 5; i++)
-          const Icon(
-            Icons.star_rounded,
+          Icon(
+            hasRealRating && i < filledStars
+                ? Icons.star_rounded
+                : Icons.star_border_rounded,
             size: 15,
-            color: AppColors.appointmentOrange,
+            color: hasRealRating
+                ? AppColors.appointmentOrange
+                : AppColors.muted.withValues(alpha: 0.55),
           ),
         const SizedBox(width: 4),
         Text(
-          uxCopy(context, 'تقييمات قريبًا', 'Reviews soon'),
+          hasRealRating
+              ? uxCopy(
+                  context,
+                  '${ratingAverage!.toStringAsFixed(1)} ($reviewsCount تقييم)',
+                  '${ratingAverage!.toStringAsFixed(1)} ($reviewsCount)',
+                )
+              : uxCopy(context, 'تقييمات قريبًا', 'Reviews soon'),
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
             color: AppColors.muted,
             fontWeight: FontWeight.w700,
           ),
         ),
       ],
+    );
+  }
+}
+
+class _AvatarVisual extends StatelessWidget {
+  const _AvatarVisual({
+    required this.imageUrl,
+    required this.initials,
+    required this.size,
+  });
+
+  final String? imageUrl;
+  final String initials;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final url = imageUrl;
+    if (url == null) {
+      return DoctorFinderSilhouette(initials: initials, size: size);
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(999),
+      child: Image.network(
+        url,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorBuilder: (_, _, _) =>
+            DoctorFinderSilhouette(initials: initials, size: size),
+        loadingBuilder: (context, child, progress) {
+          if (progress == null) {
+            return child;
+          }
+          return SizedBox(
+            width: size,
+            height: size,
+            child: const Center(
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          );
+        },
+      ),
     );
   }
 }
