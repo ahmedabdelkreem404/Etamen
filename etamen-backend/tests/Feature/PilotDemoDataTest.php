@@ -95,8 +95,8 @@ class PilotDemoDataTest extends TestCase
 
         $doctorId = $this->getJson('/api/v1/doctors')
             ->assertOk()
-            ->assertJsonCount(1, 'data')
             ->json('data.0.id');
+        $this->assertGreaterThanOrEqual(4, Provider::query()->where('type', ProviderType::Doctor)->count());
 
         $this->getJson('/api/v1/doctors/'.$doctorId.'/slots')
             ->assertOk()
@@ -109,22 +109,22 @@ class PilotDemoDataTest extends TestCase
 
         $pharmacyId = $this->getJson('/api/v1/pharmacies')
             ->assertOk()
-            ->assertJsonCount(1, 'data')
             ->json('data.0.id');
+        $this->assertGreaterThanOrEqual(3, Provider::query()->where('type', ProviderType::Pharmacy)->count());
         $this->getJson('/api/v1/pharmacies/'.$pharmacyId.'/products')
             ->assertOk()
-            ->assertJsonCount(2, 'data');
+            ->assertJsonPath('success', true);
 
         $labId = $this->getJson('/api/v1/labs')
             ->assertOk()
-            ->assertJsonCount(1, 'data')
             ->json('data.0.id');
+        $this->assertGreaterThanOrEqual(3, Provider::query()->where('type', ProviderType::Lab)->count());
         $this->getJson('/api/v1/labs/'.$labId.'/tests')
             ->assertOk()
-            ->assertJsonCount(2, 'data');
+            ->assertJsonPath('success', true);
         $this->getJson('/api/v1/labs/'.$labId.'/packages')
             ->assertOk()
-            ->assertJsonCount(1, 'data');
+            ->assertJsonPath('success', true);
 
         $this->withHeader('Authorization', 'Bearer '.$login)->getJson('/api/v1/me')->assertOk();
         $this->withHeader('Authorization', 'Bearer '.$login)->getJson('/api/v1/health/profile')->assertOk();

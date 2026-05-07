@@ -28,9 +28,19 @@ All demo accounts use:
 | Role | Email | Purpose |
 | --- | --- | --- |
 | Patient | `pilot.patient@example.test` | Flutter patient walkthrough |
+| Patient | `demo.patient.asmaa@example.test` | Extra local patient |
+| Patient | `demo.patient.omar@example.test` | Extra local patient |
+| Patient | `demo.patient.mona@example.test` | Extra local patient |
 | Doctor | `pilot.doctor@example.test` | Demo doctor/provider owner |
+| Doctor | `demo.doctor.derma@example.test` | Extra dermatology doctor |
+| Doctor | `demo.doctor.pedia@example.test` | Extra pediatrics doctor |
+| Doctor | `demo.doctor.ortho@example.test` | Extra orthopedics doctor |
 | Pharmacy admin | `pilot.pharmacy@example.test` | Demo pharmacy owner |
+| Pharmacy admin | `demo.pharmacy.nasr@example.test` | Extra pharmacy owner |
+| Pharmacy admin | `demo.pharmacy.maadi@example.test` | Extra pharmacy owner |
 | Lab admin | `pilot.lab@example.test` | Demo lab owner |
+| Lab admin | `demo.lab.nasr@example.test` | Extra lab owner |
+| Lab admin | `demo.lab.maadi@example.test` | Extra lab owner |
 | Admin | `pilot.admin@example.test` or `PILOT_ADMIN_EMAIL` | Local admin review/testing |
 
 ## Data Created
@@ -43,11 +53,15 @@ All demo accounts use:
 
 - Specialty: Cardiology, with Arabic demo label in the app.
 - Approved active doctor provider: Dr Ahmed Demo, with Arabic demo name in the app.
+- Extra approved doctors:
+  - Dermatology demo doctor.
+  - Pediatrics demo doctor.
+  - Orthopedics demo doctor.
 - Doctor profile fee: 300 EGP.
 - Experience: 8 years.
 - Main branch: Nasr City.
 - Schedule: 10:00 to 16:00, 30-minute slots.
-- Appointment slots generated for the next 14 days.
+- Appointment slots generated for the next 14 days for all demo doctors.
 
 ### Payments
 
@@ -65,6 +79,9 @@ Paymob remains inactive unless backend sandbox configuration is added separately
 ### Pharmacy
 
 - Approved active provider: Etamen Demo Pharmacy, with Arabic demo name in the app.
+- Extra approved pharmacies:
+  - Demo Pharmacy Nasr City.
+  - Demo Pharmacy Maadi.
 - Product without prescription:
   - Panadol Demo
   - 45 EGP
@@ -73,22 +90,28 @@ Paymob remains inactive unless backend sandbox configuration is added separately
   - Prescription Demo Medicine
   - 120 EGP
   - stock 20
+- Extra pharmacy products include normal products and prescription-required products.
 
 ### Labs
 
 - Approved active provider: Etamen Demo Lab, with Arabic demo name in the app.
+- Extra approved labs:
+  - Demo Lab Nasr City.
+  - Demo Lab Maadi.
 - Tests:
   - CBC Demo, 180 EGP
   - Blood Sugar Demo, 90 EGP
+- Extra tests include liver functions, kidney functions, lipid profile, TSH, and Vitamin D demo tests.
 - Package:
   - Basic Checkup Demo, 240 EGP
+- Extra lab checkup packages are created for the extra labs.
 - Existing demo result order:
   - `LAB-PILOT-RESULT-001`
   - Visible demo lab result file for download testing.
 
 ### Health
 
-For the pilot patient:
+For the pilot and extra demo patients:
 
 - Health profile.
 - Demo blood pressure record.
@@ -97,7 +120,7 @@ For the pilot patient:
 
 ### Medications
 
-For the pilot patient:
+For the pilot and extra demo patients:
 
 - Active reminder: Demo Medication.
 - Times: 09:00 and 21:00.
@@ -115,11 +138,30 @@ For the pilot patient:
 
 ### Notifications
 
-For the pilot patient:
+For the pilot and extra demo patients:
 
 - In-app notification:
   - Title: Welcome to Etamen.
   - Body: Safe demo notification for testing in-app notifications.
+
+## Current Expanded Demo Counts
+
+After running `PilotDemoSeeder` on the local MySQL database, expected minimum counts are:
+
+| Table/area | Expected count |
+| --- | ---: |
+| Users | 16 |
+| Providers | 10 |
+| Doctor profiles | 4 |
+| Pharmacy products | 7 |
+| Lab tests | 7 |
+| Lab packages | 3 |
+| Appointment slots | 672 |
+| Health profiles | 4 |
+| Vital records | 12 |
+| Medication reminders | 4 |
+| Care plans | 1 |
+| Notifications | 4 |
 
 ### AI
 

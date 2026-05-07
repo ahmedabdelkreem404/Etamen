@@ -113,6 +113,7 @@ class PilotDemoSeeder extends Seeder
             $this->seedCarePlan($patient, $admin, $doctorProvider);
             $this->seedNotification($patient);
             $this->seedDemoLabResultOrder($patient, $labUser, $labProvider);
+            $this->seedExpandedDemoCatalog($admin, $city, $area);
         });
     }
 
@@ -710,6 +711,330 @@ class PilotDemoSeeder extends Seeder
             'owner_type' => LabResult::class,
             'owner_id' => $result->id,
         ]);
+    }
+
+    private function seedExpandedDemoCatalog(User $admin, City $city, Area $area): void
+    {
+        $patients = [
+            ['demo.patient.asmaa@example.test', 'Demo Patient Asmaa', '01000001001', Gender::Female],
+            ['demo.patient.omar@example.test', 'Demo Patient Omar', '01000001002', Gender::Male],
+            ['demo.patient.mona@example.test', 'Demo Patient Mona', '01000001003', Gender::Female],
+        ];
+
+        foreach ($patients as [$email, $name, $phone, $gender]) {
+            $patient = $this->demoUser($email, $name, UserRole::Patient);
+            $patient->patientProfile()->updateOrCreate(
+                ['user_id' => $patient->id],
+                [
+                    'phone' => $phone,
+                    'date_of_birth' => '1992-06-15',
+                    'gender' => $gender->value,
+                    'metadata' => ['pilot_demo' => true, 'expanded_demo' => true],
+                ],
+            );
+
+            $this->seedHealthData($patient);
+            $this->seedMedicationData($patient);
+            $this->seedNotification($patient);
+        }
+
+        $doctors = [
+            [
+                'email' => 'demo.doctor.derma@example.test',
+                'name' => 'Demo Dermatology Doctor',
+                'slug' => 'demo-dermatology-doctor',
+                'name_ar' => 'Demo Dermatology Doctor',
+                'name_en' => 'Dr Sara Skin Demo',
+                'specialty_slug' => 'dermatology-demo',
+                'specialty_ar' => 'Dermatology Demo',
+                'specialty_en' => 'Dermatology',
+                'phone' => '01000002001',
+                'fee' => 250,
+                'experience' => 6,
+            ],
+            [
+                'email' => 'demo.doctor.pedia@example.test',
+                'name' => 'Demo Pediatrics Doctor',
+                'slug' => 'demo-pediatrics-doctor',
+                'name_ar' => 'Demo Pediatrics Doctor',
+                'name_en' => 'Dr Youssef Kids Demo',
+                'specialty_slug' => 'pediatrics-demo',
+                'specialty_ar' => 'Pediatrics Demo',
+                'specialty_en' => 'Pediatrics',
+                'phone' => '01000002002',
+                'fee' => 220,
+                'experience' => 10,
+            ],
+            [
+                'email' => 'demo.doctor.ortho@example.test',
+                'name' => 'Demo Orthopedics Doctor',
+                'slug' => 'demo-orthopedics-doctor',
+                'name_ar' => 'Demo Orthopedics Doctor',
+                'name_en' => 'Dr Karim Bones Demo',
+                'specialty_slug' => 'orthopedics-demo',
+                'specialty_ar' => 'Orthopedics Demo',
+                'specialty_en' => 'Orthopedics',
+                'phone' => '01000002003',
+                'fee' => 350,
+                'experience' => 12,
+            ],
+        ];
+
+        foreach ($doctors as $doctor) {
+            $doctorUser = $this->demoUser($doctor['email'], $doctor['name'], UserRole::Doctor);
+            $this->seedAdditionalDoctor($doctorUser, $admin, $city, $area, $doctor);
+        }
+
+        $pharmacies = [
+            [
+                'email' => 'demo.pharmacy.nasr@example.test',
+                'name' => 'Demo Pharmacy Nasr City Admin',
+                'slug' => 'demo-pharmacy-nasr-city',
+                'name_ar' => 'Demo Pharmacy Nasr City',
+                'name_en' => 'Demo Pharmacy Nasr City',
+                'phone' => '01000003001',
+                'license' => 'DEMO-PH-002',
+                'products' => [
+                    ['sku' => 'DEMO-VITAMIN-C', 'name' => 'Vitamin C Demo', 'price' => 75, 'stock' => 80, 'rx' => false],
+                    ['sku' => 'DEMO-ANTIBIOTIC-RX', 'name' => 'Antibiotic RX Demo', 'price' => 160, 'stock' => 25, 'rx' => true],
+                    ['sku' => 'DEMO-BANDAGE', 'name' => 'Bandage Demo', 'price' => 35, 'stock' => 120, 'rx' => false],
+                ],
+            ],
+            [
+                'email' => 'demo.pharmacy.maadi@example.test',
+                'name' => 'Demo Pharmacy Maadi Admin',
+                'slug' => 'demo-pharmacy-maadi',
+                'name_ar' => 'Demo Pharmacy Maadi',
+                'name_en' => 'Demo Pharmacy Maadi',
+                'phone' => '01000003002',
+                'license' => 'DEMO-PH-003',
+                'products' => [
+                    ['sku' => 'DEMO-PAINKILLER', 'name' => 'Painkiller Demo', 'price' => 55, 'stock' => 60, 'rx' => false],
+                    ['sku' => 'DEMO-INHALER-RX', 'name' => 'Inhaler RX Demo', 'price' => 210, 'stock' => 15, 'rx' => true],
+                ],
+            ],
+        ];
+
+        foreach ($pharmacies as $pharmacy) {
+            $pharmacyUser = $this->demoUser($pharmacy['email'], $pharmacy['name'], UserRole::PharmacyAdmin);
+            $this->seedAdditionalPharmacy($pharmacyUser, $admin, $city, $area, $pharmacy);
+        }
+
+        $labs = [
+            [
+                'email' => 'demo.lab.nasr@example.test',
+                'name' => 'Demo Lab Nasr Admin',
+                'slug' => 'demo-lab-nasr-city',
+                'name_ar' => 'Demo Lab Nasr City',
+                'name_en' => 'Demo Lab Nasr City',
+                'phone' => '01000004001',
+                'license' => 'DEMO-LAB-002',
+                'tests' => [
+                    ['code' => 'DEMO-LIVER', 'name' => 'Liver Functions Demo', 'price' => 260, 'hours' => 24],
+                    ['code' => 'DEMO-KIDNEY', 'name' => 'Kidney Functions Demo', 'price' => 230, 'hours' => 24],
+                    ['code' => 'DEMO-LIPID', 'name' => 'Lipid Profile Demo', 'price' => 300, 'hours' => 48],
+                ],
+            ],
+            [
+                'email' => 'demo.lab.maadi@example.test',
+                'name' => 'Demo Lab Maadi Admin',
+                'slug' => 'demo-lab-maadi',
+                'name_ar' => 'Demo Lab Maadi',
+                'name_en' => 'Demo Lab Maadi',
+                'phone' => '01000004002',
+                'license' => 'DEMO-LAB-003',
+                'tests' => [
+                    ['code' => 'DEMO-TSH', 'name' => 'TSH Demo', 'price' => 190, 'hours' => 24],
+                    ['code' => 'DEMO-VITD', 'name' => 'Vitamin D Demo', 'price' => 450, 'hours' => 48],
+                ],
+            ],
+        ];
+
+        foreach ($labs as $lab) {
+            $labUser = $this->demoUser($lab['email'], $lab['name'], UserRole::LabAdmin);
+            $this->seedAdditionalLab($labUser, $admin, $city, $area, $lab);
+        }
+    }
+
+    private function seedAdditionalDoctor(User $doctorUser, User $admin, City $city, Area $area, array $doctor): void
+    {
+        $specialty = Specialty::query()->updateOrCreate(
+            ['slug' => $doctor['specialty_slug']],
+            [
+                'name_ar' => $doctor['specialty_ar'],
+                'name_en' => $doctor['specialty_en'],
+                'is_active' => true,
+            ],
+        );
+
+        $provider = $this->provider(
+            type: ProviderType::Doctor,
+            owner: $doctorUser,
+            admin: $admin,
+            slug: $doctor['slug'],
+            nameAr: $doctor['name_ar'],
+            nameEn: $doctor['name_en'],
+            phone: $doctor['phone'],
+            descriptionAr: 'Expanded local demo doctor for QA.',
+            descriptionEn: 'Expanded local demo doctor for QA.',
+        );
+        $this->providerStaff($provider, $doctorUser, ProviderStaffRole::Owner);
+
+        $doctorProfile = DoctorProfile::query()->updateOrCreate(
+            ['provider_id' => $provider->id],
+            [
+                'user_id' => $doctorUser->id,
+                'title' => 'Consultant',
+                'bio_ar' => 'Expanded demo doctor profile for local/staging QA only.',
+                'bio_en' => 'Expanded demo doctor profile for local/staging QA only.',
+                'consultation_fee' => $doctor['fee'],
+                'years_of_experience' => $doctor['experience'],
+            ],
+        );
+        $doctorProfile->specialties()->syncWithoutDetaching([$specialty->id]);
+
+        $branch = ProviderBranch::query()->updateOrCreate(
+            ['provider_id' => $provider->id, 'name_en' => $doctor['name_en'].' Clinic'],
+            [
+                'city_id' => $city->id,
+                'area_id' => $area->id,
+                'name_ar' => $doctor['name_en'].' Clinic',
+                'phone' => $doctor['phone'],
+                'address_ar' => 'Expanded demo clinic address.',
+                'address_en' => 'Expanded demo clinic address.',
+                'is_main' => true,
+                'is_active' => true,
+            ],
+        );
+
+        $this->seedDoctorScheduleAndSlots($provider, $doctorProfile, $branch);
+    }
+
+    private function seedAdditionalPharmacy(User $pharmacyUser, User $admin, City $city, Area $area, array $pharmacy): void
+    {
+        $provider = $this->provider(
+            type: ProviderType::Pharmacy,
+            owner: $pharmacyUser,
+            admin: $admin,
+            slug: $pharmacy['slug'],
+            nameAr: $pharmacy['name_ar'],
+            nameEn: $pharmacy['name_en'],
+            phone: $pharmacy['phone'],
+            descriptionAr: 'Expanded local demo pharmacy for QA.',
+            descriptionEn: 'Expanded local demo pharmacy for QA.',
+        );
+        $this->providerStaff($provider, $pharmacyUser, ProviderStaffRole::Owner);
+
+        ProviderBranch::query()->updateOrCreate(
+            ['provider_id' => $provider->id, 'name_en' => $pharmacy['name_en'].' Branch'],
+            [
+                'city_id' => $city->id,
+                'area_id' => $area->id,
+                'name_ar' => $pharmacy['name_en'].' Branch',
+                'phone' => $pharmacy['phone'],
+                'address_ar' => 'Expanded demo pharmacy address.',
+                'address_en' => 'Expanded demo pharmacy address.',
+                'is_main' => true,
+                'is_active' => true,
+            ],
+        );
+
+        PharmacyProfile::query()->updateOrCreate(
+            ['provider_id' => $provider->id],
+            [
+                'license_number' => $pharmacy['license'],
+                'delivery_available' => true,
+            ],
+        );
+
+        foreach ($pharmacy['products'] as $product) {
+            PharmacyProduct::query()->updateOrCreate(
+                ['provider_id' => $provider->id, 'sku' => $product['sku']],
+                [
+                    'name_ar' => $product['name'],
+                    'name_en' => $product['name'],
+                    'description_ar' => 'Expanded demo pharmacy product for QA only.',
+                    'description_en' => 'Expanded demo pharmacy product for QA only.',
+                    'price' => $product['price'],
+                    'requires_prescription' => $product['rx'],
+                    'stock_quantity' => $product['stock'],
+                    'is_active' => true,
+                    'metadata' => ['pilot_demo' => true, 'expanded_demo' => true],
+                ],
+            );
+        }
+    }
+
+    private function seedAdditionalLab(User $labUser, User $admin, City $city, Area $area, array $lab): void
+    {
+        $provider = $this->provider(
+            type: ProviderType::Lab,
+            owner: $labUser,
+            admin: $admin,
+            slug: $lab['slug'],
+            nameAr: $lab['name_ar'],
+            nameEn: $lab['name_en'],
+            phone: $lab['phone'],
+            descriptionAr: 'Expanded local demo lab for QA.',
+            descriptionEn: 'Expanded local demo lab for QA.',
+        );
+        $this->providerStaff($provider, $labUser, ProviderStaffRole::Owner);
+
+        ProviderBranch::query()->updateOrCreate(
+            ['provider_id' => $provider->id, 'name_en' => $lab['name_en'].' Branch'],
+            [
+                'city_id' => $city->id,
+                'area_id' => $area->id,
+                'name_ar' => $lab['name_en'].' Branch',
+                'phone' => $lab['phone'],
+                'address_ar' => 'Expanded demo lab address.',
+                'address_en' => 'Expanded demo lab address.',
+                'is_main' => true,
+                'is_active' => true,
+            ],
+        );
+
+        LabProfile::query()->updateOrCreate(
+            ['provider_id' => $provider->id],
+            [
+                'license_number' => $lab['license'],
+                'home_collection_available' => true,
+            ],
+        );
+
+        $testIds = [];
+        foreach ($lab['tests'] as $test) {
+            $model = LabTest::query()->updateOrCreate(
+                ['provider_id' => $provider->id, 'code' => $test['code']],
+                [
+                    'name_ar' => $test['name'],
+                    'name_en' => $test['name'],
+                    'description_ar' => 'Expanded demo lab test for QA only.',
+                    'description_en' => 'Expanded demo lab test for QA only.',
+                    'price' => $test['price'],
+                    'sample_type' => 'blood',
+                    'preparation_instructions_ar' => 'Demo preparation instructions.',
+                    'preparation_instructions_en' => 'Demo preparation instructions.',
+                    'result_time_hours' => $test['hours'],
+                    'is_active' => true,
+                    'metadata' => ['pilot_demo' => true, 'expanded_demo' => true],
+                ],
+            );
+            $testIds[] = $model->id;
+        }
+
+        $package = LabPackage::query()->updateOrCreate(
+            ['provider_id' => $provider->id, 'name_en' => $lab['name_en'].' Checkup Package'],
+            [
+                'name_ar' => $lab['name_en'].' Checkup Package',
+                'description_ar' => 'Expanded demo lab package for QA only.',
+                'description_en' => 'Expanded demo lab package for QA only.',
+                'price' => collect($lab['tests'])->sum('price') * 0.85,
+                'is_active' => true,
+                'metadata' => ['pilot_demo' => true, 'expanded_demo' => true],
+            ],
+        );
+        $package->tests()->syncWithoutDetaching($testIds);
     }
 
     private function provider(
