@@ -25,3 +25,32 @@ The new app is closer to the old Doctor Finder feeling after Sprint 29, but it i
 Overall app visual parity after Sprint 29: **73%**.
 
 This is enough to continue toward supervised pilot only if the pilot is app-focused, seeded, and reviewed with real screenshots. It is not equal to the old app/site and it is not ready to claim public-launch visual parity.
+
+## Sprint 30 Hard Visual Correction
+
+Sprint 30 reworked the app shell, Home, Doctor list, Doctor profile, Booking, Payment visuals, and added a lightweight public landing page. New screenshots were captured under `I:/Etamen/.tmp/sprint30-new-screenshots/`.
+
+| Area | Old UI Reference Quality | New UI Current Quality | Parity % | Missing Pieces | Fix Applied In Sprint 30 | Remaining Gap |
+| --- | --- | --- | ---: | --- | --- | --- |
+| Color palette | Bright teal/cyan with peach/orange accents | Teal/cyan is now dominant across shell, cards, booking, payment, and website | 92% | Exact template shade balance | Updated theme, app bar, cards, chips, website hero | Minor tuning only |
+| Typography | Bold marketing/app headings with simple readable labels | Stronger hierarchy, Arabic-first headings, cleaner labels | 84% | Exact old font family | Adjusted weights and sizing in core screens | Product-owner font choice |
+| Home screen | Doctor-first polished hero/search | Strong teal hero, prominent search, doctor booking first | 91% | Real doctor/person imagery | Rebuilt first viewport and grouped actions | Needs final PO review |
+| Bottom navigation / shell | Simple icon-led 5-tab shell | Custom old-style five-tab shell with active teal surface | 89% | Exact old icons/animation | Replaced generic NavigationBar treatment | Minor density tuning |
+| Doctor cards | Doctor photo, clear specialty, fee, location, CTA | Premium cards with avatar placeholder, rating placeholder, chips, dual CTA | 90% | Real image URL and real ratings | Rebuilt `DoctorCard` and wrapped chips | Backend data gap |
+| Doctor profile | Large doctor header and grouped booking info | Strong teal profile header, avatar, rating, fee/location/experience, about, slots | 88% | Real photo, real reviews/map | Header/slots/profile grouping polished | Backend data gap |
+| Booking flow | Visual day/time selection and simple CTA | Large slot tiles, orange selected state, step indicator, simpler wording | 90% | Exact old slot artwork | Rebuilt slot picker and booking hierarchy | Date labels still partly English |
+| Payment flow | Consumer-grade method cards/proof flow | Better method cards, manual proof upload, friendly status copy | 84% | Full old gateway artwork and real method branding | Reworked method/proof widgets and removed raw `pending_payment` | Needs real proof E2E review |
+| Empty states | Friendly visual cards/illustrations | Friendly white-card empty states and less technical copy | 82% | Owned illustration pack | Copy and shared empty style improved | Optional custom illustrations |
+| Cards/buttons/chips | Soft white cards, rounded chips, clear CTAs | Strong old-style white cards, soft shadows, wrapped specialty chips | 90% | Exact template microspacing | Theme and widget polish | Minor QA on small devices |
+| Arabic copy | Simple patient-facing wording | More natural Arabic in Home, Doctor, Booking, Payment, AI/empty states | 86% | PO/legal tone pass | Humanized key copy and statuses | Product-owner review |
+| Website/landing parity | Public Doctor Finder landing | Lightweight Laravel landing now matches first-viewport spirit | 84% | Full CMS/search/doctor join flow/SEO | Created Blade landing and visual report | Public-launch gap |
+| Overall patient feeling | Polished consumer Doctor Finder feel | App now feels patient/booking-first rather than admin-first | 88% | Real data/images across all services | Hard visual correction applied | Not a 100% clone |
+
+## Sprint 30 Final Parity Estimate
+
+- App shell + doctor-booking flow: **90%**.
+- Overall mobile app: **86%**.
+- Public landing first viewport: **84%**.
+- Overall old app/site parity: **88%**.
+
+The new Etamen app is now close to the old Doctor Finder feeling in the doctor journey, but it is not an exact 1:1 restoration because real doctor imagery, ratings, and full old public website content are still missing.

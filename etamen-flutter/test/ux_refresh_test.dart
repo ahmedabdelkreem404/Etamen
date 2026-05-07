@@ -36,25 +36,22 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Hello, Patient'), findsOneWidget);
-    expect(find.text('Doctor booking is front and center'), findsOneWidget);
-    expect(
-      find.text('Search doctors, specialties, or services'),
-      findsOneWidget,
-    );
-    expect(find.text('Quick actions'), findsOneWidget);
+    expect(find.text('Doctor booking first'), findsOneWidget);
+    expect(find.text('Search doctor name or specialty'), findsOneWidget);
+    expect(find.text('Specialties and services'), findsOneWidget);
     await tester.drag(find.byType(ListView), const Offset(0, -360));
     await tester.pumpAndSettle();
     expect(find.text('Today follow-up'), findsOneWidget);
     await tester.drag(find.byType(ListView), const Offset(0, -700));
     await tester.pumpAndSettle();
-    expect(find.text('Ask the AI assistant safely'), findsOneWidget);
+    expect(find.text('Ask the assistant safely'), findsOneWidget);
   });
 
   testWidgets('Services tab groups doctors pharmacy and labs', (tester) async {
     await tester.pumpWidget(_wrap(const ServicesTab()));
     await tester.pumpAndSettle();
 
-    expect(find.text('Services'), findsOneWidget);
+    expect(find.text('Medical services'), findsOneWidget);
     expect(find.text('Book a doctor'), findsOneWidget);
     expect(find.text('Pharmacy orders'), findsOneWidget);
     expect(find.text('Lab orders'), findsWidgets);
@@ -126,7 +123,14 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.byType(NavigationDestination), findsNWidgets(5));
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget.key is ValueKey<String> &&
+            (widget.key as ValueKey<String>).value.startsWith('legacy_nav_'),
+      ),
+      findsNWidgets(5),
+    );
   });
 }
 

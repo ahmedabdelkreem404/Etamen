@@ -7,6 +7,7 @@ import 'package:etamen_app/core/widgets/error_view.dart';
 import 'package:etamen_app/core/widgets/loading_view.dart';
 import 'package:etamen_app/features/payments/domain/entities/payment_status.dart';
 import 'package:etamen_app/features/payments/presentation/providers/payment_status_controller.dart';
+import 'package:etamen_app/features/payments/presentation/widgets/payment_copy.dart';
 import 'package:etamen_app/features/payments/presentation/widgets/payment_polling_banner.dart';
 import 'package:etamen_app/features/payments/presentation/widgets/payment_status_badge.dart';
 import 'package:flutter/material.dart';
@@ -182,11 +183,14 @@ class _StatusCard extends StatelessWidget {
             const SizedBox(height: 12),
             _InfoLine(
               label: l10n.get('paymentMethod'),
-              value: status.methodType ?? '-',
+              value: friendlyPaymentMethodType(context, status.methodType),
             ),
             _InfoLine(
               label: l10n.get('appointmentStatus'),
-              value: status.appointmentStatus ?? '-',
+              value: friendlyAppointmentStatus(
+                context,
+                status.appointmentStatus,
+              ),
             ),
             _InfoLine(
               label: l10n.get('lastUpdated'),

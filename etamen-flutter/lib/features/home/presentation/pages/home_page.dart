@@ -34,40 +34,155 @@ class _HomePageState extends State<HomePage> {
     ];
 
     return Scaffold(
-      backgroundColor: AppColors.cream,
+      backgroundColor: AppColors.pageBackground,
       appBar: MainShellTopBar(title: titles[_index]),
       body: SafeArea(child: pages[_index]),
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: _LegacyBottomNav(
         selectedIndex: _index,
-        height: 72,
         onDestinationSelected: (value) => setState(() => _index = value),
-        destinations: [
-          NavigationDestination(
+        items: [
+          _LegacyNavItem(
             icon: const Icon(Icons.home_outlined),
             selectedIcon: const Icon(Icons.home),
             label: l10n.get('home'),
           ),
-          NavigationDestination(
+          _LegacyNavItem(
             icon: const Icon(Icons.event_note_outlined),
             selectedIcon: const Icon(Icons.event_note),
             label: l10n.get('myAppointments'),
           ),
-          NavigationDestination(
+          _LegacyNavItem(
             icon: const Icon(Icons.medical_services_outlined),
             selectedIcon: const Icon(Icons.medical_services),
             label: uxCopy(context, 'الخدمات', 'Services'),
           ),
-          NavigationDestination(
+          _LegacyNavItem(
             icon: const Icon(Icons.health_and_safety_outlined),
             selectedIcon: const Icon(Icons.health_and_safety),
             label: uxCopy(context, 'صحتي', 'Health'),
           ),
-          NavigationDestination(
+          _LegacyNavItem(
             icon: const Icon(Icons.person_outline),
             selectedIcon: const Icon(Icons.person),
             label: l10n.get('account'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LegacyBottomNav extends StatelessWidget {
+  const _LegacyBottomNav({
+    required this.selectedIndex,
+    required this.onDestinationSelected,
+    required this.items,
+  });
+
+  final int selectedIndex;
+  final ValueChanged<int> onDestinationSelected;
+  final List<_LegacyNavItem> items;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primaryDark.withValues(alpha: 0.12),
+              blurRadius: 24,
+              offset: const Offset(0, -10),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            for (var i = 0; i < items.length; i++)
+              Expanded(
+                child: _LegacyNavButton(
+                  item: items[i],
+                  selected: selectedIndex == i,
+                  onTap: () => onDestinationSelected(i),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LegacyNavItem {
+  const _LegacyNavItem({
+    required this.icon,
+    required this.selectedIcon,
+    required this.label,
+  });
+
+  final Icon icon;
+  final Icon selectedIcon;
+  final String label;
+}
+
+class _LegacyNavButton extends StatelessWidget {
+  const _LegacyNavButton({
+    required this.item,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final _LegacyNavItem item;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = selected ? AppColors.primary : AppColors.muted;
+    return Semantics(
+      selected: selected,
+      button: true,
+      label: item.label,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onTap,
+        child: AnimatedContainer(
+          key: ValueKey('legacy_nav_${item.label}'),
+          duration: const Duration(milliseconds: 180),
+          height: 58,
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.medicalMint : Colors.transparent,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: selected ? AppColors.border : Colors.transparent,
+            ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconTheme(
+                data: IconThemeData(color: color, size: 22),
+                child: selected ? item.selectedIcon : item.icon,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                item.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: color,
+                  fontWeight: selected ? FontWeight.w900 : FontWeight.w600,
+                  fontSize: 10.5,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

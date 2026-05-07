@@ -68,3 +68,28 @@ These areas need formality because they affect safety, trust, and compliance.
 - Whether payment copy should say "فريق المراجعة" or name the operational team.
 - Whether the app should use a more Egyptian colloquial tone or a cleaner Modern Standard Arabic tone.
 - Final legal/medical disclaimer wording before public launch.
+
+## Sprint 30 Copy Review
+
+### Copy Improved
+
+- Home now leads with a warmer booking-first message: search for a doctor, choose the specialty, and book simply.
+- Doctor list/profile copy is more patient-facing and less administrative.
+- Booking explains that cost/status are confirmed by the server without exposing technical contract wording.
+- Payment now says `في انتظار اختيار طريقة الدفع` instead of exposing raw backend values like `pending_payment`.
+- Manual payment proof upload now uses clearer wording around choosing a clear transfer image and review before confirmation.
+- AI disclaimer remains readable and safer without promising diagnosis or treatment.
+
+### Copy Intentionally Left Formal
+
+- AI medical safety disclaimer.
+- Emergency/red-flag symptom language.
+- Payment review and confirmation language.
+- Legal/support/privacy entry points.
+
+### Still Needs Product-Owner Review
+
+- Standardize `طبيب` vs `دكتور`.
+- Decide whether Etamen should use fully formal Arabic or light Egyptian product wording.
+- Finalize payment review wording with operations/legal.
+- Translate date/day labels in booking so `Fri, 8 May` is fully Arabic.

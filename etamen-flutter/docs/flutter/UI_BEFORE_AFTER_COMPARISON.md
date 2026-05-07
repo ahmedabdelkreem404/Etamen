@@ -66,3 +66,37 @@ New visual changes are in these Flutter files:
 Final app visual parity after Sprint 29: **73%**.
 
 The new app is now closer to the old UI/UX spirit, but it is not the same UI/UX and should not be described as a complete restoration.
+
+## Sprint 30 Before / After
+
+| Area | Old reference | New screenshot | Before Sprint 30 | After Sprint 30 |
+| --- | --- | --- | --- | --- |
+| Home | `present31.png`, `timeline11min.jpg` | `01-home.png` | Felt improved but still generic/dashboard-like | Strong teal hero, rounded search, doctor-first CTA, old-style white cards |
+| Doctor list | `present31.png` | `06-doctors-list.png` | Functional cards without enough old Doctor Finder character | Teal hero, wrapped specialty chips, premium avatar cards, fee/location/rating/CTA treatment |
+| Doctor profile | `present31.png` | `07-doctor-profile.png` | Useful but not premium enough | Strong teal header, large avatar placeholder, grouped chips, about, old-style slots |
+| Booking | old make appointment screenshots/assets | `09-booking.png` | Functional slot list | Large old-style slot tiles, orange selected state, clear steps |
+| Payment | `present32.png` | `24-payment-methods.png`, `25-payment-manual.png` | Safe but visually plain; raw status risk found | Consumer payment cards, proof upload card, friendly appointment status copy |
+| Website landing | `doctor-finder-website-wait.png` | `13-website-landing.png` | No matching public landing | New Blade landing restores first-viewport old website mood |
+
+## Sprint 30 Final Comparison
+
+What now matches:
+
+- Teal/cyan medical identity is dominant again.
+- Home and Doctor journey feel like a patient booking product, not an admin dashboard.
+- Doctor cards and profile now visually echo the old Doctor Finder layout.
+- Payment no longer exposes raw backend appointment status on the main payment page.
+- A public landing page now exists and visually references the old website.
+
+What still does not match:
+
+- No real doctor photos, because the backend contract still lacks safe `avatar_url` / `image_url`.
+- No real ratings/review counts.
+- Website is a lightweight landing, not the full old marketing site.
+- Pharmacy/labs still need rich seeded data and possibly owned imagery.
+
+Final Sprint 30 parity:
+
+- App shell + doctor booking flow: **90%**.
+- Website first viewport: **84%**.
+- Overall app/site: **88%**.

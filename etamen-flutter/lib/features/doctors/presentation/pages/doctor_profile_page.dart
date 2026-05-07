@@ -139,7 +139,7 @@ class _DoctorHero extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -160,7 +160,7 @@ class _DoctorHero extends StatelessWidget {
         children: [
           Row(
             children: [
-              DoctorAvatar(name: doctor.name, size: 76),
+              DoctorAvatar(name: doctor.name, size: 96),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -183,6 +183,8 @@ class _DoctorHero extends StatelessWidget {
                         ),
                       ),
                     ],
+                    const SizedBox(height: 8),
+                    const _ProfileRatingRow(),
                   ],
                 ),
               ),
@@ -256,6 +258,36 @@ class _HeroChip extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ProfileRatingRow extends StatelessWidget {
+  const _ProfileRatingRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        for (var i = 0; i < 5; i++)
+          const Icon(
+            Icons.star_rounded,
+            color: AppColors.appointmentOrange,
+            size: 17,
+          ),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            uxCopy(context, 'تقييمات المرضى قريبًا', 'Patient reviews soon'),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: Colors.white.withValues(alpha: 0.88),
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

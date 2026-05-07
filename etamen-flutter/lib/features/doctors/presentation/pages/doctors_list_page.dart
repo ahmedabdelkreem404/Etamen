@@ -86,41 +86,50 @@ class _DoctorsListPageState extends ConsumerState<DoctorsListPage> {
               ],
               const _DoctorsListHero(),
               const SizedBox(height: 14),
-              TextField(
-                onChanged: (value) => setState(() => _query = value),
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search),
-                  hintText: uxCopy(
-                    context,
-                    'ابحث باسم الدكتور أو التخصص أو المنطقة',
-                    'Search by doctor, specialty, or area',
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primaryDark.withValues(alpha: 0.08),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  onChanged: (value) => setState(() => _query = value),
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: const Icon(Icons.tune_outlined),
+                    hintText: uxCopy(
+                      context,
+                      'ابحث باسم الدكتور أو التخصص أو المنطقة',
+                      'Search by doctor, specialty, or area',
+                    ),
                   ),
                 ),
               ),
               if (specialties.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                SizedBox(
-                  height: 40,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: specialties.length + 1,
-                    separatorBuilder: (_, __) => const SizedBox(width: 8),
-                    itemBuilder: (context, index) {
-                      if (index == 0) {
-                        return ChoiceChip(
-                          label: Text(l10n.get('all')),
-                          selected: _specialty == null,
-                          onSelected: (_) => setState(() => _specialty = null),
-                        );
-                      }
-                      final value = specialties[index - 1];
-                      return ChoiceChip(
-                        label: Text(value),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.end,
+                  children: [
+                    ChoiceChip(
+                      label: Text(l10n.get('all')),
+                      selected: _specialty == null,
+                      onSelected: (_) => setState(() => _specialty = null),
+                    ),
+                    for (final value in specialties)
+                      ChoiceChip(
+                        label: Text(value, overflow: TextOverflow.ellipsis),
                         selected: _specialty == value,
                         onSelected: (_) => setState(() => _specialty = value),
-                      );
-                    },
-                  ),
+                      ),
+                  ],
                 ),
               ],
               const SizedBox(height: 16),
@@ -180,48 +189,76 @@ class _DoctorsListHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SoftMedicalCard(
-      padding: const EdgeInsets.all(14),
-      child: Row(
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.18),
+            blurRadius: 22,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Stack(
         children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: AppColors.medicalMint,
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: const Icon(
-              Icons.medical_services_outlined,
-              color: AppColors.primary,
-              size: 30,
+          PositionedDirectional(
+            end: -22,
+            top: -20,
+            child: Transform.rotate(
+              angle: -0.32,
+              child: Container(
+                width: 110,
+                height: 150,
+                color: Colors.white.withValues(alpha: 0.10),
+              ),
             ),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  uxCopy(context, 'ابحث واحجز بسهولة', 'Find and book easily'),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w900,
-                  ),
+          Row(
+            children: [
+              Container(
+                width: 62,
+                height: 72,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  uxCopy(
-                    context,
-                    'بطاقات الأطباء تعرض التخصص، المكان، السعر، وخطوة الحجز بوضوح.',
-                    'Doctor cards show specialty, location, fee, and booking clearly.',
-                  ),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.muted,
-                    height: 1.35,
-                  ),
+                child: const Icon(
+                  Icons.person_search_outlined,
+                  color: AppColors.primary,
+                  size: 34,
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      uxCopy(context, 'ابحث عن طبيب', 'Find A Doctor'),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      uxCopy(
+                        context,
+                        'بطاقات الأطباء تعرض التخصص والمكان والسعر والحجز بوضوح.',
+                        'Doctor cards show specialty, location, fee, and booking clearly.',
+                      ),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.88),
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -3,6 +3,7 @@ import 'package:etamen_app/app/theme/app_theme.dart';
 import 'package:etamen_app/features/payments/domain/entities/payment_method.dart';
 import 'package:etamen_app/features/payments/domain/entities/payment_status.dart';
 import 'package:etamen_app/features/payments/presentation/widgets/manual_instructions_card.dart';
+import 'package:etamen_app/features/payments/presentation/widgets/payment_copy.dart';
 import 'package:etamen_app/features/payments/presentation/widgets/payment_method_card.dart';
 import 'package:etamen_app/features/payments/presentation/widgets/payment_status_badge.dart';
 import 'package:flutter/material.dart';
@@ -59,6 +60,28 @@ void main() {
       find.text(AppLocalizations(const Locale('ar')).get('paymentVerified')),
       findsOneWidget,
     );
+  });
+
+  testWidgets('Payment copy hides backend wire status values', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        Builder(
+          builder: (context) {
+            return Column(
+              children: [
+                Text(friendlyAppointmentStatus(context, 'pending_payment')),
+                Text(friendlyPaymentMethodType(context, 'vodafone_cash')),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('pending_payment'), findsNothing);
+    expect(find.text('في انتظار اختيار طريقة الدفع'), findsOneWidget);
+    expect(find.text('فودافون كاش'), findsOneWidget);
   });
 }
 

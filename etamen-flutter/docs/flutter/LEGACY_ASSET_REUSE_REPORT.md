@@ -64,3 +64,30 @@ The old assets were used as visual inspiration only. Sprint 29 recreated the tea
 ### Backend/Product Gap
 
 The current doctor contract does not expose a safe `avatar_url` or `image_url`. Sprint 29 uses a polished initials placeholder instead. Real doctor images should be added only after the backend contract and asset rights are clear.
+
+## Sprint 30 Update
+
+### Assets Reused
+
+One old website decorative hero asset was reused after inspection:
+
+- Source: `I:/Etamen/Website/PHPScript/public/front_pro/assets/images/banner/banner-bg-1.jpg`
+- New path: `I:/Etamen/etamen-backend/public/legacy-doctorfinder/doctor-finder-hero.jpg`
+- Usage: public Laravel landing hero background only.
+
+### Why This Was Considered Safe
+
+- The asset is a public website decorative banner from the old Doctor Finder website package.
+- It does not contain API URLs, secrets, patient data, private user uploads, screenshots, auth/session data, or payment instructions.
+- It was not copied into the Flutter app.
+
+### Assets Not Reused
+
+- No old app screenshots were used as app assets.
+- No old doctor/user/private images were copied into Flutter.
+- No old logos with unclear ownership were migrated.
+- No old networking/auth/payment/FCM/ConnectyCube code was copied.
+
+### Remaining Asset Gap
+
+Flutter still uses generated initials/avatar placeholders for doctors. A real `avatar_url` / `image_url` field should be added to the backend contract only after asset rights and moderation rules are clear.

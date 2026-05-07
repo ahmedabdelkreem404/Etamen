@@ -24,15 +24,15 @@ class SlotPicker extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
         decoration: BoxDecoration(
-          color: AppColors.pageBackground,
+          color: AppColors.cream,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: AppColors.softBorder),
         ),
         child: Column(
           children: [
             Container(
-              width: 46,
-              height: 46,
+              width: 50,
+              height: 50,
               decoration: BoxDecoration(
                 color: AppColors.medicalMint,
                 borderRadius: BorderRadius.circular(16),
@@ -48,7 +48,7 @@ class SlotPicker extends StatelessWidget {
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: AppColors.softText,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w800,
                 height: 1.35,
               ),
             ),
@@ -74,61 +74,123 @@ class SlotPicker extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         for (final entry in groups.entries) ...[
-          Row(
-            children: [
-              Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: AppColors.appointmentOrange.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.calendar_today_outlined,
-                  size: 16,
-                  color: AppColors.appointmentOrange,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                DateFormat('EEE, d MMM').format(DateTime.parse(entry.key)),
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: AppColors.text,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
+          _DayHeader(date: DateTime.parse(entry.key)),
+          const SizedBox(height: 10),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: entry.value.map((slot) {
               final selected = selectedSlot?.id == slot.id;
-              return ChoiceChip(
+              return _TimeTile(
+                label: DateFormat('HH:mm').format(slot.startsAt.toLocal()),
                 selected: selected,
-                onSelected: (_) => onSelected(slot),
-                selectedColor: AppColors.primary,
-                backgroundColor: Colors.white,
-                side: BorderSide(
-                  color: selected ? AppColors.primary : AppColors.softBorder,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                labelStyle: TextStyle(
-                  color: selected ? Colors.white : AppColors.text,
-                  fontWeight: FontWeight.w800,
-                ),
-                label: Text(
-                  DateFormat('HH:mm').format(slot.startsAt.toLocal()),
-                ),
+                onTap: () => onSelected(slot),
               );
             }).toList(),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
         ],
       ],
+    );
+  }
+}
+
+class _DayHeader extends StatelessWidget {
+  const _DayHeader({required this.date});
+
+  final DateTime date;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.medicalMint,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: AppColors.appointmentOrange.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.calendar_today_outlined,
+              size: 16,
+              color: AppColors.appointmentOrange,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            DateFormat('EEE, d MMM').format(date),
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: AppColors.primaryDark,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TimeTile extends StatelessWidget {
+  const _TimeTile({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          width: 88,
+          height: 44,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: selected ? AppColors.appointmentOrange : Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: selected
+                  ? AppColors.appointmentOrange
+                  : AppColors.softBorder,
+            ),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: AppColors.appointmentOrange.withValues(
+                        alpha: 0.22,
+                      ),
+                      blurRadius: 14,
+                      offset: const Offset(0, 8),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: selected ? Colors.white : AppColors.text,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

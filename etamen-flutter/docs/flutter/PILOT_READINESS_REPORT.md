@@ -217,3 +217,42 @@ Not mandatory before a tightly supervised app pilot if seed data and E2E pass cl
 2. Capture real screenshots on small and normal Android devices.
 3. Run product-owner review on Arabic tone and Home/Doctor screens.
 4. Verify no overflow in Arabic with long doctor names, specialties, and branch names.
+
+## Sprint 30 Visual Readiness Update
+
+Sprint 30 was a hard visual correction after Sprint 29 was judged insufficient. It focused on matching the old Doctor Finder feeling more strongly while keeping the new secure backend and Flutter architecture.
+
+### What Changed
+
+- Flutter Home first viewport was rebuilt around a teal/cyan hero, large search, and doctor-first booking CTA.
+- App shell navigation now uses an old-style five-tab custom treatment.
+- Doctor list cards now include old-style avatar placeholders, rating placeholder, specialty chips, fee/location/experience chips, and clear `احجز الآن` / details actions.
+- Doctor profile now has a strong teal header, larger avatar placeholder, grouped doctor facts, about card, and old-style slot grid.
+- Booking slots now use large rounded tiles with orange selected state.
+- Payment methods and manual proof upload were polished and raw `pending_payment` copy was removed.
+- A lightweight Laravel public landing page was created to restore the old website first-viewport mood.
+
+### Readiness Decision
+
+Decision: **UI/UX ready for supervised pilot after minor product-owner visual review**.
+
+The app is not identical to the old Doctor Finder app/site. It is now close enough for a supervised pilot of the mobile doctor-booking journey if seed data and E2E tests pass.
+
+### Parity
+
+- App shell + doctor-booking flow: **90%**.
+- Overall app: **86%**.
+- Website landing first viewport: **84%**.
+- Overall old app/site parity: **88%**.
+
+### Still Weaker Than Old UI
+
+- Real doctor images/avatars are still missing from the backend contract.
+- Real ratings/reviews are still missing.
+- Pharmacy/lab sections need richer seeded data to feel like the old polished screenshots.
+- Website landing is not a full public marketing website/CMS.
+- Date labels in booking still need Arabic localization polish.
+
+### Can We Proceed?
+
+Yes, proceed to seed data and full E2E. The exact next action is to review the captured Sprint 30 screenshots with the product owner, then seed realistic doctors/images/ratings if contracts and asset rights are approved.

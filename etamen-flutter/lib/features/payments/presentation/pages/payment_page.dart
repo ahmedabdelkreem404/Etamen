@@ -9,6 +9,7 @@ import 'package:etamen_app/core/widgets/loading_view.dart';
 import 'package:etamen_app/features/payments/domain/entities/payment_method.dart';
 import 'package:etamen_app/features/payments/presentation/providers/payment_controller.dart';
 import 'package:etamen_app/features/payments/presentation/providers/payment_status_controller.dart';
+import 'package:etamen_app/features/payments/presentation/widgets/payment_copy.dart';
 import 'package:etamen_app/features/payments/presentation/widgets/payment_method_card.dart';
 import 'package:etamen_app/features/payments/presentation/widgets/payment_status_badge.dart';
 import 'package:etamen_app/features/home/presentation/widgets/home_experience_widgets.dart';
@@ -89,7 +90,7 @@ class PaymentPage extends ConsumerWidget {
                     if (status.appointmentStatus != null) ...[
                       const SizedBox(height: 8),
                       Text(
-                        '${l10n.get('appointmentStatus')}: ${status.appointmentStatus}',
+                        '${l10n.get('appointmentStatus')}: ${friendlyAppointmentStatus(context, status.appointmentStatus)}',
                       ),
                     ],
                   ] else

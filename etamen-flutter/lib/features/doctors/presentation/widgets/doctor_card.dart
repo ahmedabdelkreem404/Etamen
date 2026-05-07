@@ -14,155 +14,168 @@ class DoctorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final specialty = doctor.specialties.isEmpty
-        ? uxCopy(context, 'تخصص غير محدد', 'Specialty pending')
+        ? uxCopy(context, 'تخصص يضاف قريبًا', 'Specialty soon')
         : doctor.specialties.first;
+    final branch = doctor.branches.isEmpty
+        ? uxCopy(context, 'المكان يضاف قريبًا', 'Location soon')
+        : doctor.branches.first;
+    final fee = doctor.consultationFee == null
+        ? uxCopy(context, 'السعر عند التأكيد', 'Fee on confirmation')
+        : '${l10n.get('fee')}: ${doctor.consultationFee} EGP';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.softBorder),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryDark.withValues(alpha: 0.07),
+            color: AppColors.primaryDark.withValues(alpha: 0.09),
             blurRadius: 22,
             offset: const Offset(0, 10),
           ),
         ],
       ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  DoctorAvatar(name: doctor.name, size: 68),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                doctor.name,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.w800),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    DoctorAvatar(name: doctor.name, size: 82),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  doctor.name,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.w900),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            _MiniStatus(
-                              label: uxCopy(context, 'متاح', 'Active'),
-                            ),
-                          ],
-                        ),
-                        if (doctor.specialties.isNotEmpty) ...[
-                          const SizedBox(height: 5),
+                              const SizedBox(width: 8),
+                              _MiniStatus(
+                                label: uxCopy(context, 'متاح', 'Active'),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          const _RatingRow(),
+                          const SizedBox(height: 8),
                           Wrap(
                             spacing: 6,
                             runSpacing: 6,
-                            children: doctor.specialties
-                                .take(3)
-                                .map((item) => _SpecialtyChip(label: item))
-                                .toList(),
+                            children: [
+                              _SpecialtyChip(label: specialty),
+                              for (final item
+                                  in doctor.specialties.skip(1).take(2))
+                                _SpecialtyChip(label: item),
+                            ],
                           ),
                         ],
-                        if (doctor.specialties.isEmpty) ...[
-                          const SizedBox(height: 5),
-                          _SpecialtyChip(label: specialty),
-                        ],
-                        const SizedBox(height: 10),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 6,
-                          children: [
-                            if (doctor.consultationFee != null)
-                              _InfoChip(
-                                icon: Icons.payments_outlined,
-                                label:
-                                    '${l10n.get('fee')}: ${doctor.consultationFee} EGP',
-                              ),
-                            if (doctor.branches.isNotEmpty)
-                              _InfoChip(
-                                icon: Icons.location_on_outlined,
-                                label: doctor.branches.first,
-                              ),
-                            if (doctor.yearsOfExperience != null)
-                              _InfoChip(
-                                icon: Icons.workspace_premium_outlined,
-                                label: uxCopy(
-                                  context,
-                                  '${doctor.yearsOfExperience} سنة خبرة',
-                                  '${doctor.yearsOfExperience} years',
-                                ),
-                              ),
-                          ],
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppColors.pageBackground,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.softBorder),
+                  ],
                 ),
-                child: Row(
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
-                    const Icon(
-                      Icons.event_available_outlined,
-                      size: 18,
-                      color: AppColors.primary,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        uxCopy(
+                    _InfoChip(icon: Icons.location_on_outlined, label: branch),
+                    _InfoChip(icon: Icons.payments_outlined, label: fee),
+                    if (doctor.yearsOfExperience != null)
+                      _InfoChip(
+                        icon: Icons.workspace_premium_outlined,
+                        label: uxCopy(
                           context,
-                          'أقرب موعد يظهر بعد فتح صفحة الطبيب',
-                          'Open profile to review available slots',
+                          '${doctor.yearsOfExperience} سنة خبرة',
+                          '${doctor.yearsOfExperience} years',
                         ),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.softText,
-                          height: 1.25,
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.cream,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.softBorder),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.event_available_outlined,
+                        size: 18,
+                        color: AppColors.appointmentOrange,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          uxCopy(
+                            context,
+                            'افتح البروفايل لاختيار أقرب موعد متاح.',
+                            'Open profile to choose the nearest available slot.',
+                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: AppColors.softText,
+                                height: 1.25,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: onTap,
+                        child: Text(
+                          uxCopy(context, 'عرض التفاصيل', 'Details'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: onTap,
+                        icon: const Icon(
+                          Icons.event_available_outlined,
+                          size: 18,
+                        ),
+                        label: Text(
+                          uxCopy(context, 'احجز الآن', 'Book now'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                alignment: WrapAlignment.end,
-                children: [
-                  OutlinedButton(
-                    onPressed: onTap,
-                    child: Text(uxCopy(context, 'عرض التفاصيل', 'Details')),
-                  ),
-                  FilledButton.icon(
-                    onPressed: onTap,
-                    icon: const Icon(Icons.event_available_outlined, size: 18),
-                    label: Text(uxCopy(context, 'احجز الآن', 'Book now')),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -181,34 +194,75 @@ class DoctorAvatar extends StatelessWidget {
     final initials = _initials(name);
     return Container(
       width: size,
-      height: size,
+      height: size + 14,
       decoration: BoxDecoration(
         color: AppColors.medicalMint,
-        borderRadius: BorderRadius.circular(size * 0.28),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: Colors.white, width: 3),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryDark.withValues(alpha: 0.10),
-            blurRadius: 14,
-            offset: const Offset(0, 7),
+            color: AppColors.primaryDark.withValues(alpha: 0.12),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
-      child: Center(
-        child: initials.isEmpty
-            ? Icon(
-                Icons.person_outline,
-                color: AppColors.primary,
-                size: size * 0.48,
-              )
-            : Text(
-                initials,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w900,
-                ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Positioned(
+            top: 12,
+            child: Container(
+              width: size * 0.58,
+              height: size * 0.58,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(size * 0.22),
               ),
+              child: Center(
+                child: initials.isEmpty
+                    ? Icon(
+                        Icons.person_outline,
+                        color: AppColors.primary,
+                        size: size * 0.35,
+                      )
+                    : Text(
+                        initials,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w900,
+                            ),
+                      ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 13,
+            child: Container(
+              width: size * 0.62,
+              height: 8,
+              decoration: BoxDecoration(
+                color: AppColors.border,
+                borderRadius: BorderRadius.circular(999),
+              ),
+            ),
+          ),
+          PositionedDirectional(
+            top: 8,
+            end: 8,
+            child: Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                color: AppColors.success,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -224,6 +278,33 @@ class DoctorAvatar extends StatelessWidget {
   }
 }
 
+class _RatingRow extends StatelessWidget {
+  const _RatingRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 0; i < 5; i++)
+          const Icon(
+            Icons.star_rounded,
+            size: 15,
+            color: AppColors.appointmentOrange,
+          ),
+        const SizedBox(width: 4),
+        Text(
+          uxCopy(context, 'تقييمات قريبًا', 'Reviews soon'),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: AppColors.muted,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _SpecialtyChip extends StatelessWidget {
   const _SpecialtyChip({required this.label});
 
@@ -236,6 +317,7 @@ class _SpecialtyChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.medicalMint,
         borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: AppColors.border),
       ),
       child: Text(
         label,
@@ -243,7 +325,7 @@ class _SpecialtyChip extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
           color: AppColors.primaryDark,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w900,
         ),
       ),
     );
@@ -267,7 +349,7 @@ class _MiniStatus extends StatelessWidget {
         label,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
           color: AppColors.success,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w900,
         ),
       ),
     );
@@ -283,9 +365,9 @@ class _InfoChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.cream,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: AppColors.softBorder),
       ),
@@ -300,7 +382,9 @@ class _InfoChip extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelSmall,
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
             ),
           ),
         ],

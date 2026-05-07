@@ -26,11 +26,11 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: AppColors.surface,
-        elevation: 2,
+        elevation: 3,
         surfaceTintColor: Colors.white,
-        shadowColor: AppColors.primaryDark.withValues(alpha: 0.10),
+        shadowColor: AppColors.primaryDark.withValues(alpha: 0.12),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: AppColors.border),
         ),
       ),
@@ -46,12 +46,12 @@ class AppTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        height: 74,
+        height: 76,
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
         elevation: 10,
-        shadowColor: AppColors.primaryDark.withValues(alpha: 0.08),
-        indicatorColor: AppColors.legacyTeal.withValues(alpha: 0.20),
+        shadowColor: AppColors.primaryDark.withValues(alpha: 0.12),
+        indicatorColor: AppColors.legacyTeal.withValues(alpha: 0.24),
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => TextStyle(
             fontSize: 11,
@@ -68,15 +68,15 @@ class AppTheme {
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.border),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.border),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
       ),
@@ -86,9 +86,9 @@ class AppTheme {
           foregroundColor: Colors.white,
           disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.24),
           disabledForegroundColor: Colors.white.withValues(alpha: 0.80),
-          minimumSize: const Size.fromHeight(48),
+          minimumSize: const Size.fromHeight(50),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(18),
           ),
         ),
       ),
@@ -97,7 +97,7 @@ class AppTheme {
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(18),
           ),
         ),
       ),
@@ -106,7 +106,7 @@ class AppTheme {
           foregroundColor: AppColors.primary,
           side: const BorderSide(color: AppColors.border),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(18),
           ),
         ),
       ),
