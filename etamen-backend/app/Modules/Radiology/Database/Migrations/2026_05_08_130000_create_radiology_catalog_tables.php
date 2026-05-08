@@ -53,8 +53,8 @@ return new class extends Migration
 
         Schema::create('radiology_preparation_instructions', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('radiology_scan_category_id')->nullable()->constrained('radiology_scan_categories')->cascadeOnDelete();
-            $table->foreignId('radiology_scan_id')->nullable()->constrained('radiology_scans')->cascadeOnDelete();
+            $table->foreignId('radiology_scan_category_id')->nullable();
+            $table->foreignId('radiology_scan_id')->nullable();
             $table->string('title_ar');
             $table->string('title_en')->nullable();
             $table->text('body_ar');
@@ -65,8 +65,16 @@ return new class extends Migration
             $table->integer('sort_order')->default(0);
             $table->timestamps();
 
-            $table->index(['radiology_scan_category_id', 'is_active']);
-            $table->index(['radiology_scan_id', 'is_active']);
+            $table->foreign('radiology_scan_category_id', 'rad_prep_category_fk')
+                ->references('id')
+                ->on('radiology_scan_categories')
+                ->cascadeOnDelete();
+            $table->foreign('radiology_scan_id', 'rad_prep_scan_fk')
+                ->references('id')
+                ->on('radiology_scans')
+                ->cascadeOnDelete();
+            $table->index(['radiology_scan_category_id', 'is_active'], 'rad_prep_category_active_idx');
+            $table->index(['radiology_scan_id', 'is_active'], 'rad_prep_scan_active_idx');
         });
     }
 

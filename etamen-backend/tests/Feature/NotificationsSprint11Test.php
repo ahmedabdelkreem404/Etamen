@@ -230,7 +230,7 @@ class NotificationsSprint11Test extends TestCase
     {
         Carbon::setTestNow(Carbon::parse('2026-05-05 22:30:00', 'Africa/Cairo'));
         $user = $this->patientUser();
-        $this->activeToken($user);
+        $token = $this->activeToken($user);
 
         NotificationPreference::query()->create([
             'user_id' => $user->id,
@@ -261,7 +261,7 @@ class NotificationsSprint11Test extends TestCase
             'idempotency_key' => 'urgent-key',
         ]);
 
-        $this->assertDatabaseHas('notification_dispatches', ['idempotency_key' => 'urgent-key:push:1', 'status' => NotificationDispatchStatus::Pending->value]);
+        $this->assertDatabaseHas('notification_dispatches', ['idempotency_key' => 'urgent-key:push:'.$token->id, 'status' => NotificationDispatchStatus::Pending->value]);
     }
 
     public function test_payload_sanitizer_removes_sensitive_values(): void
