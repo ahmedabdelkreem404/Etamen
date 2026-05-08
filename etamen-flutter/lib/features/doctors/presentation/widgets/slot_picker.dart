@@ -132,7 +132,7 @@ class _DayHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.appointmentOrange : Colors.white;
+    final color = selected ? AppColors.medicalAccent : Colors.white;
     final textColor = selected ? Colors.white : AppColors.text;
     return Material(
       color: Colors.transparent,
@@ -147,9 +147,7 @@ class _DayHeader extends StatelessWidget {
             color: color,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: selected
-                  ? AppColors.appointmentOrange
-                  : AppColors.softBorder,
+              color: selected ? AppColors.medicalAccent : AppColors.softBorder,
             ),
             boxShadow: [
               BoxShadow(
@@ -218,19 +216,15 @@ class _TimeTile extends StatelessWidget {
           height: 48,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: selected ? AppColors.appointmentOrange : Colors.white,
+            color: selected ? AppColors.medicalAccent : Colors.white,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: selected
-                  ? AppColors.appointmentOrange
-                  : AppColors.softBorder,
+              color: selected ? AppColors.medicalAccent : AppColors.softBorder,
             ),
             boxShadow: selected
                 ? [
                     BoxShadow(
-                      color: AppColors.appointmentOrange.withValues(
-                        alpha: 0.22,
-                      ),
+                      color: AppColors.medicalAccent.withValues(alpha: 0.22),
                       blurRadius: 14,
                       offset: const Offset(0, 8),
                     ),

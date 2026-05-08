@@ -114,3 +114,31 @@ Final captured screenshot:
 - After Sprint 32: **91%** first-viewport parity.
 
 The landing is visually reviewable and close to the old website first viewport, but it is still not the full old website. Public doctor search, doctor onboarding, CMS/SEO content, analytics/cookie handling, and final legal/marketing content remain public-launch gaps.
+
+---
+
+# Sprint 34 Arabic-First + No Orange Accent Update
+
+Date: 2026-05-08
+
+## What Changed
+
+- Arabic is now the default landing language with `lang="ar"` and `dir="rtl"`.
+- English remains available through `/?lang=en` with `lang="en"` and `dir="ltr"`.
+- Added a simple Arabic/English language switch.
+- Removed the orange/yellow brand accent from the landing page.
+- Replaced CTAs, search, numbered steps, and service accents with teal/dark-teal medical colors.
+- Fixed mobile clipping found in the first headless screenshots by constraining mobile hero, search, and card widths.
+
+## Screenshot Evidence
+
+- Arabic mobile: `I:/Etamen/.tmp/sprint34-final-polish-screenshots/12-website-ar-mobile.png`
+- Arabic desktop: `I:/Etamen/.tmp/sprint34-final-polish-screenshots/13-website-ar-desktop.png`
+- English mobile: `I:/Etamen/.tmp/sprint34-final-polish-screenshots/14-website-en-mobile.png`
+- English desktop: `I:/Etamen/.tmp/sprint34-final-polish-screenshots/15-website-en-desktop.png`
+
+## Current Status
+
+Landing visual polish on emulator/headless browser: **PASS**.
+
+Website remains **landing-only**, not a full public old-site clone and not public-launch ready.

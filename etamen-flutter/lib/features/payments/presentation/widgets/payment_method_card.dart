@@ -111,8 +111,8 @@ class PaymentMethodCard extends StatelessWidget {
 
   Color _accent(PaymentMethodType type) {
     return switch (type) {
-      PaymentMethodType.manualVodafoneCash => const Color(0xFFE60000),
-      PaymentMethodType.manualInstapay => const Color(0xFF6F2DBD),
+      PaymentMethodType.manualVodafoneCash => AppColors.medicalAccentDark,
+      PaymentMethodType.manualInstapay => const Color(0xFF256D85),
       PaymentMethodType.paymob => AppColors.primary,
       PaymentMethodType.unknown => AppColors.primaryDark,
     };

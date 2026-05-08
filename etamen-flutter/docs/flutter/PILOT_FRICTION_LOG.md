@@ -56,3 +56,18 @@ Sprint 33 was attempted on 2026-05-08, but no physical Android device was detect
 | S33-009 | Local build storage | LOW | ARM64 build initially hit low disk space on drive `I:` while writing Flutter build artifacts. | Build logs; final build path `build/app/outputs/flutter-apk/app-debug.apk`. | Deleted generated `build` and `.dart_tool/flutter_build` safely, then rebuilt. | PASS. | Dev environment. |
 
 Sprint 33 blocker decision: unresolved BLOCKER items remain, so the first 5-20 supervised pilot users must **not** be invited from this run.
+
+---
+
+# Sprint 34 Final UI/UX Finish + Emulator QA
+
+| ID | Flow | Severity | Description | Screenshot / Evidence | Fix Applied | Retest Result | Remaining Owner |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| S34-001 | Brand colors | MEDIUM | Yellow/orange was still being used as a brand-like accent in booking, payment, rating, and landing CTAs. | `SPRINT34_COLOR_AUDIT.md`. | Replaced with teal/dark-teal/aqua tokens and removed `appointmentOrange`. | PASS on source audit and screenshots. | Product/design review. |
+| S34-002 | Website mobile layout | MEDIUM | Initial headless mobile screenshots showed horizontal clipping in the landing first viewport. | Final `12-website-ar-mobile.png` and `14-website-en-mobile.png`. | Constrained mobile hero/card/search widths and fixed search-button flex behavior. | PASS in final mobile screenshots. | None for Sprint 34. |
+| S34-003 | Arabic default | LOW | Needed explicit Sprint 34 confirmation that Arabic remained the default. | `00-login-ar.png`, `_reopen-after-logout.png`, `SPRINT34_AR_EN_LOCALIZATION_REVIEW.md`. | Added default-locale test and reviewed emulator screens. | PASS. | Product/legal for final wording. |
+| S34-004 | Emulator logout | LOW | Logout/session restore needed an emulator smoke pass after UI changes. | `_after-logout-tap.png`, `_login-after-logout.png`, `_reopen-after-logout.png`. | No code fix required. | PASS on emulator. | Physical-device QA still pending. |
+| S34-005 | Physical proof upload | BLOCKER | Sprint 34 did not and could not prove real phone gallery/camera proof upload. | Sprint 33 blocker remains. | None; no fake upload added. | NOT TESTED. | QA with physical Android device. |
+| S34-006 | Admin review of phone-created proof | BLOCKER | Admin accept/reject still depends on a real proof uploaded from a phone. | Sprint 33 blocker remains. | None; Flutter still cannot verify payments. | NOT TESTED. | Admin QA / QA. |
+
+Sprint 34 decision: UI polish is accepted for emulator/product visual review, but unresolved Sprint 33 physical-device BLOCKERS still prevent inviting pilot users.

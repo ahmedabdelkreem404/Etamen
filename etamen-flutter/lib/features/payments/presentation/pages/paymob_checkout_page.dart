@@ -67,7 +67,7 @@ class PaymobCheckoutPage extends ConsumerWidget {
           if (session != null && !session.hasCheckoutUrl) ...[
             const SizedBox(height: 12),
             Card(
-              color: Colors.orange.shade50,
+              color: AppColors.medicalAccentSoft,
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(l10n.get('paymobMissingCheckoutUrl')),

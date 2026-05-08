@@ -1,4 +1,5 @@
 import 'package:etamen_app/app/localization/app_localizations.dart';
+import 'package:etamen_app/app/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class PaymentPollingBanner extends StatelessWidget {
@@ -11,7 +12,7 @@ class PaymentPollingBanner extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
+        color: AppColors.medicalAccentSoft,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(

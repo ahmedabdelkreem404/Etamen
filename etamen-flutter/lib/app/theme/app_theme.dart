@@ -51,7 +51,7 @@ class AppTheme {
         surfaceTintColor: Colors.white,
         elevation: 10,
         shadowColor: AppColors.primaryDark.withValues(alpha: 0.12),
-        indicatorColor: AppColors.legacyTeal.withValues(alpha: 0.24),
+        indicatorColor: AppColors.medicalAccent.withValues(alpha: 0.18),
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => TextStyle(
             fontSize: 11,

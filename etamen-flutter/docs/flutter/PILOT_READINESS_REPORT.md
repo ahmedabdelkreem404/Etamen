@@ -480,3 +480,58 @@ The app remains visually and technically promising from Sprint 32, but Sprint 33
 ## Exact Next Action
 
 Connect a real Android phone with USB debugging, rebuild/install the APK with `ETAMEN_API_BASE_URL=http://192.168.1.5:8000/api/v1` or a staging URL, then complete the payment proof upload and admin accept path end-to-end with screenshots. If that passes, run logout/session restore; then decide between doctor-only pilot scope and broader pharmacy/lab scope.
+
+---
+
+# Sprint 34 Final UI/UX Finish + Emulator QA
+
+Date: 2026-05-08
+
+## Summary
+
+Sprint 34 completed the requested visual polish scope:
+
+- Removed yellow/orange as a brand accent from Flutter and the Laravel landing.
+- Replaced brand accents with teal/dark-teal/aqua medical colors.
+- Kept Arabic as the primary/default experience.
+- Kept English support in Flutter and added English support to the landing via `/?lang=en`.
+- Captured final emulator/headless-browser screenshots.
+- Completed emulator login, doctor journey, payment screen reach, services/health/account, and logout smoke checks.
+
+## Decision
+
+Decision: **UI_POLISH_ACCEPTED_PHYSICAL_GATE_PENDING**.
+
+The UI/UX polish is acceptable for product-owner visual review on emulator screenshots, but the project is **not approved to invite the first 5-20 supervised pilot users** until the Sprint 33 physical-device blockers pass.
+
+## What Passed
+
+| Gate | Result |
+| --- | --- |
+| Yellow/orange brand accent removed | PASS |
+| Arabic default Flutter app | PASS |
+| English support retained | PASS |
+| Website Arabic default | PASS |
+| Website English support | PASS |
+| Flutter emulator responsive smoke | PASS on Pixel-style emulator |
+| Website mobile/desktop responsive screenshots | PASS |
+| Emulator doctor journey | PASS |
+| Emulator logout and logged-out restore | PASS |
+
+## Still Blocking Pilot Invitation
+
+| Blocker | Status |
+| --- | --- |
+| Physical Android real payment proof upload | NOT TESTED |
+| Admin accept/reject of the same phone-created proof | NOT TESTED |
+| Flutter status after admin review on physical device | NOT TESTED |
+| Physical-device logout/session restore | NOT TESTED |
+| Pharmacy/lab order scope decision on physical device | STILL NEEDS PRODUCT/QA DECISION |
+
+## Screenshots
+
+`I:/Etamen/.tmp/sprint34-final-polish-screenshots/`
+
+## Exact Next Action
+
+Connect a real Android phone, install an APK pointing to LAN/staging API, upload a real proof image, approve it from admin, verify Flutter state refresh, then repeat logout/session restore. Only after that can the first supervised pilot invitation decision be made.

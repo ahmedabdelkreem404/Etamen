@@ -663,8 +663,8 @@ class _LegacyHomeHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final greeting = name == null
-        ? uxCopy(context, 'Welcome, User', 'Welcome, User')
-        : uxCopy(context, 'Welcome, $name', 'Welcome, $name');
+        ? uxCopy(context, 'أهلًا بك', 'Welcome, User')
+        : uxCopy(context, 'أهلًا، $name', 'Welcome, $name');
 
     return Container(
       width: double.infinity,
@@ -746,7 +746,7 @@ class _LegacyHomeHero extends StatelessWidget {
                             child: Text(
                               uxCopy(
                                 context,
-                                'Search doctor by name',
+                                'ابحث باسم الطبيب',
                                 'Search doctor by name',
                               ),
                               maxLines: 1,
@@ -859,7 +859,7 @@ class _OldFinderPromoBanner extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          uxCopy(context, 'MEDICAL CENTER', 'MEDICAL CENTER'),
+                          uxCopy(context, 'مركز طبي', 'MEDICAL CENTER'),
                           style: Theme.of(context).textTheme.labelSmall
                               ?.copyWith(
                                 color: Colors.white,
@@ -873,7 +873,7 @@ class _OldFinderPromoBanner extends StatelessWidget {
                     Text(
                       uxCopy(
                         context,
-                        'Search Doctors\nNearby With Sorted\nby Speciality',
+                        'احجز مع أطباء قريبين\nحسب التخصص',
                         'Search Doctors\nNearby With Sorted\nby Speciality',
                       ),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -886,7 +886,7 @@ class _OldFinderPromoBanner extends StatelessWidget {
                     Text(
                       uxCopy(
                         context,
-                        'Choose from different categories',
+                        'اختر من تخصصات مختلفة',
                         'Choose from different categories',
                       ),
                       maxLines: 1,
@@ -922,7 +922,7 @@ class _OldUpcomingAppointmentCard extends StatelessWidget {
           Text(
             uxCopy(
               context,
-              "You don't have any appointment",
+              'لا توجد مواعيد قادمة',
               "You don't have any appointment",
             ),
             textAlign: TextAlign.center,
@@ -935,13 +935,13 @@ class _OldUpcomingAppointmentCard extends StatelessWidget {
             TextSpan(
               text: uxCopy(
                 context,
-                'Find best doctors near you by speciality, ',
+                'ابحث عن أفضل الأطباء حسب التخصص، ',
                 'Find best doctors near you by speciality, ',
               ),
               children: [
                 TextSpan(
-                  text: uxCopy(context, 'click here', 'click here'),
-                  style: const TextStyle(color: AppColors.appointmentOrange),
+                  text: uxCopy(context, 'ابدأ الآن', 'click here'),
+                  style: const TextStyle(color: AppColors.medicalAccentDark),
                 ),
               ],
             ),
@@ -973,26 +973,26 @@ class _OldSpecialityStrip extends StatelessWidget {
     final items = [
       _OldSpecialityItem(
         icon: Icons.medical_services_outlined,
-        label: uxCopy(context, 'Dentist', 'Dentist'),
-        color: const Color(0xFFFF6D7E),
+        label: uxCopy(context, 'أسنان', 'Dentist'),
+        color: AppColors.medicalAccentDark,
         onTap: onDoctorsTap,
       ),
       _OldSpecialityItem(
         icon: Icons.favorite_border,
-        label: uxCopy(context, 'Cardiologist', 'Cardiologist'),
+        label: uxCopy(context, 'قلب', 'Cardiologist'),
         color: const Color(0xFF8ADFE8),
         onTap: onDoctorsTap,
       ),
       _OldSpecialityItem(
         icon: Icons.local_pharmacy_outlined,
-        label: uxCopy(context, 'Pharmacy', 'Pharmacy'),
-        color: const Color(0xFFFF8EB8),
+        label: uxCopy(context, 'صيدلية', 'Pharmacy'),
+        color: const Color(0xFF22D8D0),
         onTap: onPharmacyTap,
       ),
       _OldSpecialityItem(
         icon: Icons.biotech_outlined,
-        label: uxCopy(context, 'Laboratory', 'Laboratory'),
-        color: const Color(0xFFFFB15C),
+        label: uxCopy(context, 'معمل', 'Laboratory'),
+        color: const Color(0xFF38BDF8),
         onTap: onLabsTap,
       ),
     ];
@@ -1085,9 +1085,9 @@ class _OldNearbyDoctorsPreview extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: _OldNearbyDoctorMiniCard(
-            initials: 'DO',
-            name: uxCopy(context, 'Demo Doctor', 'Dr Mark Smith'),
-            specialty: uxCopy(context, 'Pediatrics', 'Ayurveda'),
+            initials: 'دت',
+            name: uxCopy(context, 'د. طبيب تجريبي', 'Dr Mark Smith'),
+            specialty: uxCopy(context, 'أطفال', 'Ayurveda'),
             onTap: onTap,
           ),
         ),

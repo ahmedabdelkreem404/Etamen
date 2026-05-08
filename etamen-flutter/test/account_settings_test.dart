@@ -3,6 +3,7 @@ import 'package:etamen_app/core/legal/legal_document_type.dart';
 import 'package:etamen_app/core/legal/legal_documents.dart';
 import 'package:etamen_app/core/localization/locale_provider.dart';
 import 'package:etamen_app/core/settings/app_settings_storage.dart';
+import 'package:etamen_app/app/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -49,6 +50,17 @@ void main() {
     await controller.loadSavedLocale();
 
     expect(controller.state.languageCode, 'ar');
+  });
+
+  test('Arabic is the default locale before any saved preference', () {
+    final controller = LocaleController(MemorySettingsStorage());
+
+    expect(controller.state.languageCode, 'ar');
+  });
+
+  test('brand accent is medical teal and not the removed orange accent', () {
+    expect(AppColors.medicalAccent, isNot(const Color(0xFFFF8F2C)));
+    expect(AppColors.medicalAccentDark, isNot(const Color(0xFFFF8F2C)));
   });
 
   test('AppConfig support placeholders parse safely', () {

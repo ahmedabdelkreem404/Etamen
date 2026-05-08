@@ -273,3 +273,50 @@ Sprint 33 explicitly requires a real Android phone, so the emulator was not used
 ## Decision
 
 Sprint 33 cannot approve pilot invitations. The current decision is **NOT_READY_DUE_BLOCKERS** until a physical-device proof upload, admin accept, Flutter refresh, and logout/session restore pass with screenshots.
+
+---
+
+# Sprint 34 Emulator UI/UX QA
+
+Date: 2026-05-08
+
+Sprint 34 was an emulator/browser visual polish pass, not a physical-device gate. The physical-device proof upload and admin review blockers from Sprint 33 remain open.
+
+## Environment
+
+- Emulator: `sdk_gphone64_x86_64`
+- Resolution: `1344x2992`
+- Density: `480`
+- App package: `com.etamen.etamen_app`
+- Emulator API base: `http://10.0.2.2:8000/api/v1`
+- Backend seed: `migrate:fresh --seed` plus `PilotDemoSeeder`
+- Screenshot folder: `I:/Etamen/.tmp/sprint34-final-polish-screenshots/`
+
+## Walkthrough Results
+
+| Flow | Result | Evidence / Notes |
+| --- | --- | --- |
+| Login | PASS | `00-login-ar.png`; login worked before screenshot pass. |
+| Session restore | PASS | App reopened to Home before final logout test. |
+| Home | PASS | `01-home-ar.png`; Arabic-first and teal/cyan. |
+| Doctors list | PASS | `02-doctors-list-ar.png`; no yellow/orange accent. |
+| Doctor profile | PASS | `03-doctor-profile-ar.png`; teal rating/slot states. |
+| Booking slot selection | PASS | `04-booking-ar.png`; sticky CTA visible. |
+| Booking submit | PASS | Reached payment methods after booking. |
+| Payment methods | PASS | `05-payment-methods-ar.png`; teal manual payment cards. |
+| Manual proof upload screen | PASS visual only | `06-proof-upload-ar.png`; real file upload not claimed. |
+| My appointments | PASS | `07-my-appointments-ar.png`. |
+| Pharmacy list/products entry | PASS visual/list | `08-pharmacy-ar.png`; order creation not part of Sprint 34. |
+| Labs list/tests entry | PASS visual/list | `09-labs-ar.png`; order creation not part of Sprint 34. |
+| Health dashboard | PASS | `10-health-ar.png`; medications/care-plan/AI entry points visible. |
+| Notifications | PARTIAL | Home badge visible; notification center was not fully screenshot-captured in Sprint 34. |
+| AI assistant | PARTIAL | Entry point visible on Health; provider prompt behavior not retested in this visual sprint. |
+| Account/legal/support | PASS | `11-account-ar.png`; legal/support entries readable. |
+| Logout | PASS on emulator | `_after-logout-tap.png`, `_login-after-logout.png`, `_reopen-after-logout.png`. |
+
+## Important Limits
+
+- No physical Android phone was connected in Sprint 34.
+- Real gallery/camera proof upload remains unverified.
+- Admin review of a phone-created proof remains unverified.
+- Public launch readiness is not claimed.

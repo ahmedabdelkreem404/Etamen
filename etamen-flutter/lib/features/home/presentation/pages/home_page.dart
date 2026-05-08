@@ -142,7 +142,7 @@ class _LegacyNavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.appointmentOrange : Colors.grey.shade500;
+    final color = selected ? AppColors.medicalAccentDark : Colors.grey.shade500;
     return Semantics(
       selected: selected,
       button: true,

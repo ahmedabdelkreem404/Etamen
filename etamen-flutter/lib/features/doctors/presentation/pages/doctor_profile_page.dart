@@ -287,7 +287,7 @@ class _ProfileRatingRow extends StatelessWidget {
                 ? Icons.star_rounded
                 : Icons.star_border_rounded,
             color: hasRealRating
-                ? AppColors.appointmentOrange
+                ? AppColors.medicalAccent
                 : AppColors.muted.withValues(alpha: 0.55),
             size: 17,
           ),

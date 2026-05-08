@@ -264,7 +264,7 @@ class _BookingActionBar extends StatelessWidget {
               children: [
                 const Icon(
                   Icons.event_available_outlined,
-                  color: AppColors.appointmentOrange,
+                  color: AppColors.medicalAccent,
                   size: 18,
                 ),
                 const SizedBox(width: 8),

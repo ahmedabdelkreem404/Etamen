@@ -130,7 +130,7 @@ class DoctorCard extends StatelessWidget {
                       const Icon(
                         Icons.event_available_outlined,
                         size: 18,
-                        color: AppColors.appointmentOrange,
+                        color: AppColors.medicalAccent,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -291,7 +291,7 @@ class _RatingRow extends StatelessWidget {
                 : Icons.star_border_rounded,
             size: 15,
             color: hasRealRating
-                ? AppColors.appointmentOrange
+                ? AppColors.medicalAccent
                 : AppColors.muted.withValues(alpha: 0.55),
           ),
         const SizedBox(width: 4),

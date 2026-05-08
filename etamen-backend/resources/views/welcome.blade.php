@@ -1,15 +1,93 @@
+@php
+    $isEnglish = request('lang') === 'en';
+    $lang = $isEnglish ? 'en' : 'ar';
+    $dir = $isEnglish ? 'ltr' : 'rtl';
+    $switchUrl = url('/') . ($isEnglish ? '' : '?lang=en');
+    $switchLabel = $isEnglish ? 'العربية' : 'English';
+    $legacyHeroPath = public_path('legacy-doctorfinder/doctor-finder-hero.jpg');
+    $legacyHeroUrl = is_file($legacyHeroPath)
+        ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($legacyHeroPath))
+        : asset('legacy-doctorfinder/doctor-finder-hero.jpg');
+    $copy = $isEnglish ? [
+        'title' => 'Etamen | Find A Doctor',
+        'siteLabel' => 'Site',
+        'siteText' => 'Etamen pilot services for patients',
+        'supportLabel' => 'Support',
+        'supportText' => 'Supervised pilot activation',
+        'brand' => 'Etamen',
+        'navHome' => 'Home',
+        'navAbout' => 'About Us',
+        'navSpecialist' => 'Specialist',
+        'navDoctors' => 'Doctors',
+        'doctorCta' => 'Join As Doctor +',
+        'heroTitle' => 'Find A Doctor!',
+        'heroLead' => 'Etamen keeps the old Doctor Finder feeling: clear search, medical teal colors, white cards, and a simple booking path from the first screen.',
+        'searchLabel' => 'Start doctor search',
+        'searchText' => 'Ex. Doctor Name',
+        'category' => 'CATEGORY',
+        'servicesLabel' => 'Etamen services',
+        'serviceDoctor' => 'Find a doctor',
+        'serviceDoctorText' => 'Search by specialty, view a clean profile, and choose a slot without friction.',
+        'servicePharmacy' => 'Pharmacy orders',
+        'servicePharmacyText' => 'Medicine and prescription requests with a clean card-based experience.',
+        'serviceLabs' => 'Lab tests',
+        'serviceLabsText' => 'Pick labs and tests with a patient-friendly order status.',
+        'serviceHealth' => 'Health tracking',
+        'serviceHealthText' => 'Vitals and reminders without a heavy admin look.',
+        'flowTitle' => 'A booking flow closer to the old app',
+        'flowText' => 'This page does not add new features. It focuses on restoring the visual quality: medical header, doctor cards with safe placeholders, and short booking steps.',
+        'step1' => 'Search by doctor name or specialty.',
+        'step2' => 'Review profile, fee, and location.',
+        'step3' => 'Choose a slot, then upload payment proof when needed.',
+        'mockTitle' => 'Mock app screens',
+        'mockText' => 'Simple phone cards show the visual direction without embedding product screenshots.',
+        'finalTitle' => 'Ready for visual product review',
+        'finalText' => 'This is a lightweight pilot landing page, not a CMS, payment portal, or web registration flow. Public launch still needs final licensed assets, content, SEO, and legal review.',
+        'pilotButton' => 'Request pilot review',
+    ] : [
+        'title' => 'اطمن | ابحث عن طبيب',
+        'siteLabel' => 'الموقع',
+        'siteText' => 'خدمات اطمن التجريبية للمرضى',
+        'supportLabel' => 'الدعم',
+        'supportText' => 'تفعيل تجريبي تحت المراجعة',
+        'brand' => 'اطمن',
+        'navHome' => 'الرئيسية',
+        'navAbout' => 'عن اطمن',
+        'navSpecialist' => 'التخصصات',
+        'navDoctors' => 'الأطباء',
+        'doctorCta' => '+ انضم كطبيب',
+        'heroTitle' => 'ابحث عن طبيب',
+        'heroLead' => 'واجهة اطمن الجديدة تحافظ على إحساس Doctor Finder القديم: بحث واضح، ألوان طبية هادئة، كروت بيضاء، وحجز بسيط من أول شاشة.',
+        'searchLabel' => 'ابدأ البحث عن طبيب',
+        'searchText' => 'مثال: اسم الطبيب',
+        'category' => 'التخصصات',
+        'servicesLabel' => 'خدمات اطمن',
+        'serviceDoctor' => 'ابحث عن طبيب',
+        'serviceDoctorText' => 'بحث بالتخصص، بروفايل واضح، واختيار موعد بدون تعقيد.',
+        'servicePharmacy' => 'طلبات الصيدلية',
+        'servicePharmacyText' => 'طلبات أدوية وروشتات بتجربة كروت بيضاء ونظيفة.',
+        'serviceLabs' => 'تحاليل المعامل',
+        'serviceLabsText' => 'اختيار معامل وتحاليل مع حالة طلب مفهومة للمريض.',
+        'serviceHealth' => 'متابعة صحية',
+        'serviceHealthText' => 'متابعة قياسات وتنبيهات بدون شكل إداري ثقيل.',
+        'flowTitle' => 'تجربة حجز أقرب للتطبيق القديم',
+        'flowText' => 'هذه الصفحة لا تضيف مزايا جديدة. التركيز هنا على جودة الواجهة: هيدر طبي، كروت أطباء بصورة آمنة أو placeholder، وخطوات حجز قصيرة.',
+        'step1' => 'ابحث باسم الطبيب أو التخصص.',
+        'step2' => 'راجع البروفايل والسعر والمكان.',
+        'step3' => 'اختر الموعد ثم ارفع إثبات الدفع عند الحاجة.',
+        'mockTitle' => 'نماذج شاشات التطبيق',
+        'mockText' => 'كروت هاتف توضح الاتجاه البصري بدون نسخ screenshots داخل المنتج.',
+        'finalTitle' => 'جاهز لمراجعة المنتج بصريًا',
+        'finalText' => 'هذه صفحة تعريفية خفيفة للمراجعة التجريبية وليست CMS أو بوابة دفع أو تسجيل ويب. الإطلاق العام يحتاج محتوى وتسويق وصور نهائية مرخصة ومراجعة قانونية.',
+        'pilotButton' => 'طلب مراجعة Pilot',
+    ];
+@endphp
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="{{ $lang }}" dir="{{ $dir }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>اطمن | Find A Doctor</title>
-    @php
-        $legacyHeroPath = public_path('legacy-doctorfinder/doctor-finder-hero.jpg');
-        $legacyHeroUrl = is_file($legacyHeroPath)
-            ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($legacyHeroPath))
-            : asset('legacy-doctorfinder/doctor-finder-hero.jpg');
-    @endphp
+    <title>{{ $copy['title'] }}</title>
     <style>
         :root {
             --teal: #01d8c9;
@@ -17,14 +95,22 @@
             --dark: #17242b;
             --panel: #203b46;
             --muted: #66737b;
-            --orange: #ff8f2c;
+            --accent: #0ea5a4;
+            --accent-dark: #008c86;
             --mint: #e6fffc;
             --soft: #f7fafa;
             --border: #d7f4f0;
+            --hero-bg: #e9fbf8;
         }
 
         * {
             box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            overflow-x: hidden;
         }
 
         body {
@@ -62,7 +148,7 @@
         }
 
         .accent {
-            color: var(--orange);
+            color: var(--accent);
             font-weight: 900;
         }
 
@@ -97,23 +183,33 @@
         .links {
             display: flex;
             align-items: center;
-            gap: 30px;
+            gap: 24px;
             color: #52606a;
             font-weight: 700;
         }
 
+        .language-switch {
+            border: 1px solid var(--border);
+            color: var(--accent-dark);
+            background: #fff;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
         .doctor-cta {
-            background: var(--orange);
+            background: var(--accent-dark);
             color: #fff;
             padding: 14px 26px;
             border-radius: 999px;
             font-weight: 900;
-            box-shadow: 0 14px 26px rgba(255, 143, 44, 0.24);
+            box-shadow: 0 14px 26px rgba(0, 140, 134, 0.22);
         }
 
         .hero {
             min-height: 650px;
-            background: #ffe9d2;
+            background: var(--hero-bg);
             position: relative;
             overflow: hidden;
         }
@@ -154,6 +250,14 @@
             direction: rtl;
             text-align: right;
             justify-self: start;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        body.site-en .hero-copy,
+        body.site-en .search-box {
+            direction: ltr;
+            text-align: left;
         }
 
         h1 {
@@ -190,11 +294,15 @@
             font-weight: 700;
         }
 
+        .search-box span:first-child {
+            min-width: 0;
+        }
+
         .search-button {
             width: 54px;
             height: 54px;
             border-radius: 50%;
-            background: var(--orange);
+            background: var(--accent-dark);
             color: #fff;
             display: grid;
             place-items: center;
@@ -202,9 +310,13 @@
             font-weight: 900;
         }
 
+        .search-box .search-button {
+            flex: 0 0 54px;
+        }
+
         .category-kicker {
             margin-top: 44px;
-            color: var(--orange);
+            color: var(--accent-dark);
             font-weight: 900;
         }
 
@@ -231,7 +343,7 @@
             content: "";
             position: absolute;
             inset: 0;
-            background: linear-gradient(90deg, rgba(255, 233, 210, 0.04), rgba(1, 216, 201, 0.10));
+            background: linear-gradient(90deg, rgba(233, 251, 248, 0.04), rgba(1, 216, 201, 0.12));
             pointer-events: none;
         }
 
@@ -250,6 +362,7 @@
             padding: 22px;
             box-shadow: 0 16px 36px rgba(24, 45, 54, 0.10);
             border: 1px solid var(--border);
+            min-width: 0;
         }
 
         .service-icon {
@@ -318,7 +431,7 @@
             width: 34px;
             height: 34px;
             border-radius: 12px;
-            background: var(--orange);
+            background: var(--accent-dark);
             color: #fff;
             display: grid;
             place-items: center;
@@ -455,51 +568,138 @@
         }
 
         @media (max-width: 560px) {
+            .top-strip .inner,
+            .nav,
+            .section {
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                padding-inline: 16px;
+            }
+
             .top-strip .inner {
                 align-items: flex-start;
                 flex-direction: column;
-                padding: 10px 0;
+                padding-block: 10px;
+                gap: 6px;
+                font-size: 12px;
+                overflow-wrap: anywhere;
             }
 
             .nav {
                 min-height: 84px;
+                gap: 10px;
+            }
+
+            body.site-ar .nav {
+                direction: ltr;
             }
 
             .doctor-cta {
                 display: none;
             }
 
+            .brand {
+                min-width: 0;
+                font-size: 22px;
+            }
+
+            .language-switch {
+                padding: 7px 12px;
+                font-size: 14px;
+            }
+
             .hero .section {
-                min-height: 570px;
-                padding-top: 52px;
+                display: block;
+                min-height: auto;
+                padding-top: 46px;
+                padding-bottom: 34px;
+                direction: inherit;
+            }
+
+            .hero-copy {
+                width: min(100%, 300px);
+                max-width: calc(100vw - 64px);
+                margin-inline: auto;
+                justify-self: stretch;
+                overflow-wrap: anywhere;
+            }
+
+            body.site-ar .hero-copy {
+                direction: rtl;
+                text-align: center;
+            }
+
+            h1 {
+                font-size: 34px;
+                max-width: 100%;
+            }
+
+            .lead {
+                width: 100%;
+                max-width: 100%;
+                font-size: 16px;
+                overflow-wrap: anywhere;
+                word-break: break-word;
             }
 
             .search-box {
+                width: 100%;
+                max-width: 100%;
                 min-height: 62px;
+            }
+
+            .service-grid {
+                padding-top: 22px;
+                justify-items: center;
+            }
+
+            .service {
+                width: min(100%, 300px);
+                max-width: calc(100vw - 64px);
+            }
+
+            .top-strip,
+            .service h2,
+            .service p {
+                overflow-wrap: anywhere;
+                word-break: break-word;
+            }
+
+            .top-strip .inner div {
+                width: min(100%, 300px);
+                max-width: calc(100vw - 64px);
+                margin-inline: auto;
+            }
+
+            body.site-ar .top-strip .inner div {
+                direction: rtl;
+                text-align: center;
             }
         }
     </style>
 </head>
-<body>
+<body class="{{ $isEnglish ? 'site-en' : 'site-ar' }}">
     <header>
         <div class="top-strip">
             <div class="inner">
-                <div><span class="accent">الموقع:</span> خدمات اطمن التجريبية للمرضى</div>
-                <div><span class="accent">الدعم:</span> تفعيل تجريبي تحت المراجعة</div>
+                <div><span class="accent">{{ $copy['siteLabel'] }}:</span> {{ $copy['siteText'] }}</div>
+                <div><span class="accent">{{ $copy['supportLabel'] }}:</span> {{ $copy['supportText'] }}</div>
             </div>
         </div>
-        <nav class="nav" aria-label="التنقل الرئيسي">
+        <nav class="nav" aria-label="{{ $isEnglish ? 'Main navigation' : 'التنقل الرئيسي' }}">
             <a class="brand" href="{{ url('/') }}">
                 <span class="mark">+</span>
-                <span>اطمن</span>
+                <span>{{ $copy['brand'] }}</span>
             </a>
             <div class="links">
-                <a href="#doctors">Home</a>
-                <a href="#services">About Us</a>
-                <a href="#app">Specialist</a>
-                <a href="#pilot">Doctors</a>
+                <a href="#doctors">{{ $copy['navHome'] }}</a>
+                <a href="#services">{{ $copy['navAbout'] }}</a>
+                <a href="#app">{{ $copy['navSpecialist'] }}</a>
+                <a href="#pilot">{{ $copy['navDoctors'] }}</a>
             </div>
-            <a class="doctor-cta" href="#pilot">+ Join As Doctor</a>
+            <a class="doctor-cta" href="#pilot">{{ $copy['doctorCta'] }}</a>
+            <a class="language-switch" href="{{ $switchUrl }}">{{ $switchLabel }}</a>
         </nav>
     </header>
 
@@ -507,13 +707,13 @@
         <section class="hero" id="doctors">
             <div class="section">
                 <div class="hero-copy">
-                    <h1>Find A Doctor!</h1>
-                    <p class="lead">واجهة اطمن الجديدة تعيد تجربة Doctor Finder القديمة: بحث واضح، ألوان طبية، وحجز بسيط من أول شاشة.</p>
-                    <a class="search-box" href="#pilot" aria-label="ابدأ البحث عن طبيب">
-                        <span>Ex. Doctor Name</span>
+                    <h1>{{ $copy['heroTitle'] }}</h1>
+                    <p class="lead">{{ $copy['heroLead'] }}</p>
+                    <a class="search-box" href="#pilot" aria-label="{{ $copy['searchLabel'] }}">
+                        <span>{{ $copy['searchText'] }}</span>
                         <span class="search-button">›</span>
                     </a>
-                    <div class="category-kicker">CATEGORY</div>
+                    <div class="category-kicker">{{ $copy['category'] }}</div>
                 </div>
                 <div class="hero-visual" aria-hidden="true">
                     <img src="{{ $legacyHeroUrl }}" alt="">
@@ -521,43 +721,43 @@
             </div>
         </section>
 
-        <section class="section service-grid" id="services" aria-label="خدمات اطمن">
+        <section class="section service-grid" id="services" aria-label="{{ $copy['servicesLabel'] }}">
             <article class="service">
                 <div class="service-icon">01</div>
-                <h2>Find a doctor</h2>
-                <p>بحث بالتخصص، بروفايل واضح، واختيار موعد بدون تعقيد.</p>
+                <h2>{{ $copy['serviceDoctor'] }}</h2>
+                <p>{{ $copy['serviceDoctorText'] }}</p>
             </article>
             <article class="service">
                 <div class="service-icon">02</div>
-                <h2>Pharmacy orders</h2>
-                <p>طلبات أدوية وروشتات مع تجربة كروت بيضاء قريبة من القديم.</p>
+                <h2>{{ $copy['servicePharmacy'] }}</h2>
+                <p>{{ $copy['servicePharmacyText'] }}</p>
             </article>
             <article class="service">
                 <div class="service-icon">03</div>
-                <h2>Lab tests</h2>
-                <p>اختيار معامل وتحاليل مع حالة طلب مفهومة للمريض.</p>
+                <h2>{{ $copy['serviceLabs'] }}</h2>
+                <p>{{ $copy['serviceLabsText'] }}</p>
             </article>
             <article class="service">
                 <div class="service-icon">04</div>
-                <h2>Health tracking</h2>
-                <p>متابعة قياسات وتنبيهات بدون شكل إداري ثقيل.</p>
+                <h2>{{ $copy['serviceHealth'] }}</h2>
+                <p>{{ $copy['serviceHealthText'] }}</p>
             </article>
         </section>
 
         <section class="band" id="app">
             <div class="section split">
                 <div class="text-block">
-                    <h2>تجربة حجز أقرب للتطبيق القديم</h2>
-                    <p>التركيز هنا ليس على إضافة مزايا جديدة، بل على استرجاع جودة الواجهة القديمة: هيدر طبي، كروت أطباء بصورة أو placeholder، وخطوات حجز قصيرة.</p>
+                    <h2>{{ $copy['flowTitle'] }}</h2>
+                    <p>{{ $copy['flowText'] }}</p>
                     <div class="steps">
-                        <div class="step"><span class="step-number">1</span><span>ابحث باسم الطبيب أو التخصص.</span></div>
-                        <div class="step"><span class="step-number">2</span><span>راجع البروفايل والسعر والمكان.</span></div>
-                        <div class="step"><span class="step-number">3</span><span>اختر الموعد ثم ارفع إثبات الدفع عند الحاجة.</span></div>
+                        <div class="step"><span class="step-number">1</span><span>{{ $copy['step1'] }}</span></div>
+                        <div class="step"><span class="step-number">2</span><span>{{ $copy['step2'] }}</span></div>
+                        <div class="step"><span class="step-number">3</span><span>{{ $copy['step3'] }}</span></div>
                     </div>
                 </div>
                 <div class="phone-panel">
-                    <h2>Mock app screens</h2>
-                    <p>كروت هاتف توضح الاتجاه البصري الجديد بدون نسخ screenshots داخل المنتج.</p>
+                    <h2>{{ $copy['mockTitle'] }}</h2>
+                    <p>{{ $copy['mockText'] }}</p>
                     <div class="phones" aria-hidden="true">
                         <div class="phone">
                             <div class="phone-top"></div>
@@ -584,9 +784,9 @@
 
         <section class="final-cta" id="pilot">
             <div class="section">
-                <h2>جاهز لمراجعة المنتج بصريًا</h2>
-                <p>هذه صفحة تعريفية خفيفة للمراجعة التجريبية وليست CMS أو بوابة دفع أو تسجيل ويب. الإطلاق العام يحتاج محتوى وتسويق وصور نهائية مرخصة.</p>
-                <a class="pilot-button" href="mailto:pilot@etamen.local">طلب مراجعة Pilot</a>
+                <h2>{{ $copy['finalTitle'] }}</h2>
+                <p>{{ $copy['finalText'] }}</p>
+                <a class="pilot-button" href="mailto:pilot@etamen.local">{{ $copy['pilotButton'] }}</a>
             </div>
         </section>
     </main>
