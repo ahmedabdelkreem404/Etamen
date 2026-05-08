@@ -55,6 +55,7 @@ class PublicProviderController extends ApiController
         return ProviderResource::collection(
             Provider::query()
                 ->publiclyVisible()
+                ->publicDiscoveryEnabled()
                 ->where('type', $type)
                 ->with($this->publicProviderRelations())
                 ->orderBy('name_en')
@@ -82,6 +83,10 @@ class PublicProviderController extends ApiController
                 ->withCount(['reviews as reviews_count' => fn ($reviewQuery) => $reviewQuery->where('is_visible', true)]),
             'pharmacyProfile',
             'labProfile',
+            'bookingSettings',
+            'activeContract',
+            'publicDocuments.file',
+            'publicServices.category',
             'branches.city',
             'branches.area',
         ];

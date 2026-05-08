@@ -6,6 +6,7 @@ enum ProviderStatus: string
 {
     case Draft = 'draft';
     case PendingReview = 'pending_review';
+    case NeedsChanges = 'needs_changes';
     case Approved = 'approved';
     case Rejected = 'rejected';
     case Suspended = 'suspended';

@@ -7,6 +7,7 @@ use App\Modules\AuditLogs\Application\Services\AuditLogService;
 use App\Modules\MedicalFiles\Application\Services\FileStorageService;
 use App\Modules\MedicalFiles\Domain\Enums\FileCategory;
 use App\Modules\Providers\Domain\Enums\ProviderDocumentStatus;
+use App\Modules\Providers\Domain\Enums\ProviderDocumentVisibility;
 use App\Modules\Providers\Infrastructure\Models\ProviderDocument;
 use Illuminate\Http\UploadedFile;
 
@@ -18,8 +19,13 @@ class ProviderDocumentService
         private readonly AuditLogService $auditLogService,
     ) {}
 
-    public function upload(User $user, UploadedFile $file, string $documentType, ?string $notes = null): ProviderDocument
-    {
+    public function upload(
+        User $user,
+        UploadedFile $file,
+        string $documentType,
+        ?string $notes = null,
+        ProviderDocumentVisibility|string|null $visibility = null,
+    ): ProviderDocument {
         $provider = $this->providerProfileService->currentProviderFor($user);
         $uploadedFile = $this->fileStorageService->storePrivate(
             file: $file,
@@ -33,6 +39,9 @@ class ProviderDocumentService
             'uploaded_by' => $user->id,
             'document_type' => $documentType,
             'status' => ProviderDocumentStatus::Pending,
+            'visibility' => $visibility instanceof ProviderDocumentVisibility
+                ? $visibility
+                : ProviderDocumentVisibility::tryFrom((string) $visibility) ?? ProviderDocumentVisibility::AdminOnly,
             'notes' => $notes,
         ]);
 

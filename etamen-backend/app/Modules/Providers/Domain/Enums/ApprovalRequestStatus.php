@@ -6,6 +6,7 @@ enum ApprovalRequestStatus: string
 {
     case Pending = 'pending';
     case Approved = 'approved';
+    case NeedsChanges = 'needs_changes';
     case Rejected = 'rejected';
     case Cancelled = 'cancelled';
 

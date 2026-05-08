@@ -33,11 +33,14 @@ class ProviderDocumentResource extends Resource
                     ->required(),
                 Forms\Components\TextInput::make('status')
                     ->required(),
+                Forms\Components\TextInput::make('visibility')
+                    ->required(),
                 Forms\Components\Textarea::make('notes')
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('reviewed_by')
                     ->numeric(),
                 Forms\Components\DateTimePicker::make('reviewed_at'),
+                Forms\Components\DateTimePicker::make('approved_public_at'),
             ]);
     }
 
@@ -58,10 +61,15 @@ class ProviderDocumentResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('visibility')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('reviewed_by')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('reviewed_at')
+                    ->dateTime()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('approved_public_at')
                     ->dateTime()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')

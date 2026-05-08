@@ -257,3 +257,24 @@ Exit criteria:
 - Search and support performance remain stable.
 - Finance/reconciliation is reliable.
 
+## Sprint 36 Implementation Update
+
+Implemented as foundation, not full vertical launch:
+- Expanded provider types to include hospitals, clinics, medical centers, radiology, gyms, fitness coaches, nutrition coaches, physiotherapy, and home healthcare.
+- Added minimal type-specific profile tables for future provider verticals.
+- Hardened branch/location fields for address, map coordinates, working hours, and service radius.
+- Added explicit provider document visibility rules.
+- Added `needs_changes` onboarding state and admin request-changes action.
+- Added hospital departments and hospital-doctor link foundation.
+- Added generic `service_categories` and `provider_services`.
+- Added `provider_booking_settings`.
+- Added `provider_contracts`.
+- Added admin/Filament foundation resources for the new operational tables.
+- Added tests for public API safety and existing MVP preservation.
+
+Still deferred:
+- Patient-facing radiology/gym/coach/home healthcare screens.
+- Full order/booking lifecycle for new verticals.
+- Public hospital pages.
+- Production launch hardening.
+- Egypt-scale load proof.

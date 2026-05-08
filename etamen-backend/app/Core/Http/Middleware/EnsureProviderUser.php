@@ -14,7 +14,7 @@ class EnsureProviderUser
 
         abort_if(! $user, 401);
         abort_if(
-            ! $user->hasAnyRole(['doctor', 'pharmacy_admin', 'lab_admin', 'super_admin', 'admin']),
+            ! $user->hasAnyRole(['provider_admin', 'doctor', 'pharmacy_admin', 'lab_admin', 'super_admin', 'admin']),
             403,
         );
 

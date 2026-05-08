@@ -14,6 +14,7 @@ class ProviderDocumentResource extends JsonResource
             'provider_id' => $this->provider_id,
             'document_type' => $this->document_type,
             'status' => $this->status->value,
+            'visibility' => $this->visibility->value,
             'notes' => $this->notes,
             'file' => $this->whenLoaded('file', fn () => [
                 'id' => $this->file->id,
@@ -23,6 +24,7 @@ class ProviderDocumentResource extends JsonResource
                 'category' => $this->file->file_category->value,
                 'visibility' => $this->file->visibility->value,
             ]),
+            'approved_public_at' => $this->approved_public_at?->toISOString(),
             'created_at' => $this->created_at?->toISOString(),
         ];
     }

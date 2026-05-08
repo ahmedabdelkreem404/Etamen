@@ -63,6 +63,11 @@ class Provider extends Model
             ->where('is_active', true);
     }
 
+    public function scopePublicDiscoveryEnabled(Builder $query): Builder
+    {
+        return $query->whereIn('type', ProviderType::publicDiscoveryValues());
+    }
+
     public static function uniqueSlug(string $name): string
     {
         $base = Str::slug($name) ?: Str::lower(Str::random(8));
@@ -114,5 +119,90 @@ class Provider extends Model
     public function labProfile(): HasOne
     {
         return $this->hasOne(LabProfile::class);
+    }
+
+    public function hospitalProfile(): HasOne
+    {
+        return $this->hasOne(HospitalProfile::class);
+    }
+
+    public function clinicProfile(): HasOne
+    {
+        return $this->hasOne(ClinicProfile::class);
+    }
+
+    public function medicalCenterProfile(): HasOne
+    {
+        return $this->hasOne(MedicalCenterProfile::class);
+    }
+
+    public function radiologyProfile(): HasOne
+    {
+        return $this->hasOne(RadiologyProfile::class);
+    }
+
+    public function gymProfile(): HasOne
+    {
+        return $this->hasOne(GymProfile::class);
+    }
+
+    public function coachProfile(): HasOne
+    {
+        return $this->hasOne(CoachProfile::class);
+    }
+
+    public function physiotherapyProfile(): HasOne
+    {
+        return $this->hasOne(PhysiotherapyProfile::class);
+    }
+
+    public function homeHealthcareProfile(): HasOne
+    {
+        return $this->hasOne(HomeHealthcareProfile::class);
+    }
+
+    public function bookingSettings(): HasOne
+    {
+        return $this->hasOne(ProviderBookingSetting::class);
+    }
+
+    public function services(): HasMany
+    {
+        return $this->hasMany(ProviderService::class);
+    }
+
+    public function publicServices(): HasMany
+    {
+        return $this->services()->active()->with('category');
+    }
+
+    public function contracts(): HasMany
+    {
+        return $this->hasMany(ProviderContract::class);
+    }
+
+    public function activeContract(): HasOne
+    {
+        return $this->hasOne(ProviderContract::class)->active()->latestOfMany();
+    }
+
+    public function publicDocuments(): HasMany
+    {
+        return $this->documents()->publicCertificates()->with('file');
+    }
+
+    public function hospitalDepartments(): HasMany
+    {
+        return $this->hasMany(HospitalDepartment::class, 'hospital_provider_id');
+    }
+
+    public function hospitalDoctorLinks(): HasMany
+    {
+        return $this->hasMany(HospitalDoctor::class, 'hospital_provider_id');
+    }
+
+    public function affiliatedHospitalLinks(): HasMany
+    {
+        return $this->hasMany(HospitalDoctor::class, 'doctor_provider_id');
     }
 }

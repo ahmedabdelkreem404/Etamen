@@ -22,6 +22,11 @@ class ProviderPolicy
         return $user->isPlatformAdmin();
     }
 
+    public function requestChanges(User $user, Provider $provider): bool
+    {
+        return $user->isPlatformAdmin();
+    }
+
     public function suspend(User $user, Provider $provider): bool
     {
         return $user->isPlatformAdmin();

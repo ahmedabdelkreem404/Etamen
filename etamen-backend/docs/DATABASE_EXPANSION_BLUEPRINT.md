@@ -151,3 +151,38 @@ Add only one vertical at a time with:
 6. Flutter screens only after API is real.
 7. No fake prices/statuses or public private-file paths.
 
+## Sprint 36 Implementation Update
+
+Implemented in Sprint 36:
+- `hospital_profiles`
+- `clinic_profiles`
+- `medical_center_profiles`
+- `radiology_profiles`
+- `gym_profiles`
+- `coach_profiles`
+- `physiotherapy_profiles`
+- `home_healthcare_profiles`
+- `hospital_departments`
+- `hospital_doctors`
+- `service_categories`
+- `provider_services`
+- `provider_booking_settings`
+- `provider_contracts`
+
+Updated in Sprint 36:
+- `providers.type` supports the expanded provider platform enum.
+- `providers.status` supports `needs_changes`.
+- `provider_branches` supports richer address/map/working-hour/service-radius fields.
+- `provider_documents` supports explicit `visibility` and `approved_public_at`.
+
+Still later:
+- radiology order lifecycle.
+- gym memberships/classes.
+- coach sessions/plans/progress.
+- home healthcare orders.
+- insurance contracts.
+- search engine tables/read models.
+- production-scale partitioning/search infrastructure.
+
+Privacy note:
+- The new tables are foundation/admin/internal until each vertical has a complete backend lifecycle, public API safety review, Flutter UX, and tests.

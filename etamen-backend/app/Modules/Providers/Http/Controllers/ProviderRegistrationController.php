@@ -8,11 +8,38 @@ use App\Modules\Providers\Application\Services\ProviderRegistrationService;
 use App\Modules\Providers\Http\Requests\RegisterDoctorRequest;
 use App\Modules\Providers\Http\Requests\RegisterLabRequest;
 use App\Modules\Providers\Http\Requests\RegisterPharmacyRequest;
+use App\Modules\Providers\Http\Requests\RegisterProviderRequest;
 use App\Modules\Providers\Http\Resources\ProviderResource;
 
 class ProviderRegistrationController extends ApiController
 {
     public function __construct(private readonly ProviderRegistrationService $registrationService) {}
+
+    public function provider(RegisterProviderRequest $request)
+    {
+        $result = $this->registrationService->registerGeneric($request->validated());
+
+        return $this->success([
+            'user' => new UserResource($result['user']),
+            'provider' => new ProviderResource($result['provider']->load([
+                'doctorProfile.specialties',
+                'pharmacyProfile',
+                'labProfile',
+                'hospitalProfile',
+                'clinicProfile',
+                'medicalCenterProfile',
+                'radiologyProfile',
+                'gymProfile',
+                'coachProfile',
+                'physiotherapyProfile',
+                'homeHealthcareProfile',
+                'branches',
+                'approvalRequests',
+            ])),
+            'token' => $result['token'],
+            'token_type' => $result['token_type'],
+        ], 'Provider registered for review.', 201);
+    }
 
     public function doctor(RegisterDoctorRequest $request)
     {

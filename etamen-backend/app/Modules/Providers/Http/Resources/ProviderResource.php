@@ -51,6 +51,72 @@ class ProviderResource extends JsonResource
                 'license_number' => $this->labProfile->license_number,
                 'home_collection_available' => $this->labProfile->home_collection_available,
             ] : null),
+            'hospital_profile' => $this->profilePayload('hospitalProfile', [
+                'license_number',
+                'description_ar',
+                'description_en',
+                'emergency_available',
+                'has_inpatient',
+                'has_outpatient',
+                'has_icu',
+                'has_ambulance',
+                'is_active',
+            ]),
+            'clinic_profile' => $this->profilePayload('clinicProfile', ['clinic_type', 'description_ar', 'description_en', 'is_active']),
+            'medical_center_profile' => $this->profilePayload('medicalCenterProfile', ['center_type', 'description_ar', 'description_en', 'is_active']),
+            'radiology_profile' => $this->profilePayload('radiologyProfile', [
+                'license_number',
+                'home_service_enabled',
+                'report_delivery_enabled',
+                'dicom_supported',
+                'description_ar',
+                'description_en',
+                'is_active',
+            ]),
+            'gym_profile' => $this->profilePayload('gymProfile', [
+                'men_allowed',
+                'women_allowed',
+                'ladies_only_hours',
+                'has_classes',
+                'has_personal_training',
+                'description_ar',
+                'description_en',
+                'is_active',
+            ]),
+            'coach_profile' => $this->profilePayload('coachProfile', [
+                'coach_type',
+                'experience_years',
+                'session_price',
+                'monthly_followup_price',
+                'online_coaching_enabled',
+                'gym_visit_enabled',
+                'home_training_enabled',
+                'certifications_summary',
+                'is_active',
+            ]),
+            'physiotherapy_profile' => $this->profilePayload('physiotherapyProfile', [
+                'home_visit_enabled',
+                'center_visit_enabled',
+                'session_price',
+                'description_ar',
+                'description_en',
+                'is_active',
+            ]),
+            'home_healthcare_profile' => $this->profilePayload('homeHealthcareProfile', [
+                'nursing_enabled',
+                'injections_enabled',
+                'wound_care_enabled',
+                'elderly_care_enabled',
+                'physiotherapy_home_enabled',
+                'service_radius_km',
+                'description_ar',
+                'description_en',
+                'is_active',
+            ]),
+            'booking_capabilities' => $this->bookingCapabilities(),
+            'payment_options' => $this->paymentOptions(),
+            'public_certificates' => ProviderPublicCertificateResource::collection($this->whenLoaded('publicDocuments')),
+            'services' => ProviderServiceResource::collection($this->whenLoaded('publicServices')),
             'branches' => ProviderBranchResource::collection($this->whenLoaded('branches')),
             'approval_requests' => ProviderApprovalRequestResource::collection($this->whenLoaded('approvalRequests')),
             'created_at' => $this->created_at?->toISOString(),
@@ -82,5 +148,55 @@ class ProviderResource extends JsonResource
         }
 
         return rtrim($request->getSchemeAndHttpHost(), '/').'/'.$path;
+    }
+
+    private function profilePayload(string $relation, array $fields): mixed
+    {
+        return $this->whenLoaded($relation, function () use ($relation, $fields) {
+            $profile = $this->{$relation};
+
+            if (! $profile) {
+                return null;
+            }
+
+            return ['id' => $profile->id]
+                + collect($fields)
+                    ->mapWithKeys(fn (string $field): array => [$field => $profile->{$field}])
+                    ->all();
+        });
+    }
+
+    private function bookingCapabilities(): array
+    {
+        $settings = $this->relationLoaded('bookingSettings') ? $this->bookingSettings : null;
+
+        return [
+            'clinic_visit_enabled' => (bool) ($settings?->clinic_visit_enabled ?? true),
+            'online_video_enabled' => (bool) ($settings?->online_video_enabled ?? false),
+            'home_visit_enabled' => (bool) ($settings?->home_visit_enabled ?? false),
+            'branch_visit_enabled' => (bool) ($settings?->branch_visit_enabled ?? true),
+            'booking_requires_payment' => (bool) ($settings?->booking_requires_payment ?? true),
+            'pay_at_branch_enabled' => $this->payAtBranchEnabled(),
+            'default_slot_duration_minutes' => $settings?->default_slot_duration_minutes,
+        ];
+    }
+
+    private function paymentOptions(): array
+    {
+        $contract = $this->relationLoaded('activeContract') ? $this->activeContract : null;
+
+        return [
+            'online_payment_required' => (bool) ($contract?->online_payment_required ?? true),
+            'pay_at_branch_enabled' => $this->payAtBranchEnabled(),
+        ];
+    }
+
+    private function payAtBranchEnabled(): bool
+    {
+        $settings = $this->relationLoaded('bookingSettings') ? $this->bookingSettings : null;
+        $contract = $this->relationLoaded('activeContract') ? $this->activeContract : null;
+
+        return (bool) ($settings?->pay_at_branch_enabled ?? false)
+            && (bool) ($contract?->pay_at_branch_allowed ?? false);
     }
 }

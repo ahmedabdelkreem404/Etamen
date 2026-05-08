@@ -7,6 +7,7 @@ enum UserRole: string
     case SuperAdmin = 'super_admin';
     case Admin = 'admin';
     case Patient = 'patient';
+    case ProviderAdmin = 'provider_admin';
     case Doctor = 'doctor';
     case PharmacyAdmin = 'pharmacy_admin';
     case LabAdmin = 'lab_admin';

@@ -32,6 +32,11 @@ class ProviderBranchResource extends Resource
                     ->required(),
                 Forms\Components\TextInput::make('phone')
                     ->tel(),
+                Forms\Components\TextInput::make('whatsapp')
+                    ->tel(),
+                Forms\Components\TextInput::make('address_line_1'),
+                Forms\Components\TextInput::make('address_line_2'),
+                Forms\Components\TextInput::make('district'),
                 Forms\Components\Textarea::make('address_ar')
                     ->columnSpanFull(),
                 Forms\Components\Textarea::make('address_en')
@@ -39,6 +44,13 @@ class ProviderBranchResource extends Resource
                 Forms\Components\TextInput::make('latitude')
                     ->numeric(),
                 Forms\Components\TextInput::make('longitude')
+                    ->numeric(),
+                Forms\Components\Textarea::make('working_hours_json')
+                    ->columnSpanFull(),
+                Forms\Components\Toggle::make('is_24_hours'),
+                Forms\Components\TextInput::make('home_service_radius_km')
+                    ->numeric(),
+                Forms\Components\TextInput::make('delivery_radius_km')
                     ->numeric(),
                 Forms\Components\Toggle::make('is_main')
                     ->required(),
@@ -66,12 +78,16 @@ class ProviderBranchResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('district')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('latitude')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('longitude')
                     ->numeric()
                     ->sortable(),
+                Tables\Columns\IconColumn::make('is_24_hours')
+                    ->boolean(),
                 Tables\Columns\IconColumn::make('is_main')
                     ->boolean(),
                 Tables\Columns\IconColumn::make('is_active')

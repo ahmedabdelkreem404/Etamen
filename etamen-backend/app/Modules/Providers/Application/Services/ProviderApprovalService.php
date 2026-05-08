@@ -42,8 +42,24 @@ class ProviderApprovalService
             'reviewed_by' => $admin->id,
         ]);
 
-        $this->updatePendingRequests($provider, ApprovalRequestStatus::Rejected, $admin, $notes);
+        $this->updatePendingRequests($provider, ApprovalRequestStatus::NeedsChanges, $admin, $notes);
         $this->auditLogService->log('provider.rejected', $provider, $admin, before: $before, after: $provider->getAttributes(), metadata: ['notes' => $notes]);
+
+        return $provider->refresh();
+    }
+
+    public function requestChanges(Provider $provider, User $admin, ?string $notes = null): Provider
+    {
+        $before = $provider->getAttributes();
+
+        $provider->update([
+            'status' => ProviderStatus::NeedsChanges,
+            'is_active' => false,
+            'reviewed_by' => $admin->id,
+        ]);
+
+        $this->updatePendingRequests($provider, ApprovalRequestStatus::Rejected, $admin, $notes);
+        $this->auditLogService->log('provider.needs_changes', $provider, $admin, before: $before, after: $provider->getAttributes(), metadata: ['notes' => $notes]);
 
         return $provider->refresh();
     }

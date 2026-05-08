@@ -48,6 +48,16 @@ class ProviderAccountController extends ApiController
         );
     }
 
+    public function documents(Request $request)
+    {
+        $provider = $this->providerProfileService->currentProviderFor($request->user());
+
+        return $this->success(
+            ProviderDocumentResource::collection($provider->documents()->with('file')->latest()->get()),
+            'Provider documents.',
+        );
+    }
+
     public function createBranch(ProviderBranchRequest $request)
     {
         $branch = $this->branchService->createForCurrentProvider($request->user(), $request->validated());
@@ -71,6 +81,7 @@ class ProviderAccountController extends ApiController
             $request->file('file'),
             $request->validated('document_type'),
             $request->validated('notes'),
+            $request->validated('visibility'),
         );
 
         return $this->success(new ProviderDocumentResource($document), 'Provider document uploaded.', 201);

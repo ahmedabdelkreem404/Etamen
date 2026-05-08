@@ -2,7 +2,10 @@
 
 namespace App\Modules\Providers\Http\Requests;
 
+use App\Modules\Providers\Domain\Enums\ProviderDocumentType;
+use App\Modules\Providers\Domain\Enums\ProviderDocumentVisibility;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ProviderDocumentRequest extends FormRequest
 {
@@ -15,7 +18,8 @@ class ProviderDocumentRequest extends FormRequest
     {
         return [
             'provider_id' => ['prohibited'],
-            'document_type' => ['required', 'string', 'max:120'],
+            'document_type' => ['required', Rule::in(ProviderDocumentType::values())],
+            'visibility' => ['nullable', Rule::in(ProviderDocumentVisibility::values())],
             'notes' => ['nullable', 'string'],
             'file' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:10240'],
         ];
