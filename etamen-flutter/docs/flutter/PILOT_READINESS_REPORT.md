@@ -535,3 +535,69 @@ The UI/UX polish is acceptable for product-owner visual review on emulator scree
 ## Exact Next Action
 
 Connect a real Android phone, install an APK pointing to LAN/staging API, upload a real proof image, approve it from admin, verify Flutter state refresh, then repeat logout/session restore. Only after that can the first supervised pilot invitation decision be made.
+
+---
+
+# Staging Deployment / Sprint 37 Follow-Up
+
+Date: 2026-05-08
+
+## Summary
+
+Sprint 37 backend work passed locally, but staging deployment was not completed from this session because SSH authentication failed.
+
+What passed locally:
+
+- Backend full test suite: PASS, 216 tests / 1734 assertions.
+- Backend `git diff --check`: PASS.
+- Flutter `flutter pub get`: PASS.
+- Flutter `dart format .`: PASS.
+- Flutter `flutter analyze`: PASS.
+- Flutter `flutter test`: PASS, 164 tests.
+- Flutter staging debug APK build: PASS.
+- Emulator install/launch of the APK: PASS.
+
+What failed or remains blocked:
+
+- SSH login to Hostinger: FAIL, authentication unavailable.
+- Sprint 37 backend files/migrations were not deployed to staging.
+- Server migrations were not run.
+- Staging readiness endpoint currently returns 500.
+- Emulator login through the APK showed `تعذر الاتصال بالسيرفر`.
+- Physical-device proof upload/admin review is still not tested.
+
+## Staging APK
+
+APK copy:
+
+- `I:\Etamen\.tmp\etamen-staging-debug.apk`
+
+API configured:
+
+- `https://etamen.inolty.com/api/v1`
+
+Evidence screenshots:
+
+- `I:\Etamen\.tmp\etamen-staging-emulator-login-ready-slow.png`
+- `I:\Etamen\.tmp\etamen-staging-emulator-home-or-error.png`
+
+## Current Decision
+
+Decision: **NOT_READY_DUE_BLOCKERS**.
+
+Reason:
+
+- Staging deployment was blocked by SSH access.
+- Mobile/emulator login against staging is not passing.
+- Physical Android proof upload and admin review are still not verified.
+
+This is not public-launch ready and not ready to invite first supervised pilot users.
+
+## Exact Next Action
+
+1. Provide working SSH key/password access for Hostinger.
+2. Inspect server logs for `/api/v1/system/readiness` 500.
+3. Deploy the current backend safely and run `php artisan migrate --force`.
+4. Diagnose why the APK receives `تعذر الاتصال بالسيرفر` while desktop API login succeeds.
+5. Rebuild APK and rerun emulator login.
+6. Then run the physical-device payment proof upload/admin review gate.

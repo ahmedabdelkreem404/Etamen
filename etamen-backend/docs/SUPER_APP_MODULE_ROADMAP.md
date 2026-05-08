@@ -278,3 +278,22 @@ Still deferred:
 - Public hospital pages.
 - Production launch hardening.
 - Egypt-scale load proof.
+
+## Sprint 37 Implementation Update
+
+Implemented as backend/admin radiology catalog foundation, not patient launch:
+- Added `radiology_scan_categories` with seeded Arabic-first scan taxonomy.
+- Added `radiology_scans` for provider/admin-managed scan catalog.
+- Added `radiology_preparation_instructions` with required general-instructions disclaimer.
+- Added protected provider APIs for owning radiology providers to manage their own scans.
+- Added protected admin APIs and Filament resources for scan categories, scans, and preparation instructions.
+- Added safe read-only catalog endpoints filtered to approved active radiology providers and active scans.
+- Added local/staging demo radiology data to `PilotDemoSeeder`.
+- Added feature tests for permissions, branch ownership, public visibility, disclaimers, and private path safety.
+
+Still deferred:
+- Flutter radiology screens.
+- Patient radiology orders, payments, refunds, and result delivery.
+- DICOM/image/report storage strategy.
+- Medical/legal review of preparation content.
+- Public launch readiness for radiology.

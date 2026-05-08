@@ -63,14 +63,14 @@ Privacy levels:
 
 | Table | Purpose | Critical fields | Indexes | Privacy | Exists now / later | Scale notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| `radiology_profiles` | Radiology provider profile | provider_id, license, modalities, home_service flag | provider_id unique | Public/provider | Later | Add provider type first. |
-| `radiology_branches` / generic branches | Locations | provider_id, city/area, lat/lng | provider_id, geo | Public | Later via generic branches | Generic branch table can be reused. |
-| `radiology_scan_categories` | X-Ray, Ultrasound, CT, MRI, Mammography, Doppler, Echo, ECG if approved | names, slug, active | slug, active | Public | Later | Taxonomy seed can be first safe step later. |
-| `radiology_scan_catalog` | Scans offered | provider_id, category_id, names, price, duration, active | provider/category/active | Public | Later | Backend price authority. |
+| `radiology_profiles` | Radiology provider profile | provider_id, license, home_service/report_delivery/dicom flags | provider_id unique | Public/provider | Exists Sprint 36 | Minimal profile foundation; not full product lifecycle. |
+| Generic `provider_branches` | Locations | provider_id, city/area, lat/lng, working hours, service radius | provider_id, geo fields | Public-safe | Exists Sprint 36 | Reused by radiology; no separate radiology branch table needed now. |
+| `radiology_scan_categories` | X-Ray, Ultrasound, CT, MRI, Mammography, Doppler, Echo, ECG, dental panorama, DEXA | code, names, active, sort_order | code unique, active/sort | Public | Exists Sprint 37 | Arabic-first stable taxonomy. |
+| `radiology_scans` | Scans offered | provider_id, branch_id, category_id, names, price, duration, active, prep flags | provider/active, category/active, branch/active | Public-safe catalog/admin | Exists Sprint 37 | Backend/admin/provider price authority; no patient writes. |
 | `radiology_orders` | Patient order/booking | patient_id, provider_id, branch_id, status, total | patient/status, provider/status | User-private/provider | Later | Similar to labs but scan-specific. |
 | `radiology_order_items` | Ordered scans | order_id, scan_id, snapshot price/name | order_id | User-private | Later | Snapshot catalog values. |
 | `radiology_result_files` | Reports/images | order_id, file_id, type, status | order_id/type | Medical-private | Later | Large storage; maybe external DICOM links. |
-| `radiology_preparation_instructions` | Prep text | scan_id/category_id, ar/en text | scan/category | Public | Later | Must be reviewed medically. |
+| `radiology_preparation_instructions` | Prep text | scan_id/category_id, ar/en text, warnings, active, sort_order | scan/active, category/active | Public-safe catalog/admin | Exists Sprint 37 | Carries general-instructions disclaimer; must be reviewed medically before broad use. |
 
 ## Gyms
 
@@ -175,8 +175,15 @@ Updated in Sprint 36:
 - `provider_branches` supports richer address/map/working-hour/service-radius fields.
 - `provider_documents` supports explicit `visibility` and `approved_public_at`.
 
+Implemented in Sprint 37:
+- `radiology_scan_categories`
+- `radiology_scans`
+- `radiology_preparation_instructions`
+- Safe provider/admin catalog management and read-only public-safe catalog filtering.
+
 Still later:
 - radiology order lifecycle.
+- radiology result/report lifecycle.
 - gym memberships/classes.
 - coach sessions/plans/progress.
 - home healthcare orders.

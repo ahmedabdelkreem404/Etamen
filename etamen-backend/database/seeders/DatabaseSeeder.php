@@ -7,6 +7,7 @@ use App\Modules\Identity\Database\Seeders\RoleSeeder;
 use App\Modules\Identity\Database\Seeders\SuperAdminSeeder;
 use App\Modules\Notifications\Database\Seeders\NotificationTemplateSeeder;
 use App\Modules\Payments\Database\Seeders\PaymentMethodSeeder;
+use App\Modules\Radiology\Database\Seeders\RadiologyScanCategorySeeder;
 use App\Modules\Settings\Database\Seeders\SettingSeeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -24,6 +25,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             SettingSeeder::class,
             PaymentMethodSeeder::class,
+            RadiologyScanCategorySeeder::class,
             AiProviderConfigSeeder::class,
             NotificationTemplateSeeder::class,
             SuperAdminSeeder::class,

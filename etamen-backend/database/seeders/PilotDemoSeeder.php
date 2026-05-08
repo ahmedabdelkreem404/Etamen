@@ -70,7 +70,12 @@ use App\Modules\Providers\Infrastructure\Models\PharmacyProfile;
 use App\Modules\Providers\Infrastructure\Models\Provider;
 use App\Modules\Providers\Infrastructure\Models\ProviderBranch;
 use App\Modules\Providers\Infrastructure\Models\ProviderStaff;
+use App\Modules\Providers\Infrastructure\Models\RadiologyProfile;
 use App\Modules\Providers\Infrastructure\Models\Specialty;
+use App\Modules\Radiology\Database\Seeders\RadiologyScanCategorySeeder;
+use App\Modules\Radiology\Infrastructure\Models\RadiologyPreparationInstruction;
+use App\Modules\Radiology\Infrastructure\Models\RadiologyScan;
+use App\Modules\Radiology\Infrastructure\Models\RadiologyScanCategory;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -91,6 +96,7 @@ class PilotDemoSeeder extends Seeder
             $this->call([
                 RoleSeeder::class,
                 PaymentMethodSeeder::class,
+                RadiologyScanCategorySeeder::class,
                 NotificationTemplateSeeder::class,
                 SuperAdminSeeder::class,
             ]);
@@ -104,6 +110,7 @@ class PilotDemoSeeder extends Seeder
             $doctorUser = $this->demoUser('pilot.doctor@example.test', 'Pilot Doctor', UserRole::Doctor);
             $pharmacyUser = $this->demoUser('pilot.pharmacy@example.test', 'Pilot Pharmacy Admin', UserRole::PharmacyAdmin);
             $labUser = $this->demoUser('pilot.lab@example.test', 'Pilot Lab Admin', UserRole::LabAdmin);
+            $radiologyUser = $this->demoUser('pilot.radiology@example.test', 'Pilot Radiology Admin', UserRole::ProviderAdmin);
 
             $this->seedPatientProfile($patient);
             [$city, $area] = $this->seedLocation();
@@ -113,6 +120,7 @@ class PilotDemoSeeder extends Seeder
             $this->seedPaymentMethods();
             $pharmacyProvider = $this->seedPharmacy($pharmacyUser, $admin, $city, $area);
             $labProvider = $this->seedLab($labUser, $admin, $city, $area);
+            $this->seedRadiology($radiologyUser, $admin, $city, $area);
             $this->seedHealthData($patient);
             $this->seedMedicationData($patient);
             $this->seedCarePlan($patient, $admin, $doctorProvider);
@@ -1114,6 +1122,106 @@ class PilotDemoSeeder extends Seeder
             ],
         );
         $package->tests()->syncWithoutDetaching($testIds);
+    }
+
+    private function seedRadiology(User $radiologyUser, User $admin, City $city, Area $area): Provider
+    {
+        $provider = $this->provider(
+            type: ProviderType::Radiology,
+            owner: $radiologyUser,
+            admin: $admin,
+            slug: 'pilot-demo-radiology',
+            nameAr: 'مركز أشعة التجريبي',
+            nameEn: 'Pilot Demo Radiology Center',
+            phone: '01000005001',
+            descriptionAr: 'مركز أشعة تجريبي آمن لبيئة local/staging فقط.',
+            descriptionEn: 'Safe demo radiology center for local/staging catalog QA only.',
+        );
+        $this->providerStaff($provider, $radiologyUser, ProviderStaffRole::Owner);
+
+        RadiologyProfile::query()->updateOrCreate(
+            ['provider_id' => $provider->id],
+            [
+                'license_number' => 'RAD-DEMO-001',
+                'home_service_enabled' => false,
+                'report_delivery_enabled' => true,
+                'dicom_supported' => false,
+                'description_ar' => 'ملف تجريبي لفهرس الأشعة فقط.',
+                'description_en' => 'Demo profile for radiology catalog only.',
+                'is_active' => true,
+            ],
+        );
+
+        $branch = ProviderBranch::query()->updateOrCreate(
+            ['provider_id' => $provider->id, 'name_en' => 'Pilot Radiology Nasr City Branch'],
+            [
+                'city_id' => $city->id,
+                'area_id' => $area->id,
+                'name_ar' => 'فرع أشعة مدينة نصر التجريبي',
+                'phone' => '01000005001',
+                'address_line_1' => 'Demo Radiology Tower',
+                'district' => 'Nasr City',
+                'address_ar' => 'عنوان تجريبي في مدينة نصر لاختبار فهرس الأشعة.',
+                'address_en' => 'Demo Nasr City address for radiology catalog QA.',
+                'latitude' => 30.0561000,
+                'longitude' => 31.3302000,
+                'is_main' => true,
+                'is_active' => true,
+            ],
+        );
+
+        $scanRows = [
+            ['category' => 'x_ray', 'name_ar' => 'أشعة صدر عادية', 'name_en' => 'Chest X-Ray', 'price' => 250, 'duration' => 15, 'prep' => false],
+            ['category' => 'ultrasound', 'name_ar' => 'سونار بطن وحوض', 'name_en' => 'Abdominal and Pelvic Ultrasound', 'price' => 450, 'duration' => 25, 'prep' => true],
+            ['category' => 'ct_scan', 'name_ar' => 'أشعة مقطعية على المخ', 'name_en' => 'CT Brain', 'price' => 1300, 'duration' => 30, 'prep' => false],
+            ['category' => 'mri', 'name_ar' => 'رنين مغناطيسي على الركبة', 'name_en' => 'Knee MRI', 'price' => 2200, 'duration' => 45, 'prep' => false],
+            ['category' => 'mammography', 'name_ar' => 'ماموجرام', 'name_en' => 'Mammography', 'price' => 900, 'duration' => 30, 'prep' => true],
+            ['category' => 'doppler', 'name_ar' => 'دوبلر أوردة الساق', 'name_en' => 'Leg Vein Doppler', 'price' => 750, 'duration' => 30, 'prep' => false],
+            ['category' => 'echo', 'name_ar' => 'إيكو على القلب', 'name_en' => 'Echocardiography', 'price' => 650, 'duration' => 25, 'prep' => false],
+        ];
+
+        foreach ($scanRows as $row) {
+            $category = RadiologyScanCategory::query()->where('code', $row['category'])->firstOrFail();
+            $scan = RadiologyScan::query()->updateOrCreate(
+                ['provider_id' => $provider->id, 'name_en' => $row['name_en']],
+                [
+                    'branch_id' => $branch->id,
+                    'radiology_scan_category_id' => $category->id,
+                    'name_ar' => $row['name_ar'],
+                    'description_ar' => 'فحص تجريبي لفهرس الأشعة في بيئة local/staging فقط.',
+                    'description_en' => 'Demo radiology catalog scan for local/staging QA only.',
+                    'preparation_ar' => $row['prep'] ? 'اتبع تعليمات المركز قبل الحضور.' : null,
+                    'preparation_en' => $row['prep'] ? 'Follow the center instructions before arrival.' : null,
+                    'duration_minutes' => $row['duration'],
+                    'base_price' => $row['price'],
+                    'requires_preparation' => $row['prep'],
+                    'requires_fasting' => $row['category'] === 'ultrasound',
+                    'contrast_required' => false,
+                    'home_available' => false,
+                    'branch_available' => true,
+                    'report_delivery_enabled' => true,
+                    'is_active' => true,
+                    'created_by' => $admin->id,
+                    'updated_by' => $admin->id,
+                ],
+            );
+
+            RadiologyPreparationInstruction::query()->updateOrCreate(
+                ['radiology_scan_id' => $scan->id, 'title_en' => $row['name_en'].' preparation'],
+                [
+                    'radiology_scan_category_id' => $category->id,
+                    'title_ar' => 'تعليمات عامة قبل '.$row['name_ar'],
+                    'body_ar' => 'يرجى التواصل مع المركز لتأكيد أي تعليمات خاصة قبل موعد الفحص.',
+                    'body_en' => 'Please contact the center to confirm any special instructions before the scan appointment.',
+                    'warning_ar' => null,
+                    'warning_en' => null,
+                    'is_active' => true,
+                    'sort_order' => 10,
+                ],
+            );
+        }
+
+        return $provider;
     }
 
     private function provider(

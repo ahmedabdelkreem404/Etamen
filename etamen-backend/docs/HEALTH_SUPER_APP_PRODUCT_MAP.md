@@ -11,7 +11,7 @@ This document maps the intended Etamen product surface. It does not mean every m
 | Doctors | Implemented MVP | Current + pilot hardening | Strong search, media, reviews, insurance, teleconsultation later |
 | Pharmacies | Implemented MVP foundation | Internal QA / later pilot scope | Delivery zones, inventory, pharmacist review, substitutes |
 | Labs | Implemented MVP foundation | Internal QA / later pilot scope | Rich catalog, home collection ops, results UX |
-| Radiology | Not implemented | Design first | Full scan catalog/orders/results |
+| Radiology | Backend/admin catalog foundation | Internal catalog QA; no Flutter patient module yet | Full scan catalog/orders/results |
 | Gyms | Not implemented | Design first | Memberships/classes/trainers |
 | Fitness/Nutrition Coaches | Not implemented | Design first | Sessions/plans/progress |
 | Personal Health | Implemented foundation | Current | Family, documents, chronic programs |
@@ -73,12 +73,12 @@ This document maps the intended Etamen product surface. It does not mean every m
 | User journey | Search radiology center by scan type/location/preparation, choose appointment/home if applicable, pay, receive report/images. |
 | Provider journey | Manage scan catalog, preparation instructions, appointments/orders, upload reports/images. |
 | Admin journey | Approve radiology centers, moderate catalog, monitor report delivery and disputes. |
-| Required entities/tables | New: `radiology_profiles`, `radiology_branches`, `radiology_scan_categories`, `radiology_scan_catalog`, `radiology_orders`, `radiology_order_items`, `radiology_result_files`, `radiology_preparation_instructions`. |
-| Required APIs | Public radiology discovery/catalog, patient orders/pay/results, provider order/result upload, admin monitoring. |
-| Flutter screens | Radiology list, scan catalog, cart/order, payment, result/report viewer. |
-| Admin screens | Radiology providers, scan categories, orders, result files, preparation text. |
+| Required entities/tables | Implemented foundation: `radiology_profiles`, generic `provider_branches`, `radiology_scan_categories`, `radiology_scans`, `radiology_preparation_instructions`. Later: `radiology_orders`, `radiology_order_items`, `radiology_result_files`. |
+| Required APIs | Implemented: safe read-only catalog, provider-owned scan management, admin category/scan/instruction management. Later: patient orders/pay/results and provider result upload. |
+| Flutter screens | Not implemented in Sprint 37. Later: radiology list, scan catalog, cart/order, payment, result/report viewer. |
+| Admin screens | Implemented: scan categories, scans, preparation text. Later: orders, result files, operational monitoring. |
 | Risks | Large DICOM/image files, report privacy, preparation errors, regulatory requirements. |
-| MVP phase | Blueprint only; do not add dead UI links. |
+| MVP phase | Backend/admin catalog foundation only; do not add dead Flutter links. |
 | Production phase | Object storage/CDN/private download strategy, report SLA, ops SOP. |
 
 ## 5. Gyms
@@ -200,4 +200,3 @@ This document maps the intended Etamen product surface. It does not mean every m
 | Risks | Sensitive payload leakage, noisy reminders, provider failures. |
 | MVP phase | In-app and local/demo-safe. |
 | Production phase | FCM/SMS/email/WhatsApp providers, queues, consent, quiet hours. |
-
