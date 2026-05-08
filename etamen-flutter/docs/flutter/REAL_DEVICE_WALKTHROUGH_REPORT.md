@@ -226,3 +226,50 @@ Core doctor booking path is **PASS on seeded emulator**. The app should not be t
 | Flutter `flutter test` | PASS | 162 tests passed. |
 | Flutter ARM64 debug APK build | PASS | Built `build/app/outputs/flutter-apk/app-debug.apk`. |
 | `git diff --check` | PASS | No whitespace errors; Windows line-ending warnings only. |
+
+---
+
+# Sprint 33 Physical Device Verification Attempt
+
+Date: 2026-05-08
+
+## Summary
+
+**Result: BLOCKED / NOT TESTED on physical Android.**
+
+ADB was available through the local Android SDK path, but only the emulator was detected:
+
+```text
+emulator-5554 device product:sdk_gphone64_x86_64 model:sdk_gphone64_x86_64 device:emu64xa
+```
+
+Sprint 33 explicitly requires a real Android phone, so the emulator was not used as substitute evidence.
+
+## Prepared Artifacts
+
+- Screenshot folder: `I:/Etamen/.tmp/sprint33-physical-device-screenshots/`.
+- ARM64 APK: `I:/Etamen/etamen-flutter/build/app/outputs/flutter-apk/app-debug.apk`.
+- APK backend define: `ETAMEN_API_BASE_URL=http://192.168.1.5:8000/api/v1`.
+- Intended phone backend URL: `http://192.168.1.5:8000/api/v1`.
+- Package: `com.etamen.etamen_app`.
+
+## Walkthrough Results
+
+| Flow | Result | Evidence | Blocker |
+| --- | --- | --- | --- |
+| Physical device detection | FAIL | ADB listed emulator only. | Yes. |
+| Phone backend reachability | NOT TESTED | No phone on ADB. | Yes. |
+| Fresh install / app data clear | NOT TESTED | No phone. | Yes. |
+| Login | NOT TESTED | No phone. | Yes. |
+| Session restore | NOT TESTED | No phone. | Yes. |
+| Doctor booking | NOT TESTED | No phone. | Yes. |
+| Real proof upload | NOT TESTED | No phone gallery/camera image. | Yes. |
+| Admin review same payment | NOT TESTED | No phone-created payment proof. | Yes. |
+| Flutter verified/confirmed state | NOT TESTED | No admin-reviewed payment. | Yes. |
+| Logout | NOT TESTED | No phone. | Yes. |
+| Pharmacy/lab basics | NOT TESTED | No phone. | No, only if explicitly scoped out later. |
+| AI/health/notifications smoke | NOT TESTED | No phone. | No for doctor-only pilot unless navigation/security fails later. |
+
+## Decision
+
+Sprint 33 cannot approve pilot invitations. The current decision is **NOT_READY_DUE_BLOCKERS** until a physical-device proof upload, admin accept, Flutter refresh, and logout/session restore pass with screenshots.

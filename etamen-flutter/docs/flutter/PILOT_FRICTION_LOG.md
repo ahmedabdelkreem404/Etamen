@@ -36,3 +36,23 @@
 - High: major feature flow cannot be validated.
 - Medium: visible UX issue or missing seeded path.
 - Low: polish/environment/documentation issue.
+
+---
+
+# Sprint 33 Final Physical Device Pilot Verification
+
+Sprint 33 was attempted on 2026-05-08, but no physical Android device was detected by ADB. The only attached device was `emulator-5554`, so no physical-device screenshots, real proof upload, or admin review of a phone-created proof could be completed.
+
+| ID | Flow | Severity | Description | Screenshot / Evidence | Fix Applied | Retest Result | Remaining Owner |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| S33-001 | Device setup | BLOCKER | No physical Android device was detected; ADB listed emulator only. | `adb devices -l` output in `SPRINT33_PHYSICAL_DEVICE_ENVIRONMENT.md`. | None; environment/hardware required. | NOT RETESTED. | QA / device owner. |
+| S33-002 | Backend reachability from phone | BLOCKER | Backend LAN URL could not be verified from phone because no phone was connected. | Intended URL: `http://192.168.1.5:8000/api/v1`. | Backend seeded and tests passed. | NOT TESTED. | QA / device owner. |
+| S33-003 | Physical login/session | BLOCKER | Login/session restore/logout were not tested on physical Android. | No Sprint 33 physical screenshots captured. | APK built for ARM64. | NOT TESTED. | QA. |
+| S33-004 | Doctor booking on physical device | BLOCKER | Booking path was not executed on physical Android. | No Sprint 33 physical screenshots captured. | Sprint 32 emulator path remains valid but insufficient for this gate. | NOT TESTED. | QA. |
+| S33-005 | Real proof upload | BLOCKER | No real gallery/camera proof image was uploaded from a physical phone. | No `09-image-picker-selected.png` or `10-proof-uploaded-pending-review.png`. | No code change; cannot fake this. | NOT TESTED. | QA. |
+| S33-006 | Admin review of same payment | BLOCKER | Admin accept/reject was not executed against a phone-created proof. | `SPRINT33_ADMIN_PAYMENT_REVIEW.md`. | Backend automated payment tests passed. | NOT TESTED. | Admin QA. |
+| S33-007 | Flutter status after admin review | BLOCKER | Flutter could not be refreshed after admin accept because no phone-created payment was reviewed. | No `15-flutter-payment-verified.png` or `16-flutter-appointment-confirmed.png`. | None. | NOT TESTED. | QA / Admin QA. |
+| S33-008 | Pharmacy/lab physical scope | MEDIUM | Pharmacy/lab basics were not tested on physical Android. | `SPRINT33_PILOT_SCOPE_DECISION.md`. | Scoped out unless a later physical pass proves them. | NOT TESTED. | Product / QA. |
+| S33-009 | Local build storage | LOW | ARM64 build initially hit low disk space on drive `I:` while writing Flutter build artifacts. | Build logs; final build path `build/app/outputs/flutter-apk/app-debug.apk`. | Deleted generated `build` and `.dart_tool/flutter_build` safely, then rebuilt. | PASS. | Dev environment. |
+
+Sprint 33 blocker decision: unresolved BLOCKER items remain, so the first 5-20 supervised pilot users must **not** be invited from this run.

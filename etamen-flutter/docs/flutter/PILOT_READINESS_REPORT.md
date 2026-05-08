@@ -429,3 +429,54 @@ Remaining public launch blockers:
 ### Exact Next Action
 
 Run one supervised physical-device E2E pass using `pilot.patient@example.test`: upload a real proof image, review it from admin, verify appointment status, then re-open the app and test logout/session restore. If that passes, the product owner can decide whether to invite the first 5-20 supervised pilot users.
+
+---
+
+# Sprint 33 Final Physical Device Pilot Verification
+
+Sprint 33 attempted to close the remaining real-world pilot blockers. The run did **not** approve pilot invitations because no physical Android device was detected.
+
+## Environment
+
+- Physical Android device: **not detected**.
+- ADB visible device: emulator only, `emulator-5554`.
+- Host LAN IP candidate: `192.168.1.5`.
+- Intended backend URL for a phone: `http://192.168.1.5:8000/api/v1`.
+- App package: `com.etamen.etamen_app`.
+- ARM64 APK path: `I:/Etamen/etamen-flutter/build/app/outputs/flutter-apk/app-debug.apk`.
+- Screenshot folder prepared: `I:/Etamen/.tmp/sprint33-physical-device-screenshots/`.
+
+## Validation Completed
+
+- Backend `php artisan migrate:fresh --seed`: PASS on local `etamen` database.
+- Backend `php artisan db:seed --class=PilotDemoSeeder`: PASS.
+- Backend `php artisan test`: PASS, 196 tests / 1642 assertions.
+- Flutter `flutter pub get`: PASS.
+- Flutter `dart format .`: PASS, 0 files changed.
+- Flutter `flutter analyze`: PASS.
+- Flutter `flutter test`: PASS, 162 tests.
+- Flutter `flutter build apk --debug --target-platform android-arm64 --dart-define=ETAMEN_API_BASE_URL=http://192.168.1.5:8000/api/v1`: PASS after clearing generated build cache.
+- `git diff --check`: PASS; Windows line-ending warnings only.
+
+## Sprint 33 Gate Results
+
+| Gate | Result | Notes |
+| --- | --- | --- |
+| Physical device login | NOT TESTED | No physical device. |
+| Physical doctor booking | NOT TESTED | No physical device. |
+| Real payment proof upload | NOT TESTED | No gallery/camera upload from phone. |
+| Admin review of same payment | NOT TESTED | No phone-created proof exists. |
+| Flutter state after admin review | NOT TESTED | Depends on admin review. |
+| Logout/session restore | NOT TESTED | No physical device. |
+| Pharmacy/lab basics | NOT TESTED | Scoped out unless later physical pass proves them. |
+| Security/privacy leak check on physical flow | NOT TESTED | Backend tests pass, but physical evidence missing. |
+
+## Final Decision
+
+Decision: **3. NOT_READY_DUE_BLOCKERS**.
+
+The app remains visually and technically promising from Sprint 32, but Sprint 33 did not complete the required physical-device proof upload/admin review/logout evidence. Therefore the first 5-20 supervised pilot users should **not** be invited yet.
+
+## Exact Next Action
+
+Connect a real Android phone with USB debugging, rebuild/install the APK with `ETAMEN_API_BASE_URL=http://192.168.1.5:8000/api/v1` or a staging URL, then complete the payment proof upload and admin accept path end-to-end with screenshots. If that passes, run logout/session restore; then decide between doctor-only pilot scope and broader pharmacy/lab scope.
