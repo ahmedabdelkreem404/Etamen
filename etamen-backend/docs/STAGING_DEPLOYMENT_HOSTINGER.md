@@ -79,7 +79,7 @@ These checks describe the site already responding at the target domain. They do 
 | `/api/v1/system/health` | 200 | Returns `status: ok`, environment `non-production`, version `local`. |
 | `/api/v1/system/readiness` | 500 | Blocker for staging readiness visibility. Needs server log inspection. |
 | `/api/v1/specialties` | 200 | Public specialties respond. |
-| `/api/v1/doctors` | 200 | Public doctors respond with seeded/demo data. |
+| `/api/v1/doctors` | 200 | Public doctors endpoint responds, but current staging data is empty. |
 | `/api/v1/auth/login` demo patient | 200 | Login endpoint responded from local machine; token was logged out immediately. |
 
 ## Security Exposure Checks Against Current Remote Site
@@ -122,3 +122,78 @@ After access is available:
 4. Run `php artisan migrate --force`.
 5. Re-check health/readiness/security URLs.
 6. Rebuild and reinstall the staging APK if the API base or backend state changes.
+
+---
+
+# Sprint 38 Update - Staging Connectivity And APK Login Gate
+
+Date: 2026-05-08
+
+## Access Result
+
+SSH is still blocked.
+
+Command attempted in non-interactive mode:
+
+```text
+ssh -o BatchMode=yes -o ConnectTimeout=15 -p 65002 u797172084@89.116.147.138 "pwd"
+```
+
+Result:
+
+```text
+Permission denied (publickey,password).
+```
+
+No server files were changed from this session, and no server logs were readable.
+
+## Readiness 500 Status
+
+`/api/v1/system/readiness` still returns HTTP 500 from the remote staging site.
+
+Because SSH is blocked, the exact Laravel exception could not be inspected in `storage/logs/laravel.log`. This remains a server-side blocker for a clean staging deployment sign-off.
+
+Current expected fix path after access is restored:
+
+1. Inspect Laravel and web server logs.
+2. Fix the real readiness failure instead of hiding it.
+3. Keep `APP_DEBUG=false`.
+4. Return either 200 ready JSON or structured non-500 not-ready JSON.
+
+## External API Checks
+
+| URL | Result | Notes |
+| --- | --- | --- |
+| `/` | 200 | Arabic landing loads. |
+| `/?lang=en` | 200 | English landing loads. |
+| `/api/v1/system/health` | 200 | Health endpoint responds. |
+| `/api/v1/system/readiness` | 500 | Still unresolved without server logs. |
+| `/api/v1/specialties` | 200 | Public taxonomy responds. |
+| `/api/v1/doctors` | 200 | Endpoint responds, current `data` count is 0. |
+| `/api/v1/auth/login` | 200 | Newly created staging QA patient can login; token was not written to docs. |
+
+## Security Exposure Check
+
+| URL | Result |
+| --- | --- |
+| `/.env` | 404 |
+| `/composer.json` | 404 |
+| `/storage/` | 404 |
+| `/vendor/` | 404 |
+| `/database/` | 404 |
+
+No secret content was exposed by these URL checks.
+
+## Deployment Status
+
+The APK login gate was fixed from the Flutter/staging-client side, but the backend deployment itself was not completed because server access is still blocked.
+
+Strict Sprint 38 deployment decision:
+
+- `STAGING_ACCESS_BLOCKED`
+
+Reason:
+
+- SSH remains unavailable.
+- Readiness still returns 500.
+- Current staging database has no approved doctors, so doctor profile/booking QA cannot be completed against staging until data is seeded or approved.

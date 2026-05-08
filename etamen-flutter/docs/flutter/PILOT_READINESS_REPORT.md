@@ -601,3 +601,80 @@ This is not public-launch ready and not ready to invite first supervised pilot u
 4. Diagnose why the APK receives `تعذر الاتصال بالسيرفر` while desktop API login succeeds.
 5. Rebuild APK and rerun emulator login.
 6. Then run the physical-device payment proof upload/admin review gate.
+
+---
+
+# Sprint 38 Staging APK Login Gate
+
+Date: 2026-05-08
+
+## Summary
+
+The staging APK login gate was retested with a rebuilt debug APK pointing to:
+
+```text
+https://etamen.inolty.com/api/v1
+```
+
+Result:
+
+- APK installs on emulator.
+- App launches.
+- Login succeeds against the hosted staging API.
+- Home loads after login.
+- Account opens.
+- Logout succeeds and returns to the logged-out login state.
+
+## What Changed
+
+- Added safe debug/staging network logging in the Flutter Dio logging interceptor.
+- Rebuilt a universal debug APK containing `armeabi-v7a`, `arm64-v8a`, and `x86_64`.
+- Verified the APK contains the staging API URL and staging environment define.
+
+## Evidence
+
+APK:
+
+- `I:\Etamen\.tmp\etamen-staging-debug-fixed.apk`
+- `C:\Users\Ahmed Abdelkareem\OneDrive\Desktop\Etamen_Android_Website_Ready\etamen-staging-debug-fixed.apk`
+
+Screenshots:
+
+- `I:\Etamen\.tmp\sprint38-staging-apk-qa\01-login.png`
+- `I:\Etamen\.tmp\sprint38-staging-apk-qa\02-home-after-login.png`
+- `I:\Etamen\.tmp\sprint38-staging-apk-qa\03-doctors-list.png`
+- `I:\Etamen\.tmp\sprint38-staging-apk-qa\06-account.png`
+- `I:\Etamen\.tmp\sprint38-staging-apk-qa\07-after-logout.png`
+
+Safe network log:
+
+- `I:\Etamen\.tmp\sprint38-staging-apk-qa\network-log-safe.txt`
+
+## Remaining Pilot Blockers
+
+| Blocker | Status |
+| --- | --- |
+| SSH/server access | BLOCKED |
+| Staging readiness endpoint | FAIL, HTTP 500 |
+| Approved doctors on staging | MISSING, doctors endpoint returns empty data |
+| Staging doctor profile/booking QA | NOT TESTED because doctors data is empty |
+| Physical Android proof upload | NOT TESTED |
+| Admin accept/reject of same payment | NOT TESTED |
+| Flutter payment state after admin review | NOT TESTED |
+
+## Current Decision
+
+Decision: **STAGING_ACCESS_BLOCKED**.
+
+Important nuance:
+
+- The APK login gate is fixed on emulator.
+- The project is still not ready to invite supervised pilot users because the physical-device payment/admin gate is not complete, and the staging server still needs access/log fixes.
+
+## Exact Next Action
+
+1. Restore hosting access through SSH key, interactive SSH password, SFTP, or Hostinger Git/File Manager.
+2. Inspect and fix `/api/v1/system/readiness` 500 from server logs.
+3. Seed or approve at least one staging doctor if hosted doctor booking QA is required.
+4. Install the fixed APK on a real Android phone.
+5. Login, book a doctor, upload real payment proof, approve/reject it from admin, verify Flutter state, then retest logout/session restore.
