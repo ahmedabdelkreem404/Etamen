@@ -825,3 +825,62 @@ After the Sprint 40 payment-method fix:
 3. Confirm `/api/v1/payment-methods` returns `manual_vodafone_cash` and `manual_instapay`.
 4. Install the Sprint 40 APK on Ahmed's Android phone.
 5. Book the staging doctor, upload a real proof image, admin accepts the same payment, then verify the app state updates.
+
+---
+
+# Sprint 41 Local Emulator Payment E2E Gate
+
+Date: 2026-05-09
+
+## Scope
+
+Sprint 41 ignored hosting/staging completely and ran against the local backend:
+
+```text
+http://10.0.2.2:8000/api/v1
+```
+
+## Result
+
+| Gate | Result |
+| --- | --- |
+| Local backend reset/seed | PASS |
+| Local payment methods | PASS, Vodafone Cash + InstaPay active |
+| Paymob inactive | PASS |
+| Local emulator APK build | PASS |
+| Login | PASS |
+| Doctor list/profile | PASS |
+| Booking | PASS |
+| Payment method selection | PASS |
+| Proof upload from emulator picker | PASS |
+| Admin accept same payment | PASS |
+| Payment becomes verified | PASS |
+| Appointment becomes confirmed | PASS |
+| Flutter sees confirmed state | PASS |
+| Logout/reopen logged out | PASS |
+| Re-login sees confirmed appointment | PASS |
+| Privacy/config leak check | PASS |
+
+Evidence:
+
+```text
+I:\Etamen\.tmp\sprint41-local-payment-e2e\
+```
+
+APK:
+
+```text
+I:\Etamen\.tmp\etamen-local-payment-proof-admin-gate.apk
+```
+
+## Sprint 41 Decision
+
+```text
+LOCAL_PAYMENT_E2E_ACCEPTED
+```
+
+This does not approve staging, public launch, or real-phone readiness. It only proves the local emulator doctor booking/manual proof/admin accept/status-update path.
+
+## Next Step
+
+Repeat the same successful path on staging or a real phone only after staging payment methods are active and the hosted backend is confirmed healthy.
