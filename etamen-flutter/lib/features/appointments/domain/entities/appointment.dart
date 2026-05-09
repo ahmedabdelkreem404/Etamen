@@ -58,6 +58,11 @@ class Appointment {
     this.endsAt,
     this.paymentStatus,
     this.location,
+    this.bookedThroughHospital = false,
+    this.hospitalId,
+    this.hospitalName,
+    this.departmentId,
+    this.departmentName,
     this.canCancel,
     this.createdAt,
   });
@@ -77,6 +82,11 @@ class Appointment {
   final DateTime? endsAt;
   final String? paymentStatus;
   final String? location;
+  final bool bookedThroughHospital;
+  final int? hospitalId;
+  final String? hospitalName;
+  final int? departmentId;
+  final String? departmentName;
   final bool? canCancel;
   final DateTime? createdAt;
 

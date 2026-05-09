@@ -7,6 +7,9 @@ use App\Modules\Appointments\Application\Services\AdminAppointmentService;
 use App\Modules\Appointments\Domain\Enums\AppointmentStatus;
 use App\Modules\Appointments\Domain\Enums\ConsultationType;
 use App\Modules\Appointments\Infrastructure\Models\Appointment;
+use App\Modules\Providers\Domain\Enums\ProviderType;
+use App\Modules\Providers\Infrastructure\Models\HospitalDepartment;
+use App\Modules\Providers\Infrastructure\Models\Provider;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -28,6 +31,9 @@ class AppointmentResource extends Resource
             Forms\Components\TextInput::make('patient_user_id')->disabled(),
             Forms\Components\TextInput::make('doctor_profile_id')->disabled(),
             Forms\Components\TextInput::make('provider_id')->disabled(),
+            Forms\Components\TextInput::make('hospital_provider_id')->label('Hospital')->disabled(),
+            Forms\Components\TextInput::make('hospital_department_id')->label('Hospital department')->disabled(),
+            Forms\Components\TextInput::make('hospital_doctor_id')->label('Hospital doctor link')->disabled(),
             Forms\Components\TextInput::make('appointment_slot_id')->disabled(),
             Forms\Components\Select::make('consultation_type')->options(array_combine(ConsultationType::values(), ConsultationType::values()))->disabled(),
             Forms\Components\Textarea::make('problem_description')->disabled()->columnSpanFull(),
@@ -44,6 +50,8 @@ class AppointmentResource extends Resource
                 Tables\Columns\TextColumn::make('appointment_number')->searchable(),
                 Tables\Columns\TextColumn::make('patient.name')->label('Patient')->searchable(),
                 Tables\Columns\TextColumn::make('provider.name_en')->label('Provider')->searchable(),
+                Tables\Columns\TextColumn::make('hospital.name_en')->label('Hospital')->toggleable(),
+                Tables\Columns\TextColumn::make('hospitalDepartment.name_en')->label('Department')->toggleable(),
                 Tables\Columns\TextColumn::make('doctor_profile_id')->sortable(),
                 Tables\Columns\TextColumn::make('status')->badge()->searchable(),
                 Tables\Columns\TextColumn::make('price')->money('EGP')->sortable(),
@@ -51,6 +59,26 @@ class AppointmentResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')->options(array_combine(AppointmentStatus::values(), AppointmentStatus::values())),
+                Tables\Filters\TernaryFilter::make('booked_through_hospital')
+                    ->label('Booked through hospital')
+                    ->queries(
+                        true: fn ($query) => $query->whereNotNull('hospital_provider_id'),
+                        false: fn ($query) => $query->whereNull('hospital_provider_id'),
+                        blank: fn ($query) => $query,
+                    ),
+                Tables\Filters\SelectFilter::make('hospital_provider_id')
+                    ->label('Hospital')
+                    ->options(fn () => Provider::query()
+                        ->where('type', ProviderType::Hospital)
+                        ->orderBy('name_en')
+                        ->pluck('name_en', 'id')
+                        ->all()),
+                Tables\Filters\SelectFilter::make('hospital_department_id')
+                    ->label('Hospital department')
+                    ->options(fn () => HospitalDepartment::query()
+                        ->orderBy('name_en')
+                        ->pluck('name_en', 'id')
+                        ->all()),
                 Tables\Filters\Filter::make('created_at')
                     ->form([
                         Forms\Components\DatePicker::make('from'),

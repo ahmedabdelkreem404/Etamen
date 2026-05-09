@@ -17,6 +17,11 @@ class AppointmentModel extends Appointment {
     super.endsAt,
     super.paymentStatus,
     super.location,
+    super.bookedThroughHospital,
+    super.hospitalId,
+    super.hospitalName,
+    super.departmentId,
+    super.departmentName,
     super.canCancel,
     super.createdAt,
   });
@@ -32,6 +37,9 @@ class AppointmentModel extends Appointment {
     final city = _asMap(branch?['city']);
     final area = _asMap(branch?['area']);
     final payment = _asMap(json['payment']);
+    final hospital = _asMap(json['hospital']);
+    final department =
+        _asMap(json['department']) ?? _asMap(json['hospital_department']);
 
     return AppointmentModel(
       id: (json['id'] as num).toInt(),
@@ -65,6 +73,21 @@ class AppointmentModel extends Appointment {
       endsAt: _date(json['ends_at'] ?? json['end_at'] ?? slot?['ends_at']),
       paymentStatus: (json['payment_status'] ?? payment?['status'])?.toString(),
       location: _buildLocation(branch: branch, city: city, area: area),
+      bookedThroughHospital:
+          json['booked_through_hospital'] == true ||
+          _toInt(json['hospital_provider_id'] ?? hospital?['id']) != null,
+      hospitalId: _toInt(json['hospital_provider_id'] ?? hospital?['id']),
+      hospitalName: _firstString([
+        hospital?['name_ar'],
+        hospital?['name_en'],
+        hospital?['name'],
+      ]),
+      departmentId: _toInt(json['hospital_department_id'] ?? department?['id']),
+      departmentName: _firstString([
+        department?['name_ar'],
+        department?['name_en'],
+        department?['name'],
+      ]),
       canCancel: json['can_cancel'] is bool ? json['can_cancel'] as bool : null,
       createdAt: _date(json['created_at']),
     );

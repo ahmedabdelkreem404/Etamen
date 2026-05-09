@@ -7,6 +7,7 @@ import 'package:etamen_app/core/widgets/error_view.dart';
 import 'package:etamen_app/core/widgets/loading_view.dart';
 import 'package:etamen_app/features/appointments/data/models/book_appointment_request.dart';
 import 'package:etamen_app/features/appointments/domain/entities/appointment.dart';
+import 'package:etamen_app/features/appointments/domain/entities/hospital_booking_context.dart';
 import 'package:etamen_app/features/appointments/presentation/providers/appointment_booking_controller.dart';
 import 'package:etamen_app/features/doctors/domain/entities/doctor.dart';
 import 'package:etamen_app/features/doctors/domain/entities/doctor_slot.dart';
@@ -20,9 +21,14 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class AppointmentBookingPage extends ConsumerStatefulWidget {
-  const AppointmentBookingPage({required this.doctorId, super.key});
+  const AppointmentBookingPage({
+    required this.doctorId,
+    this.hospitalContext,
+    super.key,
+  });
 
   final int doctorId;
+  final HospitalBookingContext? hospitalContext;
 
   @override
   ConsumerState<AppointmentBookingPage> createState() =>
@@ -61,6 +67,12 @@ class _AppointmentBookingPageState
                   padding: const EdgeInsets.all(16),
                   children: [
                     _BookingStepper(currentStep: _selectedSlot == null ? 0 : 1),
+                    if (widget.hospitalContext != null) ...[
+                      const SizedBox(height: 16),
+                      _HospitalBookingContextCardFixed(
+                        contextHint: widget.hospitalContext!,
+                      ),
+                    ],
                     const SizedBox(height: 16),
                     _DoctorSummary(doctor: doctor),
                     const SizedBox(height: 16),
@@ -181,6 +193,7 @@ class _AppointmentBookingPageState
             appointmentSlotId: slot.id,
             consultationType: _consultationType,
             problemDescription: _problemController.text,
+            hospitalContext: widget.hospitalContext,
           ),
         );
 
@@ -219,6 +232,72 @@ class _AppointmentBookingPageState
       return AppLocalizations.of(context).get('slotNoLongerAvailable');
     }
     return message;
+  }
+}
+
+// ignore: unused_element
+class _HospitalBookingContextCard extends StatelessWidget {
+  const _HospitalBookingContextCard({required this.contextHint});
+
+  final HospitalBookingContext contextHint;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = [
+      contextHint.hospitalName,
+      contextHint.departmentName == null
+          ? null
+          : uxCopy(
+              context,
+              'Ù‚Ø³Ù… ${contextHint.departmentName}',
+              '${contextHint.departmentName} department',
+            ),
+    ].whereType<String>().join(' - ');
+
+    return SoftMedicalCard(
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.apartment_outlined, color: AppColors.primaryDark),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  uxCopy(
+                    context,
+                    'Ø³ÙŠØªÙ… ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø­Ø¬Ø² Ø¹Ù„Ù‰ Ø§Ù„Ù…Ø³ØªØ´ÙÙ‰ Ø¨Ø¹Ø¯ ØªØ­Ù‚Ù‚ Ø§Ù„Ø®Ø§Ø¯Ù….',
+                    'The server will validate and attach this hospital context.',
+                  ),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.primaryDark,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  label.isEmpty
+                      ? uxCopy(
+                          context,
+                          'Ø­Ø¬Ø² Ù…Ù† Ø®Ù„Ø§Ù„ Ù…Ø³ØªØ´ÙÙ‰',
+                          'Hospital booking',
+                        )
+                      : label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.softText,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -301,6 +380,71 @@ class _BookingActionBar extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _HospitalBookingContextCardFixed extends StatelessWidget {
+  const _HospitalBookingContextCardFixed({required this.contextHint});
+
+  final HospitalBookingContext contextHint;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = [
+      contextHint.hospitalName,
+      contextHint.departmentName == null
+          ? null
+          : uxCopy(
+              context,
+              '\u0642\u0633\u0645 ${contextHint.departmentName}',
+              '${contextHint.departmentName} department',
+            ),
+    ].whereType<String>().join(' - ');
+
+    return SoftMedicalCard(
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.apartment_outlined, color: AppColors.primaryDark),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  uxCopy(
+                    context,
+                    '\u0627\u0644\u062E\u0627\u062F\u0645 \u064A\u062A\u062D\u0642\u0642 \u0645\u0646 \u0628\u064A\u0627\u0646\u0627\u062A \u0627\u0644\u0645\u0633\u062A\u0634\u0641\u0649 \u0642\u0628\u0644 \u0627\u0644\u062D\u062C\u0632',
+                    'The server validates hospital context before booking.',
+                  ),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.primaryDark,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  label.isEmpty
+                      ? uxCopy(
+                          context,
+                          '\u062D\u062C\u0632 \u0645\u0646 \u062E\u0644\u0627\u0644 \u0645\u0633\u062A\u0634\u0641\u0649',
+                          'Hospital booking',
+                        )
+                      : label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.softText,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

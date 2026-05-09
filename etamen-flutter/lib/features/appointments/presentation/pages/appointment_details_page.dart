@@ -158,6 +158,11 @@ class _DetailsContent extends StatelessWidget {
                     label: l10n.get('location'),
                     value: details.location!,
                   ),
+                if (details.bookedThroughHospital)
+                  _InfoLine(
+                    label: l10n.isArabic ? 'المستشفى' : 'Hospital',
+                    value: _hospitalContextText(context, details),
+                  ),
               ],
             ),
           ),
@@ -221,6 +226,23 @@ class _DetailsContent extends StatelessWidget {
       return AppLocalizations.of(context).get('dateUnavailable');
     }
     return DateFormat('d MMM yyyy, h:mm a').format(value.toLocal());
+  }
+
+  String _hospitalContextText(
+    BuildContext context,
+    AppointmentDetails details,
+  ) {
+    final hospital = details.hospitalName;
+    final department = details.departmentName;
+    if (hospital != null && department != null) {
+      return AppLocalizations.of(context).isArabic
+          ? '$hospital - قسم $department'
+          : '$hospital - $department department';
+    }
+    if (hospital != null) return hospital;
+    return AppLocalizations.of(context).isArabic
+        ? 'حجز من خلال مستشفى'
+        : 'Booked through hospital';
   }
 }
 

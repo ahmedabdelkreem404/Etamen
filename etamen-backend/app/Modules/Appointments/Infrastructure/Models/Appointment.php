@@ -7,6 +7,8 @@ use App\Modules\Appointments\Domain\Enums\AppointmentStatus;
 use App\Modules\Appointments\Domain\Enums\ConsultationType;
 use App\Modules\Payments\Infrastructure\Models\Payment;
 use App\Modules\Providers\Infrastructure\Models\DoctorProfile;
+use App\Modules\Providers\Infrastructure\Models\HospitalDepartment;
+use App\Modules\Providers\Infrastructure\Models\HospitalDoctor;
 use App\Modules\Providers\Infrastructure\Models\Provider;
 use App\Modules\Providers\Infrastructure\Models\ProviderBranch;
 use Illuminate\Database\Eloquent\Model;
@@ -21,6 +23,9 @@ class Appointment extends Model
         'patient_user_id',
         'doctor_profile_id',
         'provider_id',
+        'hospital_provider_id',
+        'hospital_department_id',
+        'hospital_doctor_id',
         'branch_id',
         'appointment_slot_id',
         'consultation_type',
@@ -67,6 +72,21 @@ class Appointment extends Model
     public function provider(): BelongsTo
     {
         return $this->belongsTo(Provider::class);
+    }
+
+    public function hospital(): BelongsTo
+    {
+        return $this->belongsTo(Provider::class, 'hospital_provider_id');
+    }
+
+    public function hospitalDepartment(): BelongsTo
+    {
+        return $this->belongsTo(HospitalDepartment::class);
+    }
+
+    public function hospitalDoctorLink(): BelongsTo
+    {
+        return $this->belongsTo(HospitalDoctor::class, 'hospital_doctor_id');
     }
 
     public function branch(): BelongsTo

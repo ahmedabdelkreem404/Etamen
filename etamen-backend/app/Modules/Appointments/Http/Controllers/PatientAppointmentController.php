@@ -33,7 +33,7 @@ class PatientAppointmentController extends ApiController
     {
         $appointments = Appointment::query()
             ->where('patient_user_id', $request->user()->id)
-            ->with(['slot', 'doctorProfile.provider', 'provider', 'branch', 'review'])
+            ->with(['slot', 'doctorProfile.provider', 'provider', 'branch', 'hospital', 'hospitalDepartment', 'hospitalDoctorLink', 'review'])
             ->when($request->query('status'), fn ($query, $status) => $query->where('status', $status))
             ->orderByDesc('created_at')
             ->limit($this->perPage($request))
@@ -47,7 +47,7 @@ class PatientAppointmentController extends ApiController
         $this->authorize('view', $appointment);
 
         return $this->success(
-            new AppointmentResource($appointment->load(['slot', 'doctorProfile.provider', 'provider', 'branch', 'statusHistories', 'review'])),
+            new AppointmentResource($appointment->load(['slot', 'doctorProfile.provider', 'provider', 'branch', 'hospital', 'hospitalDepartment', 'hospitalDoctorLink', 'statusHistories', 'review'])),
             'Appointment details.',
         );
     }

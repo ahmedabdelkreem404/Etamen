@@ -6,6 +6,7 @@ import 'package:etamen_app/features/account/presentation/pages/language_settings
 import 'package:etamen_app/features/account/presentation/pages/legal_page.dart';
 import 'package:etamen_app/features/account/presentation/pages/settings_page.dart';
 import 'package:etamen_app/features/account/presentation/pages/support_page.dart';
+import 'package:etamen_app/features/appointments/domain/entities/hospital_booking_context.dart';
 import 'package:etamen_app/features/appointments/presentation/pages/appointment_booking_page.dart';
 import 'package:etamen_app/features/appointments/presentation/pages/appointment_details_page.dart';
 import 'package:etamen_app/features/appointments/presentation/pages/appointment_result_page.dart';
@@ -331,14 +332,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/doctors/:id',
         builder: (context, state) {
           final id = int.tryParse(state.pathParameters['id'] ?? '');
-          return DoctorProfilePage(doctorId: id ?? 0);
+          return DoctorProfilePage(
+            doctorId: id ?? 0,
+            hospitalContext: HospitalBookingContext.fromQueryParameters(
+              state.uri.queryParameters,
+            ),
+          );
         },
       ),
       GoRoute(
         path: '/doctors/:id/booking',
         builder: (context, state) {
           final id = int.tryParse(state.pathParameters['id'] ?? '');
-          return AppointmentBookingPage(doctorId: id ?? 0);
+          return AppointmentBookingPage(
+            doctorId: id ?? 0,
+            hospitalContext: HospitalBookingContext.fromQueryParameters(
+              state.uri.queryParameters,
+            ),
+          );
         },
       ),
       GoRoute(

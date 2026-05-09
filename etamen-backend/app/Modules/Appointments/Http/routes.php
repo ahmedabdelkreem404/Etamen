@@ -37,6 +37,8 @@ Route::prefix('provider')->middleware(['auth:sanctum', 'provider.user'])->group(
 
 Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function (): void {
     Route::get('/appointments', [AdminAppointmentController::class, 'index']);
+    Route::get('/hospitals/{hospital}/appointments', [AdminAppointmentController::class, 'hospitalAppointments']);
+    Route::get('/hospitals/{hospital}/summary', [AdminAppointmentController::class, 'hospitalSummary']);
     Route::get('/appointments/{appointment}', [AdminAppointmentController::class, 'show']);
     Route::get('/appointments/{appointment}/status-history', [AdminAppointmentController::class, 'statusHistory']);
     Route::post('/appointments/{appointment}/force-cancel', [AdminAppointmentController::class, 'forceCancel'])->middleware('throttle:admin-sensitive');

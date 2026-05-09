@@ -27,6 +27,9 @@ class BookAppointmentRequest extends FormRequest
             'reviews_count' => ['prohibited'],
             'doctor_profile_id' => ['required', 'integer', 'exists:doctor_profiles,id'],
             'appointment_slot_id' => ['required', 'integer', 'exists:appointment_slots,id'],
+            'hospital_provider_id' => ['nullable', 'integer', 'exists:providers,id'],
+            'hospital_department_id' => ['nullable', 'integer', 'exists:hospital_departments,id'],
+            'hospital_doctor_id' => ['nullable', 'integer', 'exists:hospital_doctors,id'],
             'consultation_type' => ['required', Rule::in(ConsultationType::values())],
             'problem_description' => ['nullable', 'string', 'max:2000'],
         ];

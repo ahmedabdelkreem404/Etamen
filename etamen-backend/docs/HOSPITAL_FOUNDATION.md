@@ -59,6 +59,38 @@ Public scopes require:
 - doctor approved and active.
 - link active.
 
+---
+
+## Sprint 43 Update - Appointment Context
+
+Sprint 43 added backend-owned hospital booking context to appointments.
+
+When a patient books a doctor after discovering the doctor through a hospital department, the appointment can now store:
+
+- `hospital_provider_id`
+- `hospital_department_id`
+- `hospital_doctor_id`
+
+Direct doctor bookings leave these fields null.
+
+The backend validates the full relationship before booking:
+
+- hospital must be type `hospital`, approved, and active.
+- department must belong to that hospital and be active.
+- doctor must be linked through an active `hospital_doctors` row.
+- selected slot must belong to the selected doctor.
+
+The patient appointment API returns only safe hospital and department names. It does not expose private documents, storage paths, admin notes, or contract/payment terms.
+
+Admin reporting foundation was added:
+
+```text
+GET /api/v1/admin/hospitals/{hospital}/appointments
+GET /api/v1/admin/hospitals/{hospital}/summary
+```
+
+This is still local/backend foundation work and does not approve staging or public launch.
+
 No patient-facing hospital public page was implemented in Sprint 36.
 
 ## Remaining Work
@@ -70,4 +102,3 @@ Future sprints:
 - hospital appointment booking rules.
 - hospital admin operations.
 - Flutter patient UI only after complete backend lifecycle.
-

@@ -27,6 +27,27 @@ class HospitalDepartmentDoctorsPage extends ConsumerWidget {
       departmentId: departmentId,
     );
     final doctors = ref.watch(hospitalDepartmentDoctorsProvider(params));
+    final hospitalDetails = ref.watch(hospitalDetailsProvider(hospitalId));
+    final departments = ref.watch(hospitalDepartmentsProvider(hospitalId));
+    final hospitalName = hospitalDetails.maybeWhen(
+      data: (result) => result.when(
+        success: (hospital) => hospital.name,
+        failure: (_) => null,
+      ),
+      orElse: () => null,
+    );
+    final departmentName = departments.maybeWhen(
+      data: (result) => result.when(
+        success: (items) {
+          for (final department in items) {
+            if (department.id == departmentId) return department.name;
+          }
+          return null;
+        },
+        failure: (_) => null,
+      ),
+      orElse: () => null,
+    );
 
     return AppScaffold(
       title: uxCopy(context, 'أطباء القسم', 'Department doctors'),
@@ -67,8 +88,15 @@ class HospitalDepartmentDoctorsPage extends ConsumerWidget {
                   for (final doctor in items)
                     DoctorCard(
                       doctor: doctor,
-                      onTap: () =>
-                          context.push(RouteNames.doctorProfile(doctor.id)),
+                      onTap: () => context.push(
+                        RouteNames.doctorProfile(
+                          doctor.id,
+                          hospitalId: hospitalId,
+                          departmentId: departmentId,
+                          hospitalName: hospitalName,
+                          departmentName: departmentName,
+                        ),
+                      ),
                     ),
               ],
             ),

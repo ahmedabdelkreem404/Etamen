@@ -963,3 +963,70 @@ This does not approve staging, public launch, or production readiness. The hospi
 ## Next Step
 
 The next sprint should either deploy and test the accepted local hospital section on staging, or add backend-owned hospital appointment context if the product owner needs hospital-level reporting before staging.
+
+---
+
+# Sprint 43 Local Hospital Booking Context
+
+Date: 2026-05-09
+
+## Scope
+
+Sprint 43 is local-only. It does not touch Hostinger/staging and does not approve public launch.
+
+## Result Before Final QA
+
+Implemented:
+
+- nullable hospital context fields on appointments.
+- backend validation of hospital/department/doctor relationship.
+- hospital doctor fee override with fallback to doctor profile fee.
+- safe patient appointment response with hospital/department names.
+- admin hospital appointment list/summary foundation.
+- Flutter context passing from hospital department doctor list into doctor profile and booking.
+- appointment cards/details can show hospital context.
+
+## Decision Status
+
+Final local result:
+
+```text
+LOCAL_HOSPITAL_CONTEXT_ACCEPTED
+```
+
+Evidence:
+
+- Direct doctor booking remains compatible with null hospital context.
+- Hospital booking stores validated backend-owned context.
+- Hospital doctor fee override was used locally: `240.00 EGP`.
+- Flutter passes context only as a hint from hospital discovery.
+- Patient appointments display friendly hospital context.
+- Admin hospital summary API counted the hospital appointment.
+- Screenshots saved under `I:\Etamen\.tmp\sprint43-local-hospital-context\`.
+
+APK:
+
+```text
+I:\Etamen\.tmp\etamen-local-hospital-context.apk
+C:\Users\Ahmed Abdelkareem\OneDrive\Desktop\Etamen_Android_Website_Ready\etamen-local-hospital-context.apk
+```
+
+SHA-256:
+
+```text
+DDCC48D779BDF4CA314B52482AE3EB553F35379E9BDA020DD0EAF08F5565B67E
+```
+
+Tests/build:
+
+```text
+Backend: php artisan test -> PASS
+Flutter: pub get, format, analyze, test, android-x64 debug build -> PASS
+```
+
+## Still Not Approved
+
+- Staging readiness.
+- Public launch.
+- Physical-device pilot gate.
+- Real hospital operational rollout.

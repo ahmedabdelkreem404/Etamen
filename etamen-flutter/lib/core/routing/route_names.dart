@@ -39,9 +39,41 @@ class RouteNames {
   static const support = '/support';
   static const about = '/about';
 
-  static String doctorProfile(int id) => '/doctors/$id';
+  static String doctorProfile(
+    int id, {
+    int? hospitalId,
+    int? departmentId,
+    int? hospitalDoctorId,
+    String? hospitalName,
+    String? departmentName,
+  }) {
+    final suffix = _query({
+      'hospitalId': hospitalId,
+      'departmentId': departmentId,
+      'hospitalDoctorId': hospitalDoctorId,
+      'hospitalName': hospitalName,
+      'departmentName': departmentName,
+    });
+    return '/doctors/$id$suffix';
+  }
 
-  static String doctorBooking(int id) => '/doctors/$id/booking';
+  static String doctorBooking(
+    int id, {
+    int? hospitalId,
+    int? departmentId,
+    int? hospitalDoctorId,
+    String? hospitalName,
+    String? departmentName,
+  }) {
+    final suffix = _query({
+      'hospitalId': hospitalId,
+      'departmentId': departmentId,
+      'hospitalDoctorId': hospitalDoctorId,
+      'hospitalName': hospitalName,
+      'departmentName': departmentName,
+    });
+    return '/doctors/$id/booking$suffix';
+  }
 
   static String appointmentResult(int id) => '/appointments/$id/result';
 
@@ -145,10 +177,13 @@ class RouteNames {
   }
 
   static String _query(Map<String, Object?> values) {
-    final entries = values.entries
+    final query = values.entries
         .where((entry) => entry.value != null)
-        .map((entry) => '${entry.key}=${entry.value}')
-        .toList();
-    return entries.isEmpty ? '' : '?${entries.join('&')}';
+        .fold<Map<String, String>>({}, (map, entry) {
+          map[entry.key] = entry.value.toString();
+          return map;
+        });
+    if (query.isEmpty) return '';
+    return '?${Uri(queryParameters: query).query}';
   }
 }

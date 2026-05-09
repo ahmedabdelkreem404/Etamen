@@ -5,6 +5,7 @@ import 'package:etamen_app/core/widgets/app_button.dart';
 import 'package:etamen_app/core/widgets/app_scaffold.dart';
 import 'package:etamen_app/core/widgets/error_view.dart';
 import 'package:etamen_app/core/widgets/loading_view.dart';
+import 'package:etamen_app/features/appointments/domain/entities/hospital_booking_context.dart';
 import 'package:etamen_app/features/doctors/domain/entities/doctor.dart';
 import 'package:etamen_app/features/doctors/presentation/providers/doctors_providers.dart';
 import 'package:etamen_app/features/doctors/presentation/widgets/doctor_card.dart';
@@ -15,9 +16,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class DoctorProfilePage extends ConsumerWidget {
-  const DoctorProfilePage({required this.doctorId, super.key});
+  const DoctorProfilePage({
+    required this.doctorId,
+    this.hospitalContext,
+    super.key,
+  });
 
   final int doctorId;
+  final HospitalBookingContext? hospitalContext;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -34,6 +40,10 @@ class DoctorProfilePage extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             children: [
               _DoctorHero(doctor: doctor),
+              if (hospitalContext != null) ...[
+                const SizedBox(height: 14),
+                _HospitalContextCardFixed(contextHint: hospitalContext!),
+              ],
               const SizedBox(height: 14),
               SoftMedicalCard(
                 child: Column(
@@ -107,7 +117,16 @@ class DoctorProfilePage extends ConsumerWidget {
                 ),
                 onPressed: doctor.doctorProfileId == null
                     ? null
-                    : () => context.go(RouteNames.doctorBooking(doctor.id)),
+                    : () => context.go(
+                        RouteNames.doctorBooking(
+                          doctor.id,
+                          hospitalId: hospitalContext?.hospitalId,
+                          departmentId: hospitalContext?.departmentId,
+                          hospitalDoctorId: hospitalContext?.hospitalDoctorId,
+                          hospitalName: hospitalContext?.hospitalName,
+                          departmentName: hospitalContext?.departmentName,
+                        ),
+                      ),
               ),
               const SizedBox(height: 8),
               Text(
@@ -127,6 +146,90 @@ class DoctorProfilePage extends ConsumerWidget {
         ),
       ),
     );
+  }
+}
+
+// ignore: unused_element
+class _HospitalContextCard extends StatelessWidget {
+  const _HospitalContextCard({required this.contextHint});
+
+  final HospitalBookingContext contextHint;
+
+  String? get hospitalName => contextHint.hospitalName;
+
+  String? get departmentName => contextHint.departmentName;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = _contextLabel(context);
+    return SoftMedicalCard(
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.medicalMint,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.apartment_outlined,
+              color: AppColors.primaryDark,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  uxCopy(
+                    context,
+                    'Ø§Ù„Ø­Ø¬Ø² Ù…Ù† Ø®Ù„Ø§Ù„ Ù…Ø³ØªØ´ÙÙ‰',
+                    'Booking through a hospital',
+                  ),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: AppColors.primaryDark,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  label.isEmpty
+                      ? uxCopy(
+                          context,
+                          'Ø­Ø¬Ø² Ù…Ù† Ø®Ù„Ø§Ù„ Ù…Ø³ØªØ´ÙÙ‰',
+                          'Hospital booking',
+                        )
+                      : label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.softText,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _contextLabel(BuildContext context) {
+    return [
+      hospitalName,
+      departmentName == null
+          ? null
+          : uxCopy(
+              context,
+              'Ù‚Ø³Ù… $departmentName',
+              '$departmentName department',
+            ),
+    ].whereType<String>().join(' - ');
   }
 }
 
@@ -225,6 +328,87 @@ class _DoctorHero extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _HospitalContextCardFixed extends StatelessWidget {
+  const _HospitalContextCardFixed({required this.contextHint});
+
+  final HospitalBookingContext contextHint;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = _contextLabel(context);
+    return SoftMedicalCard(
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.medicalMint,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.apartment_outlined,
+              color: AppColors.primaryDark,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  uxCopy(
+                    context,
+                    '\u0627\u0644\u062D\u062C\u0632 \u0645\u0646 \u062E\u0644\u0627\u0644 \u0645\u0633\u062A\u0634\u0641\u0649',
+                    'Booking through a hospital',
+                  ),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: AppColors.primaryDark,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  label.isEmpty
+                      ? uxCopy(
+                          context,
+                          '\u062D\u062C\u0632 \u0645\u0646 \u062E\u0644\u0627\u0644 \u0645\u0633\u062A\u0634\u0641\u0649',
+                          'Hospital booking',
+                        )
+                      : label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.softText,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _contextLabel(BuildContext context) {
+    final hospitalName = contextHint.hospitalName;
+    final departmentName = contextHint.departmentName;
+    return [
+      hospitalName,
+      departmentName == null
+          ? null
+          : uxCopy(
+              context,
+              '\u0642\u0633\u0645 $departmentName',
+              '$departmentName department',
+            ),
+    ].whereType<String>().join(' - ');
   }
 }
 

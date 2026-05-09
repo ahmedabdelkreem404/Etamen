@@ -58,6 +58,22 @@ The public API does not expose:
 - subscription plan id.
 - internal contract terms.
 
+---
+
+## Sprint 43 Hospital Price Policy
+
+Sprint 43 added hospital booking context to appointments, but did not change the existing payment workflow.
+
+When a booking is made through a validated hospital doctor link:
+
+1. `hospital_doctors.consultation_fee` is used if it is not null.
+2. Otherwise `doctor_profiles.consultation_fee` is used.
+3. The frontend cannot set or override the price.
+
+The payment created for the appointment uses the backend-resolved appointment price.
+
+Hospital appointment reporting can summarize gross, pending, and verified paid amounts, but it does not expose payment proof files or internal contract terms.
+
 ## Admin Management
 
 Admin can create provider contracts through:
@@ -83,4 +99,3 @@ Future sprints:
 - provider-facing contract summary.
 - pay-at-branch workflow if product approves it.
 - finance reconciliation reports.
-

@@ -61,6 +61,13 @@ class AppointmentCard extends StatelessWidget {
                   text: appointment.location!,
                 ),
               ],
+              if (appointment.bookedThroughHospital) ...[
+                const SizedBox(height: 6),
+                _Line(
+                  icon: Icons.apartment_outlined,
+                  text: _hospitalContextText(context, appointment),
+                ),
+              ],
               const SizedBox(height: 10),
               Row(
                 children: [
@@ -107,6 +114,20 @@ class AppointmentCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _hospitalContextText(BuildContext context, Appointment appointment) {
+    final hospital = appointment.hospitalName;
+    final department = appointment.departmentName;
+    if (hospital != null && department != null) {
+      return AppLocalizations.of(context).isArabic
+          ? '$hospital - قسم $department'
+          : '$hospital - $department department';
+    }
+    if (hospital != null) return hospital;
+    return AppLocalizations.of(context).isArabic
+        ? 'حجز من خلال مستشفى'
+        : 'Booked through hospital';
   }
 
   String _formatRange(BuildContext context, Appointment appointment) {
