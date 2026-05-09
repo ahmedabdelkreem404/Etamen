@@ -884,3 +884,82 @@ This does not approve staging, public launch, or real-phone readiness. It only p
 ## Next Step
 
 Repeat the same successful path on staging or a real phone only after staging payment methods are active and the hosted backend is confirmed healthy.
+
+---
+
+# Sprint 42 Local Hospital Public Section
+
+Date: 2026-05-09
+
+## Scope
+
+Sprint 42 was local-only and did not touch Hostinger/staging.
+
+Backend used by emulator:
+
+```text
+http://10.0.2.2:8000/api/v1
+```
+
+## Result
+
+| Gate | Result |
+| --- | --- |
+| Local hospital APIs | PASS |
+| Demo hospital seed data | PASS |
+| Hospitals entry in Services | PASS |
+| Hospitals list | PASS |
+| Hospital details | PASS |
+| Departments | PASS |
+| Department doctors | PASS |
+| Hospital doctor profile | PASS |
+| Booking from hospital doctor reaches payment | PASS |
+| My appointments shows created booking | PASS |
+| Logout returns to login | PASS |
+
+Screenshots:
+
+```text
+I:\Etamen\.tmp\sprint42-local-hospitals\
+```
+
+APK:
+
+```text
+I:\Etamen\.tmp\etamen-local-hospital-section.apk
+C:\Users\Ahmed Abdelkareem\OneDrive\Desktop\Etamen_Android_Website_Ready\etamen-local-hospital-section.apk
+```
+
+SHA-256:
+
+```text
+65A43A36CD376A3D655EAC49F82DB421F2328FFE6AA719E87C8D481D712D81A6
+```
+
+Tests/build:
+
+```text
+Backend: php artisan test -> 223 passed (1811 assertions)
+Flutter: pub get, dart format ., analyze, test, android-x64 debug APK build -> PASS
+```
+
+## Decision
+
+Decision:
+
+```text
+LOCAL_HOSPITAL_SECTION_ACCEPTED
+```
+
+This does not approve staging, public launch, or production readiness. The hospital section is accepted locally only.
+
+## Remaining Blockers
+
+- Staging deployment still needs a separate gate.
+- Real phone proof/admin review remains a separate staging/physical-device gate.
+- Hospital-specific booking context is not persisted yet; the current flow books the selected doctor normally after hospital discovery.
+- Real hospital onboarding/legal verification is not done.
+
+## Next Step
+
+The next sprint should either deploy and test the accepted local hospital section on staging, or add backend-owned hospital appointment context if the product owner needs hospital-level reporting before staging.

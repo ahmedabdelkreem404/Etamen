@@ -19,6 +19,8 @@ use App\Modules\Payments\Infrastructure\Models\PaymentMethod;
 use App\Modules\Pharmacies\Infrastructure\Models\PharmacyProduct;
 use App\Modules\Providers\Domain\Enums\ProviderStatus;
 use App\Modules\Providers\Domain\Enums\ProviderType;
+use App\Modules\Providers\Infrastructure\Models\HospitalDepartment;
+use App\Modules\Providers\Infrastructure\Models\HospitalDoctor;
 use App\Modules\Providers\Infrastructure\Models\Provider;
 use Database\Seeders\PilotDemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -40,6 +42,7 @@ class PilotDemoDataTest extends TestCase
         $doctor = Provider::query()->where('slug', 'pilot-demo-doctor')->firstOrFail();
         $pharmacy = Provider::query()->where('slug', 'pilot-demo-pharmacy')->firstOrFail();
         $lab = Provider::query()->where('slug', 'pilot-demo-lab')->firstOrFail();
+        $hospital = Provider::query()->where('slug', 'pilot-demo-hospital')->firstOrFail();
 
         $this->assertTrue($patient->hasRole('patient'));
         $this->assertSame(ProviderType::Doctor, $doctor->type);
@@ -52,6 +55,10 @@ class PilotDemoDataTest extends TestCase
             ->count());
         $this->assertSame(ProviderType::Pharmacy, $pharmacy->type);
         $this->assertSame(ProviderType::Lab, $lab->type);
+        $this->assertSame(ProviderType::Hospital, $hospital->type);
+        $this->assertTrue($hospital->hospitalProfile->emergency_available);
+        $this->assertSame(5, HospitalDepartment::query()->where('hospital_provider_id', $hospital->id)->count());
+        $this->assertGreaterThanOrEqual(5, HospitalDoctor::query()->where('hospital_provider_id', $hospital->id)->count());
 
         $this->assertGreaterThanOrEqual(1, AppointmentSlot::query()
             ->where('doctor_profile_id', $doctor->doctorProfile->id)
@@ -143,6 +150,19 @@ class PilotDemoDataTest extends TestCase
             ->assertOk()
             ->assertJsonPath('success', true);
         $this->getJson('/api/v1/labs/'.$labId.'/packages')
+            ->assertOk()
+            ->assertJsonPath('success', true);
+
+        $hospitalId = $this->getJson('/api/v1/hospitals')
+            ->assertOk()
+            ->assertJsonPath('data.0.name_ar', 'مستشفى اطمن التخصصي')
+            ->assertJsonPath('data.0.departments_count', 5)
+            ->json('data.0.id');
+        $departmentId = $this->getJson('/api/v1/hospitals/'.$hospitalId.'/departments')
+            ->assertOk()
+            ->assertJsonCount(5, 'data')
+            ->json('data.0.id');
+        $this->getJson('/api/v1/hospitals/'.$hospitalId.'/departments/'.$departmentId.'/doctors')
             ->assertOk()
             ->assertJsonPath('success', true);
 

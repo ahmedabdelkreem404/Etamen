@@ -41,6 +41,7 @@ void main() {
     );
     expect(RouteNames.pharmacyOrders, '/pharmacy/orders');
     expect(RouteNames.labs, '/labs');
+    expect(RouteNames.hospitals, '/hospitals');
     expect(RouteNames.labCart, '/labs/cart');
     expect(RouteNames.labOrders, '/lab-orders');
     expect(RouteNames.health, '/health');
@@ -80,6 +81,11 @@ void main() {
     expect(RouteNames.pharmacyOrderDetails(2), '/pharmacy/orders/2');
     expect(RouteNames.labTests(3), '/labs/3/tests');
     expect(RouteNames.labOrderDetails(3), '/lab-orders/3');
+    expect(RouteNames.hospitalDetails(4), '/hospitals/4');
+    expect(
+      RouteNames.hospitalDepartmentDoctors(4, 5),
+      '/hospitals/4/departments/5/doctors',
+    );
     expect(RouteNames.addVital(), '/health/vitals/add');
     expect(RouteNames.addVital('weight'), '/health/vitals/add/weight');
     expect(RouteNames.medicationReminderDetails(4), '/medications/reminders/4');

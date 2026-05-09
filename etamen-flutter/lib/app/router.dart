@@ -25,6 +25,9 @@ import 'package:etamen_app/features/care_plans/presentation/pages/meal_log_page.
 import 'package:etamen_app/features/doctors/presentation/pages/doctor_profile_page.dart';
 import 'package:etamen_app/features/doctors/presentation/pages/doctors_list_page.dart';
 import 'package:etamen_app/features/home/presentation/pages/home_page.dart';
+import 'package:etamen_app/features/hospitals/presentation/pages/hospital_department_doctors_page.dart';
+import 'package:etamen_app/features/hospitals/presentation/pages/hospital_details_page.dart';
+import 'package:etamen_app/features/hospitals/presentation/pages/hospitals_page.dart';
 import 'package:etamen_app/features/health/domain/entities/vital_record.dart';
 import 'package:etamen_app/features/health/presentation/pages/add_vital_page.dart';
 import 'package:etamen_app/features/health/presentation/pages/edit_health_profile_page.dart';
@@ -121,6 +124,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.labs,
         builder: (context, state) => const LabsPage(),
+      ),
+      GoRoute(
+        path: RouteNames.hospitals,
+        builder: (context, state) => const HospitalsPage(),
       ),
       GoRoute(
         path: RouteNames.health,
@@ -255,6 +262,28 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final id = int.tryParse(state.pathParameters['id'] ?? '');
           return LabTestsPage(labId: id ?? 0);
+        },
+      ),
+      GoRoute(
+        path: '/hospitals/:id',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          return HospitalDetailsPage(hospitalId: id ?? 0);
+        },
+      ),
+      GoRoute(
+        path: '/hospitals/:hospitalId/departments/:departmentId/doctors',
+        builder: (context, state) {
+          final hospitalId = int.tryParse(
+            state.pathParameters['hospitalId'] ?? '',
+          );
+          final departmentId = int.tryParse(
+            state.pathParameters['departmentId'] ?? '',
+          );
+          return HospitalDepartmentDoctorsPage(
+            hospitalId: hospitalId ?? 0,
+            departmentId: departmentId ?? 0,
+          );
         },
       ),
       GoRoute(

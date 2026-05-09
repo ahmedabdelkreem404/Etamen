@@ -65,9 +65,13 @@ use App\Modules\Providers\Domain\Enums\ProviderStaffRole;
 use App\Modules\Providers\Domain\Enums\ProviderStatus;
 use App\Modules\Providers\Domain\Enums\ProviderType;
 use App\Modules\Providers\Infrastructure\Models\DoctorProfile;
+use App\Modules\Providers\Infrastructure\Models\HospitalDepartment;
+use App\Modules\Providers\Infrastructure\Models\HospitalDoctor;
+use App\Modules\Providers\Infrastructure\Models\HospitalProfile;
 use App\Modules\Providers\Infrastructure\Models\LabProfile;
 use App\Modules\Providers\Infrastructure\Models\PharmacyProfile;
 use App\Modules\Providers\Infrastructure\Models\Provider;
+use App\Modules\Providers\Infrastructure\Models\ProviderBookingSetting;
 use App\Modules\Providers\Infrastructure\Models\ProviderBranch;
 use App\Modules\Providers\Infrastructure\Models\ProviderStaff;
 use App\Modules\Providers\Infrastructure\Models\RadiologyProfile;
@@ -111,6 +115,7 @@ class PilotDemoSeeder extends Seeder
             $pharmacyUser = $this->demoUser('pilot.pharmacy@example.test', 'Pilot Pharmacy Admin', UserRole::PharmacyAdmin);
             $labUser = $this->demoUser('pilot.lab@example.test', 'Pilot Lab Admin', UserRole::LabAdmin);
             $radiologyUser = $this->demoUser('pilot.radiology@example.test', 'Pilot Radiology Admin', UserRole::ProviderAdmin);
+            $hospitalUser = $this->demoUser('pilot.hospital@example.test', 'Pilot Hospital Admin', UserRole::ProviderAdmin);
 
             $this->seedPatientProfile($patient);
             [$city, $area] = $this->seedLocation();
@@ -127,6 +132,7 @@ class PilotDemoSeeder extends Seeder
             $this->seedNotification($patient);
             $this->seedDemoLabResultOrder($patient, $labUser, $labProvider);
             $this->seedExpandedDemoCatalog($admin, $city, $area);
+            $this->seedHospital($hospitalUser, $admin, $city, $area);
         });
     }
 
@@ -936,6 +942,219 @@ class PilotDemoSeeder extends Seeder
             $labUser = $this->demoUser($lab['email'], $lab['name'], UserRole::LabAdmin);
             $this->seedAdditionalLab($labUser, $admin, $city, $area, $lab);
         }
+    }
+
+    private function seedHospital(User $hospitalUser, User $admin, City $city, Area $area): Provider
+    {
+        $hospital = $this->provider(
+            type: ProviderType::Hospital,
+            owner: $hospitalUser,
+            admin: $admin,
+            slug: 'pilot-demo-hospital',
+            nameAr: 'مستشفى اطمن التخصصي',
+            nameEn: 'Etamen Specialty Hospital',
+            phone: '01000006001',
+            descriptionAr: 'مستشفى تجريبي آمن لاختبار قسم المستشفيات محليًا وربط الأطباء بالحجز الحالي.',
+            descriptionEn: 'Safe demo hospital for local hospital discovery and booking QA.',
+        );
+        $this->providerStaff($hospital, $hospitalUser, ProviderStaffRole::Owner);
+
+        HospitalProfile::query()->updateOrCreate(
+            ['provider_id' => $hospital->id],
+            [
+                'license_number' => 'HOSP-DEMO-001',
+                'description_ar' => 'مستشفى تجريبي يضم أقسامًا وأطباء للحجز داخل بيئة local/staging فقط.',
+                'description_en' => 'Demo specialty hospital with departments and linked doctors for local QA only.',
+                'emergency_available' => true,
+                'has_outpatient' => true,
+                'has_inpatient' => true,
+                'has_icu' => true,
+                'has_ambulance' => true,
+                'is_active' => true,
+            ],
+        );
+
+        ProviderBookingSetting::query()->updateOrCreate(
+            ['provider_id' => $hospital->id],
+            [
+                'clinic_visit_enabled' => true,
+                'online_video_enabled' => false,
+                'home_visit_enabled' => false,
+                'branch_visit_enabled' => true,
+                'booking_requires_payment' => true,
+                'pay_at_branch_enabled' => false,
+                'default_slot_duration_minutes' => 30,
+                'cancellation_policy_ar' => 'سياسة تجريبية محلية فقط.',
+                'cancellation_policy_en' => 'Local demo policy only.',
+                'is_active' => true,
+            ],
+        );
+
+        ProviderBranch::query()->updateOrCreate(
+            ['provider_id' => $hospital->id, 'name_en' => 'Etamen Specialty Hospital - Nasr City'],
+            [
+                'city_id' => $city->id,
+                'area_id' => $area->id,
+                'name_ar' => 'مستشفى اطمن التخصصي - مدينة نصر',
+                'phone' => '01000006001',
+                'whatsapp' => '01000006001',
+                'address_line_1' => 'Demo Hospital Street',
+                'district' => 'Nasr City',
+                'address_ar' => 'شارع تجريبي، مدينة نصر، القاهرة',
+                'address_en' => 'Demo Street, Nasr City, Cairo',
+                'latitude' => 30.0561000,
+                'longitude' => 31.3300000,
+                'is_24_hours' => true,
+                'is_main' => true,
+                'is_active' => true,
+            ],
+        );
+
+        $departments = [
+            [
+                'slug' => 'cardiology-demo',
+                'name_ar' => 'قلب وأوعية دموية',
+                'name_en' => 'Cardiology',
+                'doctor' => [
+                    'slug' => 'pilot-demo-doctor',
+                    'email' => 'pilot.doctor@example.test',
+                    'name' => 'Pilot Doctor',
+                    'name_ar' => 'د. أحمد التجريبي',
+                    'name_en' => 'Dr Ahmed Demo',
+                    'phone' => '01000000002',
+                    'fee' => 300,
+                    'experience' => 8,
+                    'avatar_path' => 'legacy-doctorfinder/demo-doctor-avatar-1.png',
+                ],
+            ],
+            [
+                'slug' => 'orthopedics-demo',
+                'name_ar' => 'عظام',
+                'name_en' => 'Orthopedics',
+                'doctor' => [
+                    'slug' => 'demo-orthopedics-doctor',
+                    'email' => 'demo.doctor.ortho@example.test',
+                    'name' => 'Demo Orthopedics Doctor',
+                    'name_ar' => 'د. كريم التجريبي',
+                    'name_en' => 'Dr Karim Bones Demo',
+                    'phone' => '01000002003',
+                    'fee' => 350,
+                    'experience' => 12,
+                    'avatar_path' => 'legacy-doctorfinder/demo-doctor-avatar-1.png',
+                ],
+            ],
+            [
+                'slug' => 'pediatrics-demo',
+                'name_ar' => 'أطفال',
+                'name_en' => 'Pediatrics',
+                'doctor' => [
+                    'slug' => 'demo-pediatrics-doctor',
+                    'email' => 'demo.doctor.pedia@example.test',
+                    'name' => 'Demo Pediatrics Doctor',
+                    'name_ar' => 'د. يوسف التجريبي',
+                    'name_en' => 'Dr Youssef Kids Demo',
+                    'phone' => '01000002002',
+                    'fee' => 220,
+                    'experience' => 10,
+                    'avatar_path' => 'legacy-doctorfinder/demo-doctor-avatar-3.png',
+                ],
+            ],
+            [
+                'slug' => 'dermatology-demo',
+                'name_ar' => 'جلدية',
+                'name_en' => 'Dermatology',
+                'doctor' => [
+                    'slug' => 'demo-dermatology-doctor',
+                    'email' => 'demo.doctor.derma@example.test',
+                    'name' => 'Demo Dermatology Doctor',
+                    'name_ar' => 'د. سارة التجريبية',
+                    'name_en' => 'Dr Sara Skin Demo',
+                    'phone' => '01000002001',
+                    'fee' => 250,
+                    'experience' => 6,
+                    'avatar_path' => 'legacy-doctorfinder/demo-doctor-avatar-2.png',
+                ],
+            ],
+            [
+                'slug' => 'obgyn-demo',
+                'name_ar' => 'نساء وتوليد',
+                'name_en' => 'Obstetrics and Gynecology',
+                'doctor' => [
+                    'slug' => 'demo-obgyn-doctor',
+                    'email' => 'demo.doctor.obgyn@example.test',
+                    'name' => 'Demo OBGYN Doctor',
+                    'name_ar' => 'د. مريم التجريبية',
+                    'name_en' => 'Dr Mariam OBGYN Demo',
+                    'phone' => '01000002004',
+                    'fee' => 320,
+                    'experience' => 9,
+                    'avatar_path' => 'legacy-doctorfinder/demo-doctor-avatar-2.png',
+                ],
+            ],
+        ];
+
+        foreach ($departments as $row) {
+            $specialty = Specialty::query()->updateOrCreate(
+                ['slug' => $row['slug']],
+                [
+                    'name_ar' => $row['name_ar'],
+                    'name_en' => $row['name_en'],
+                    'is_active' => true,
+                ],
+            );
+
+            $department = HospitalDepartment::query()->updateOrCreate(
+                ['hospital_provider_id' => $hospital->id, 'name_en' => $row['name_en']],
+                [
+                    'specialty_id' => $specialty->id,
+                    'name_ar' => $row['name_ar'],
+                    'description_ar' => 'قسم تجريبي للحجز المحلي داخل مستشفى اطمن.',
+                    'description_en' => 'Demo department for local hospital booking QA.',
+                    'is_active' => true,
+                ],
+            );
+
+            $doctorProvider = $this->ensureHospitalDoctor($row['doctor'], $row, $admin, $city, $area);
+            HospitalDoctor::query()->updateOrCreate(
+                [
+                    'hospital_provider_id' => $hospital->id,
+                    'doctor_provider_id' => $doctorProvider->id,
+                    'hospital_department_id' => $department->id,
+                ],
+                [
+                    'consultation_fee' => $doctorProvider->doctorProfile?->consultation_fee,
+                    'online_consultation_enabled' => false,
+                    'clinic_consultation_enabled' => true,
+                    'is_active' => true,
+                ],
+            );
+        }
+
+        return $hospital;
+    }
+
+    private function ensureHospitalDoctor(array $doctor, array $department, User $admin, City $city, Area $area): Provider
+    {
+        $provider = Provider::query()->where('slug', $doctor['slug'])->first();
+
+        if (! $provider) {
+            $doctorUser = $this->demoUser($doctor['email'], $doctor['name'], UserRole::Doctor);
+            $this->seedAdditionalDoctor($doctorUser, $admin, $city, $area, [
+                'slug' => $doctor['slug'],
+                'name_ar' => $doctor['name_ar'],
+                'name_en' => $doctor['name_en'],
+                'specialty_slug' => $department['slug'],
+                'specialty_ar' => $department['name_ar'],
+                'specialty_en' => $department['name_en'],
+                'phone' => $doctor['phone'],
+                'fee' => $doctor['fee'],
+                'experience' => $doctor['experience'],
+                'avatar_path' => $doctor['avatar_path'],
+            ]);
+            $provider = Provider::query()->where('slug', $doctor['slug'])->firstOrFail();
+        }
+
+        return $provider->load('doctorProfile');
     }
 
     private function seedAdditionalDoctor(User $doctorUser, User $admin, City $city, Area $area, array $doctor): void

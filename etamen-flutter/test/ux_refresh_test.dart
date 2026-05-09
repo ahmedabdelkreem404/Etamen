@@ -55,7 +55,10 @@ void main() {
 
     expect(find.text('Medical services'), findsOneWidget);
     expect(find.text('Book a doctor'), findsOneWidget);
+    expect(find.text('Hospitals'), findsWidgets);
     expect(find.text('Pharmacy orders'), findsOneWidget);
+    await tester.drag(find.byType(ListView).first, const Offset(0, -260));
+    await tester.pumpAndSettle();
     expect(find.text('Lab orders'), findsWidgets);
   });
 

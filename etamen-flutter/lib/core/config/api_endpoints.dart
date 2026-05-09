@@ -12,6 +12,7 @@ class ApiEndpoints {
   static const pharmacyPrescriptions = '/pharmacy/prescriptions';
   static const pharmacyOrders = '/pharmacy/orders';
   static const labs = '/labs';
+  static const hospitals = '/hospitals';
   static const labOrders = '/lab/orders';
   static const healthProfile = '/health/profile';
   static const healthVitals = '/health/vitals';
@@ -73,6 +74,17 @@ class ApiEndpoints {
   static String labOrderPay(int id) => '/lab/orders/$id/pay';
 
   static String labResultDownload(int id) => '/lab/results/$id/download';
+
+  static String hospital(int id) => '/hospitals/$id';
+
+  static String hospitalDepartments(int hospitalId) =>
+      '/hospitals/$hospitalId/departments';
+
+  static String hospitalDoctors(int hospitalId) =>
+      '/hospitals/$hospitalId/doctors';
+
+  static String hospitalDepartmentDoctors(int hospitalId, int departmentId) =>
+      '/hospitals/$hospitalId/departments/$departmentId/doctors';
 
   static String medicationReminder(int id) => '/medications/reminders/$id';
 

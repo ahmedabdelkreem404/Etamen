@@ -297,3 +297,23 @@ Still deferred:
 - DICOM/image/report storage strategy.
 - Medical/legal review of preparation content.
 - Public launch readiness for radiology.
+
+## Sprint 42 Implementation Update
+
+Implemented locally:
+
+- Added patient-safe public hospital APIs for list, details, departments, hospital doctors, and department doctors.
+- Added one approved demo hospital to `PilotDemoSeeder`.
+- Added five active departments and linked approved active demo doctors with schedules and slots.
+- Added Flutter Hospitals section under Services.
+- Added hospital details, location summary, capability badges, departments, and department doctors screens.
+- Reused the existing doctor profile, booking, and payment flow from hospital discovery.
+- Added backend and Flutter tests for the hospital section.
+
+Still deferred:
+
+- Staging deployment of hospital APIs/screens.
+- Hospital-specific appointment context persisted in booking records.
+- Hospital admin analytics/reporting.
+- Real hospital onboarding and document review.
+- Public launch readiness.

@@ -262,6 +262,17 @@ class ServicesTab extends StatelessWidget {
           onTap: () => context.push(RouteNames.doctors),
         ),
         ServiceCard(
+          icon: Icons.local_hospital_outlined,
+          title: uxCopy(context, 'المستشفيات والمراكز', 'Hospitals'),
+          body: uxCopy(
+            context,
+            'اختار مستشفى، راجع الأقسام، وافتح طبيب للحجز بنفس خطوات المواعيد والدفع.',
+            'Choose a hospital, review departments, then book a doctor through the same payment flow.',
+          ),
+          actionLabel: uxCopy(context, 'المستشفيات', 'Hospitals'),
+          onTap: () => context.push(RouteNames.hospitals),
+        ),
+        ServiceCard(
           icon: Icons.local_pharmacy_outlined,
           title: uxCopy(context, 'اطلب من صيدلية', 'Pharmacy orders'),
           body: uxCopy(

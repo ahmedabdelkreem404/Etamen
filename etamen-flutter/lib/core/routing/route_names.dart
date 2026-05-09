@@ -12,6 +12,7 @@ class RouteNames {
   static const pharmacyOrders = '/pharmacy/orders';
   static const pharmacyPrescriptionUpload = '/pharmacy/prescription-upload';
   static const labs = '/labs';
+  static const hospitals = '/hospitals';
   static const labCart = '/labs/cart';
   static const labOrders = '/lab-orders';
   static const health = '/health';
@@ -53,6 +54,11 @@ class RouteNames {
   static String labTests(int id) => '/labs/$id/tests';
 
   static String labOrderDetails(int id) => '/lab-orders/$id';
+
+  static String hospitalDetails(int id) => '/hospitals/$id';
+
+  static String hospitalDepartmentDoctors(int hospitalId, int departmentId) =>
+      '/hospitals/$hospitalId/departments/$departmentId/doctors';
 
   static String addVital([dynamic type]) {
     if (type == null) return '/health/vitals/add';

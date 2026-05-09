@@ -5,6 +5,7 @@ use App\Modules\Providers\Http\Controllers\AdminSpecialtyController;
 use App\Modules\Providers\Http\Controllers\ProviderAccountController;
 use App\Modules\Providers\Http\Controllers\ProviderRegistrationController;
 use App\Modules\Providers\Http\Controllers\ProviderServiceController;
+use App\Modules\Providers\Http\Controllers\PublicHospitalController;
 use App\Modules\Providers\Http\Controllers\PublicProviderController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,11 @@ Route::get('/pharmacies', [PublicProviderController::class, 'pharmacies']);
 Route::get('/pharmacies/{pharmacy}', [PublicProviderController::class, 'pharmacy']);
 Route::get('/labs', [PublicProviderController::class, 'labs']);
 Route::get('/labs/{lab}', [PublicProviderController::class, 'lab']);
+Route::get('/hospitals', [PublicHospitalController::class, 'index']);
+Route::get('/hospitals/{hospital}', [PublicHospitalController::class, 'show']);
+Route::get('/hospitals/{hospital}/departments', [PublicHospitalController::class, 'departments']);
+Route::get('/hospitals/{hospital}/doctors', [PublicHospitalController::class, 'doctors']);
+Route::get('/hospitals/{hospital}/departments/{department}/doctors', [PublicHospitalController::class, 'departmentDoctors']);
 Route::get('/specialties', [PublicProviderController::class, 'specialties']);
 
 Route::prefix('provider')->middleware(['auth:sanctum', 'provider.user'])->group(function (): void {

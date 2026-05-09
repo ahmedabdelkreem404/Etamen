@@ -200,3 +200,23 @@ This document maps the intended Etamen product surface. It does not mean every m
 | Risks | Sensitive payload leakage, noisy reminders, provider failures. |
 | MVP phase | In-app and local/demo-safe. |
 | Production phase | FCM/SMS/email/WhatsApp providers, queues, consent, quiet hours. |
+
+## Sprint 42 Hospital Public Section Update
+
+Sprint 42 moved hospitals from backend-only foundation to a local patient-facing section:
+
+- Added safe public hospital list/details APIs.
+- Added public department APIs for approved active hospitals.
+- Added public department-doctor APIs filtered to approved active doctors.
+- Added demo hospital seed data with five departments and linked bookable doctors.
+- Flutter can now navigate: Services -> Hospitals -> Hospital details -> Department -> Doctor -> Booking -> Payment.
+
+This remains local-only. It does not approve staging, production, or public launch.
+
+Remaining hospital roadmap:
+
+- Hospital-specific appointment analytics/reporting.
+- Hospital/provider operations dashboards.
+- Rich media and insurance filters.
+- Public website hospital discovery.
+- Real hospital onboarding and legal verification.
