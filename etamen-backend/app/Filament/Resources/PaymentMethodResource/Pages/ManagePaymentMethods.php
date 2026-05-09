@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\PaymentMethodResource\Pages;
 
 use App\Filament\Resources\PaymentMethodResource;
+use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
 
 class ManagePaymentMethods extends ManageRecords
@@ -11,6 +12,8 @@ class ManagePaymentMethods extends ManageRecords
 
     protected function getHeaderActions(): array
     {
-        return [];
+        return [
+            Actions\CreateAction::make(),
+        ];
     }
 }

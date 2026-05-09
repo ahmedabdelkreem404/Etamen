@@ -260,3 +260,74 @@ The local desktop MySQL `Etamen` database was reset and seeded for migration ver
 - `php artisan db:seed --class=PilotDemoSeeder`: PASS.
 
 This was local only. No `migrate:fresh` was run on hosting/staging.
+
+---
+
+# Sprint 40 Payment Method Activation Notes
+
+Date: 2026-05-09
+
+## Problem
+
+The staging doctor booking flow reaches the payment step, but:
+
+```text
+GET https://etamen.inolty.com/api/v1/payment-methods
+```
+
+still returns:
+
+```json
+{"success":true,"message":"Active payment methods.","data":[],"errors":[]}
+```
+
+This blocks proof upload and admin review.
+
+## Code Fix Prepared
+
+The backend now has a safe repeatable activation path:
+
+```text
+php artisan etamen:ensure-payment-methods --staging
+```
+
+Expected output:
+
+```text
+manual_vodafone_cash: active
+manual_instapay: active
+paymob: inactive
+```
+
+The command uses the safe `PaymentMethodSeeder`.
+
+## Deployment Path Needed
+
+Because SSH is still blocked with `Permission denied (publickey,password)`, this session could not update the hosted app directly.
+
+Use one of these paths:
+
+1. Restore SSH access and pull/deploy the latest `main`, then run the command above.
+2. Use Hostinger Git/File Manager to deploy the latest backend files, then run the command from a terminal if available.
+3. Use the Filament admin Payment Methods create action after deploying the latest code.
+
+Do not run `migrate:fresh` on staging.
+Do not commit `.env`, DB credentials, APP_KEY, or payment secrets.
+Do not activate Paymob unless its staging credentials are real and verified.
+
+## Verification After Deployment
+
+Run:
+
+```text
+GET https://etamen.inolty.com/api/v1/payment-methods
+```
+
+Expected:
+
+- `manual_vodafone_cash` appears.
+- `manual_instapay` appears.
+- no config secrets appear.
+- Paymob remains hidden if inactive.
+
+Then repeat the Android booking flow to the proof upload screen.

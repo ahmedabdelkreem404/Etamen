@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PaymentMethodResource\Pages;
+use App\Modules\Payments\Domain\Enums\PaymentMethodType;
 use App\Modules\Payments\Infrastructure\Models\PaymentMethod;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -24,12 +25,13 @@ class PaymentMethodResource extends Resource
             ->schema([
                 Forms\Components\Select::make('type')
                     ->options([
-                        'paymob' => 'Paymob',
-                        'manual_vodafone_cash' => 'Vodafone Cash',
-                        'manual_instapay' => 'InstaPay',
+                        PaymentMethodType::Paymob->value => 'Paymob',
+                        PaymentMethodType::ManualVodafoneCash->value => 'Vodafone Cash',
+                        PaymentMethodType::ManualInstapay->value => 'InstaPay',
                     ])
-                    ->disabled()
+                    ->disabled(fn (string $operation): bool => $operation === 'edit')
                     ->dehydrated()
+                    ->unique(ignoreRecord: true)
                     ->required(),
                 Forms\Components\TextInput::make('name_ar')
                     ->required()
@@ -37,10 +39,12 @@ class PaymentMethodResource extends Resource
                 Forms\Components\TextInput::make('name_en')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Toggle::make('is_active'),
+                Forms\Components\Toggle::make('is_active')
+                    ->default(false)
+                    ->helperText('Activate manual methods only after staging-safe public instructions are configured. Keep Paymob inactive until real sandbox/live config is verified.'),
                 Forms\Components\KeyValue::make('config')
                     ->label('Config (encrypted)')
-                    ->helperText('Do not store Paymob secret keys here; use backend env variables.')
+                    ->helperText('Do not store Paymob secret keys here; use backend env variables. Public APIs never expose this field.')
                     ->nullable(),
                 Forms\Components\Textarea::make('instructions_ar')
                     ->columnSpanFull(),

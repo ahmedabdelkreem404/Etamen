@@ -188,3 +188,85 @@ Local database check was also run against the desktop MySQL `Etamen` database, n
 - `php artisan db:seed --class=PilotDemoSeeder`: PASS.
 
 The first attempted local root credential combination was rejected by MySQL, then the actual accepted local root authentication was used. No staging database was dropped.
+
+---
+
+## Sprint 40 Payment Methods Gate
+
+Date: 2026-05-09
+
+### External State
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| `/api/v1/system/health` | PASS, HTTP 200 | Returns `status: ok`. |
+| `/api/v1/system/readiness` with JSON accept header | PARTIAL, HTTP 401 | Protected/unauthenticated from this check. |
+| `/api/v1/payment-methods` | FAIL FOR FLOW, HTTP 200 empty data | Blocks proof upload. |
+
+Current hosted response summary:
+
+```json
+{"success":true,"message":"Active payment methods.","data":[],"errors":[]}
+```
+
+### Local Backend Fix
+
+The current backend now includes:
+
+- Active staging-safe `manual_vodafone_cash` seeding.
+- Active staging-safe `manual_instapay` seeding.
+- Inactive `paymob` seeding with no config secrets.
+- Filament create action for missing payment methods.
+- Artisan command:
+
+```text
+php artisan etamen:ensure-payment-methods --staging
+```
+
+Local command output:
+
+```text
+manual_vodafone_cash: active
+manual_instapay: active
+paymob: inactive
+```
+
+### Required Hosting Action
+
+SSH is still blocked from this machine, so the hosted database could not be activated here.
+
+Preferred server action after access is restored:
+
+```text
+php artisan migrate --force
+php artisan etamen:ensure-payment-methods --staging
+php artisan config:clear
+php artisan cache:clear
+```
+
+Alternative admin action:
+
+- Open Filament Payment Methods.
+- Create or activate `manual_vodafone_cash`.
+- Create or activate `manual_instapay`.
+- Keep `paymob` inactive unless real/sandbox credentials are configured and verified.
+
+No real payment numbers or secrets should be added unless explicitly approved for staging.
+
+### Sprint 40 Server Decision
+
+Server-side status:
+
+- `STAGING_PAYMENT_METHODS_STILL_BLOCKED`
+
+The code fix exists locally and is pushed-ready, but the hosted endpoint remains empty until the hosting account is updated.
+
+### Sprint 40 Local Migration Safety
+
+Local desktop database verification was rerun after the payment-method fix:
+
+- `php artisan migrate:fresh --seed`: PASS.
+- `php artisan db:seed --class=PilotDemoSeeder`: PASS.
+- `php artisan etamen:ensure-payment-methods --staging`: PASS.
+
+This was local only. No `migrate:fresh` was run on hosting/staging.

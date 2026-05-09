@@ -754,3 +754,74 @@ The app is closer: doctor booking works against staging up to the payment step. 
 3. Confirm `/api/v1/payment-methods` returns active methods.
 4. Install the Sprint 39 APK on the product-owner Android phone.
 5. Book the staging doctor, upload a real proof image, admin accepts/rejects the same payment, then verify the app status refreshes.
+
+---
+
+# Sprint 40 Staging Payment Methods + Proof Gate
+
+Date: 2026-05-09
+
+## What Was Fixed Locally
+
+Sprint 40 prepared a safe backend fix for the empty staging payment-method blocker:
+
+- Vodafone Cash and InstaPay are now seeded as active staging-safe manual methods.
+- Paymob remains inactive unless real/sandbox configuration is verified.
+- A repeatable artisan command exists:
+
+```text
+php artisan etamen:ensure-payment-methods --staging
+```
+
+- Filament Payment Methods now has a create action so an admin can create missing methods safely.
+- Public payment-method API tests confirm active manual methods appear and config/secrets are not exposed.
+
+## Current Hosted Staging Status
+
+| Gate | Result |
+| --- | --- |
+| Staging health | PASS, HTTP 200 |
+| Staging payment methods | FAIL, HTTP 200 but `data: []` |
+| Staging payment methods activated from this session | FAIL, SSH still blocked |
+| APK rebuilt for staging | PASS |
+| APK ABI coverage | PASS, `armeabi-v7a`, `arm64-v8a`, `x86_64` |
+| Real phone proof upload | NOT TESTED |
+| Admin review same proof | NOT TESTED |
+| Flutter state after admin review | NOT TESTED |
+
+## Sprint 40 APK
+
+```text
+I:\Etamen\.tmp\etamen-staging-payment-methods-proof-gate.apk
+C:\Users\Ahmed Abdelkareem\OneDrive\Desktop\Etamen_Android_Website_Ready\etamen-staging-payment-methods-proof-gate.apk
+```
+
+SHA-256:
+
+```text
+F07C7E0A705F90B266719B92CE3EA839240A7327D231F827ED064C7A65C92C14
+```
+
+## Decision
+
+Decision:
+
+- `STAGING_PAYMENT_METHODS_STILL_BLOCKED`
+
+This is not public launch readiness and not pilot readiness. The next gate is server-side activation of payment methods, then a real Android proof upload and admin review.
+
+## Local Migration Safety
+
+After the Sprint 40 payment-method fix:
+
+- `php artisan migrate:fresh --seed`: PASS on local desktop database only.
+- `php artisan db:seed --class=PilotDemoSeeder`: PASS locally.
+- `php artisan etamen:ensure-payment-methods --staging`: PASS locally and reports Vodafone Cash/InstaPay active, Paymob inactive.
+
+## Exact Next Action
+
+1. Deploy/pull the latest backend code on Hostinger or provide SSH/SFTP/Hostinger File Manager access.
+2. Run `php artisan etamen:ensure-payment-methods --staging` on the confirmed Etamen staging app.
+3. Confirm `/api/v1/payment-methods` returns `manual_vodafone_cash` and `manual_instapay`.
+4. Install the Sprint 40 APK on Ahmed's Android phone.
+5. Book the staging doctor, upload a real proof image, admin accepts the same payment, then verify the app state updates.

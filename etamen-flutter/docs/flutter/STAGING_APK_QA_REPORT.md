@@ -342,3 +342,101 @@ Decision:
 - `STAGING_PAYMENT_BLOCKED_NO_PAYMENT_METHODS`
 
 Doctor discovery and booking now work on emulator against staging, but payment proof upload and admin review are blocked by missing staging payment methods.
+
+---
+
+# Sprint 40 Payment Methods + Proof Gate
+
+Date: 2026-05-09
+
+## Initial Payment Methods State
+
+External check:
+
+```text
+GET https://etamen.inolty.com/api/v1/payment-methods
+```
+
+Result:
+
+- HTTP `200`.
+- Response shape is valid JSON.
+- Returned `data: []`.
+- Vodafone Cash is missing from staging.
+- InstaPay is missing from staging.
+- Paymob is not exposed, which is correct until real/sandbox configuration is verified.
+
+## Local Backend Fix Prepared
+
+The backend now has a safe repeatable way to prevent this blocker:
+
+- `PaymentMethodSeeder` uses `updateOrCreate`.
+- `manual_vodafone_cash` is active with staging-safe instructions.
+- `manual_instapay` is active with staging-safe instructions.
+- `paymob` remains inactive and has no secrets in config.
+- Filament Payment Methods can create a missing method from the admin UI.
+- Artisan command added:
+
+```text
+php artisan etamen:ensure-payment-methods --staging
+```
+
+Local command result:
+
+```text
+manual_vodafone_cash: active
+manual_instapay: active
+paymob: inactive
+```
+
+## Staging Activation Status
+
+Staging activation was not completed from this machine because SSH remains blocked:
+
+```text
+Permission denied (publickey,password).
+```
+
+The hosted `/api/v1/payment-methods` endpoint still returns an empty list until the backend change is deployed and the seeder/command is run on the hosting account.
+
+## APK Build
+
+Sprint 40 APK:
+
+```text
+I:\Etamen\.tmp\etamen-staging-payment-methods-proof-gate.apk
+C:\Users\Ahmed Abdelkareem\OneDrive\Desktop\Etamen_Android_Website_Ready\etamen-staging-payment-methods-proof-gate.apk
+```
+
+Build result:
+
+- PASS.
+- API base: `https://etamen.inolty.com/api/v1`.
+- Size: `77.57 MB`.
+- SHA-256: `F07C7E0A705F90B266719B92CE3EA839240A7327D231F827ED064C7A65C92C14`.
+- Native ABIs: `armeabi-v7a`, `arm64-v8a`, `x86_64`.
+- Flutter debug assets verified in APK:
+  - `kernel_blob.bin`
+  - `isolate_snapshot_data`
+  - `vm_snapshot_data`
+
+## Emulator Payment Flow Status
+
+Because staging still returns no active payment methods, the Sprint 40 emulator payment proof gate cannot progress past the payment methods page yet.
+
+| Step | Result | Notes |
+| --- | --- | --- |
+| Login | Previously PASS on staging APK | Sprint 39/38 verified. |
+| Doctor list/profile/booking | Previously PASS | Staging doctor data exists. |
+| Payment methods | BLOCKED | Hosted endpoint still returns `data: []`. |
+| Proof upload screen | NOT REACHED | Requires active manual method. |
+| Real proof upload | NOT TESTED | Requires owner phone after staging activation. |
+| Admin review | NOT TESTED | No real proof exists yet. |
+
+## Sprint 40 Decision
+
+Decision:
+
+- `STAGING_PAYMENT_METHODS_STILL_BLOCKED`
+
+The code fix and APK are ready, but the hosted staging database still needs the payment-method activation command/admin action.
