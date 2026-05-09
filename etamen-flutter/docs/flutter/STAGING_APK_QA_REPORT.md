@@ -235,3 +235,108 @@ Strict Sprint 38 decision:
 Reason:
 
 - The app login problem is fixed on emulator, but the sprint cannot be signed as fully staging-ready while SSH is blocked and readiness is still 500.
+
+---
+
+# Sprint 39 Staging Doctor Booking + Payment Gate
+
+Date: 2026-05-09
+
+## APK / API Target
+
+API base:
+
+```text
+https://etamen.inolty.com/api/v1
+```
+
+Package:
+
+```text
+com.etamen.etamen_app
+```
+
+## External API Result
+
+| Check | Result |
+| --- | --- |
+| Login API | PASS |
+| Home data after login | PASS |
+| `/api/v1/doctors` | PASS, one approved staging doctor |
+| Doctor slots | PASS, generated slots available |
+| `/api/v1/payment-methods` | FAIL FOR FLOW, returns empty `data` |
+
+## Emulator QA Result
+
+Emulator:
+
+- ID: `emulator-5554`
+- Pixel 8 Pro profile
+- Staging APK/API
+
+| Flow | Result | Notes |
+| --- | --- | --- |
+| Launch app | PASS | Arabic login screen appears. |
+| Login | PASS | Staging API login succeeds. |
+| Home | PASS | Home loads and shows staging doctor data. |
+| Doctors list | PASS | Approved staging doctor appears. |
+| Doctor profile | PASS | Profile opens and shows available slots. |
+| Booking slot selection | PASS | Slot can be selected. |
+| Booking submit | PASS | Booking is created and payment step opens. |
+| Payment methods | BLOCKED | Page opens but says no payment methods are available. |
+| Proof upload screen | NOT REACHED | Blocked by empty payment methods. |
+| My appointments | PASS | Appointment appears with friendly pending-payment state. |
+| Account | PASS | Account page opens. |
+| Logout | PASS | Logout returns to login screen. |
+
+## Screenshots
+
+Stored under:
+
+```text
+I:\Etamen\.tmp\sprint39-staging-doctor-payment-gate\
+```
+
+Key files:
+
+- `01-login.png`
+- `02-home.png`
+- `03-doctors-list-with-doctor.png`
+- `04-doctor-profile.png`
+- `05-booking-slot.png`
+- `06-booking-submitted.png`
+- `07-payment-methods.png`
+- `08-proof-upload-screen-blocked-no-payment-methods.png`
+- `09-my-appointments.png`
+- `10-account.png`
+- `11-after-logout.png`
+- `12-final-apk-launch.png`
+
+## Important Note
+
+`08-proof-upload-screen-blocked-no-payment-methods.png` is intentionally the payment-method empty state, not a real proof upload screen. The app cannot reach real proof upload until staging returns at least one active manual payment method.
+
+## Current APK Deliverable
+
+Target final copy:
+
+```text
+I:\Etamen\.tmp\etamen-staging-doctor-payment-gate.apk
+C:\Users\Ahmed Abdelkareem\OneDrive\Desktop\Etamen_Android_Website_Ready\etamen-staging-doctor-payment-gate.apk
+```
+
+Build result:
+
+- PASS.
+- Size: `53.64 MB`.
+- SHA-256: `87DFB6A3863C6483CDC6B47BEFB52D311983317E65764BDC33DD2C1817D2FF3A`.
+- Native ABIs: `armeabi-v7a`, `arm64-v8a`, `x86_64`.
+- Final copied APK installed successfully on emulator after build.
+
+## Sprint 39 QA Decision
+
+Decision:
+
+- `STAGING_PAYMENT_BLOCKED_NO_PAYMENT_METHODS`
+
+Doctor discovery and booking now work on emulator against staging, but payment proof upload and admin review are blocked by missing staging payment methods.

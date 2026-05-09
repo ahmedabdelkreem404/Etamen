@@ -197,3 +197,66 @@ Reason:
 - SSH remains unavailable.
 - Readiness still returns 500.
 - Current staging database has no approved doctors, so doctor profile/booking QA cannot be completed against staging until data is seeded or approved.
+
+---
+
+# Sprint 39 Update - Staging Doctor Booking Data
+
+Date: 2026-05-09
+
+## Access Result
+
+SSH remains blocked. No server shell, Laravel logs, `.env`, or artisan commands were available from this session.
+
+No server migrations were run, and `migrate:fresh` was not used.
+
+## What Was Changed On Staging
+
+Because the hosted API and admin login were reachable, staging doctor data was prepared through the available provider/admin API flow:
+
+- Created/verified one cardiology and vascular medicine specialty.
+- Registered one staging-only doctor provider.
+- Approved the doctor provider through the admin API.
+- Created one main branch with Cairo/Nasr City style demo address and safe latitude/longitude.
+- Created a clinic schedule and generated appointment slots for QA.
+
+This data is safe staging data only. No real doctor photo, private document, or provider secret was uploaded.
+
+## Current Hosted API State
+
+| Endpoint | Result |
+| --- | --- |
+| `/api/v1/system/health` | PASS, HTTP 200 |
+| `/api/v1/system/readiness` with JSON accept header | PARTIAL, HTTP 401 |
+| `/api/v1/system/readiness` from browser/default request | FAIL, HTTP 500 |
+| `/api/v1/specialties` | PASS, one staging specialty |
+| `/api/v1/doctors` | PASS, one approved staging doctor |
+| `/api/v1/payment-methods` | FAIL FOR FLOW, HTTP 200 empty data |
+
+## Payment Method Blocker
+
+The staging doctor booking path now reaches payment, but proof upload cannot proceed because no active payment methods are returned by the hosted API.
+
+Needed after hosting access is restored:
+
+1. Add or activate staging-safe manual payment methods.
+2. Confirm Vodafone Cash and InstaPay appear at `/api/v1/payment-methods`.
+3. Repeat Android booking to proof upload.
+4. Complete admin accept/reject review for the same uploaded proof.
+
+## Deployment Status
+
+Strict Sprint 39 backend deployment decision:
+
+- `STAGING_PAYMENT_BLOCKED_NO_PAYMENT_METHODS`
+
+This is not public launch readiness and not physical pilot readiness. The current blocker is staging payment-method data/access, not APK login or doctor discovery.
+
+## Local Migration Check
+
+The local desktop MySQL `Etamen` database was reset and seeded for migration verification only:
+
+- `php artisan migrate:fresh --seed`: PASS.
+- `php artisan db:seed --class=PilotDemoSeeder`: PASS.
+
+This was local only. No `migrate:fresh` was run on hosting/staging.

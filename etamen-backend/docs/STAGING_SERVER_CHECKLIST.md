@@ -114,3 +114,77 @@ The following paths returned 404 and did not expose content:
 - Safe deployment of current backend files.
 - `php artisan migrate --force` on the confirmed Etamen staging database only.
 - Seed or approve staging doctors if the owner wants full doctor booking QA against hosted staging.
+
+---
+
+## Sprint 39 Staging Booking Gate
+
+Date: 2026-05-09
+
+### External Endpoint State
+
+| Check | Result | Notes |
+| --- | --- | --- |
+| Landing `/` | PASS, HTTP 200 | Public landing still loads. |
+| Health `/api/v1/system/health` | PASS, HTTP 200 | Returns `status: ok`. |
+| Readiness `/api/v1/system/readiness` with JSON accept header | PARTIAL, HTTP 401 | Endpoint is protected or unauthenticated; not a server crash in JSON API mode. |
+| Readiness `/api/v1/system/readiness` from browser/default client | FAIL, HTTP 500 | Still needs server log access; do not sign off staging readiness while this remains. |
+| Specialties `/api/v1/specialties` | PASS, HTTP 200 | One staging cardiology/vascular specialty exists. |
+| Doctors `/api/v1/doctors` | PASS, HTTP 200 | One approved staging doctor is returned. |
+| Doctor slots `/api/v1/doctors/1/slots` | PASS | 84 generated clinic slots were available during the QA check. |
+| Payment methods `/api/v1/payment-methods` | FAIL FOR FLOW, HTTP 200 empty data | This blocks proof upload and admin review. |
+
+### Staging Doctor Data
+
+One safe staging-only doctor was created and approved through the available API/admin path because SSH remains unavailable:
+
+- Provider type: `doctor`.
+- Public status: `approved` and active.
+- Name: demo doctor for staging QA only.
+- Specialty: cardiology and vascular medicine.
+- Branch: Etamen Medical Center - Nasr City style demo branch.
+- Coordinates: `30.0561, 31.3300`.
+- Consultation fee: `300 EGP`.
+- Booking capability: clinic visit enabled, payment required, online video disabled.
+- Slots: generated for the next QA window.
+- Avatar: no real doctor photo was used; the app uses its safe placeholder.
+
+No private provider document paths or storage paths were observed in the public doctors response.
+
+### Payment Method Blocker
+
+`/api/v1/payment-methods` returns an empty `data` array. The hosted API does not expose a safe payment-method creation endpoint, SSH is still blocked, and direct database access from the desktop is not allowed by the remote database host.
+
+Required server-side action:
+
+1. Restore SSH/SFTP/Hostinger access.
+2. Create or activate staging-safe manual methods for Vodafone Cash and InstaPay.
+3. Re-check `/api/v1/payment-methods`.
+4. Repeat the APK booking flow until the proof upload screen is reachable.
+
+### Security Exposure Re-check
+
+| URL | Result |
+| --- | --- |
+| `/.env` | 404 |
+| `/composer.json` | 404 |
+| `/storage/` | 301 to `/public/storage`, then 404 |
+| `/vendor/` | 301 to `/public/vendor`, then 404 |
+| `/database/` | 301 to `/public/database`, then 404 |
+
+No raw secret file content was observed.
+
+### Sprint 39 Server Decision
+
+Server-side status: `STAGING_PAYMENT_BLOCKED_NO_PAYMENT_METHODS`.
+
+Doctor booking data is now present, but payment proof/admin review cannot be completed until active staging payment methods exist.
+
+### Local MySQL Migration Safety Check
+
+Local database check was also run against the desktop MySQL `Etamen` database, not staging:
+
+- `php artisan migrate:fresh --seed`: PASS.
+- `php artisan db:seed --class=PilotDemoSeeder`: PASS.
+
+The first attempted local root credential combination was rejected by MySQL, then the actual accepted local root authentication was used. No staging database was dropped.

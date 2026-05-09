@@ -678,3 +678,79 @@ Important nuance:
 3. Seed or approve at least one staging doctor if hosted doctor booking QA is required.
 4. Install the fixed APK on a real Android phone.
 5. Login, book a doctor, upload real payment proof, approve/reject it from admin, verify Flutter state, then retest logout/session restore.
+
+---
+
+# Sprint 39 Staging Doctor Booking + Payment Gate
+
+Date: 2026-05-09
+
+## What Improved
+
+The staging backend now returns an approved staging doctor from `/api/v1/doctors`, with a branch, booking capability, and generated clinic slots. The APK can login, show the doctor, open the profile, select a slot, create a booking, and reach the payment step on emulator.
+
+## Current Gate Result
+
+| Gate | Result |
+| --- | --- |
+| APK login against staging | PASS |
+| Home against staging | PASS |
+| Approved staging doctor returned | PASS |
+| Doctor profile opens | PASS |
+| Booking slot selection | PASS |
+| Booking submission | PASS |
+| Payment methods returned | FAIL, `/api/v1/payment-methods` is empty |
+| Proof upload | NOT TESTED, blocked before upload |
+| Admin payment review | NOT TESTED, no proof exists |
+| Flutter state after admin review | NOT TESTED |
+| Logout on emulator | PASS |
+
+## Evidence
+
+Screenshots:
+
+```text
+I:\Etamen\.tmp\sprint39-staging-doctor-payment-gate\
+```
+
+Final APK target:
+
+```text
+I:\Etamen\.tmp\etamen-staging-doctor-payment-gate.apk
+C:\Users\Ahmed Abdelkareem\OneDrive\Desktop\Etamen_Android_Website_Ready\etamen-staging-doctor-payment-gate.apk
+```
+
+APK build status:
+
+- PASS.
+- Size: `53.64 MB`.
+- SHA-256: `87DFB6A3863C6483CDC6B47BEFB52D311983317E65764BDC33DD2C1817D2FF3A`.
+- Built with staging API base `https://etamen.inolty.com/api/v1`.
+- Includes `armeabi-v7a`, `arm64-v8a`, and `x86_64`.
+
+## Remaining Blockers
+
+| Blocker | Severity | Owner |
+| --- | --- | --- |
+| No active staging payment methods | BLOCKER | Backend/server admin access |
+| Real Android proof upload | BLOCKER before pilot invite | Product-owner phone test after payment methods exist |
+| Admin accept/reject same proof | BLOCKER before pilot invite | Admin tester |
+| Flutter state after admin review | BLOCKER before pilot invite | QA |
+| `/api/v1/system/readiness` browser/default request still returns 500 | HIGH | Server access/log inspection |
+| SSH/server access remains unavailable | HIGH | Hosting/account access |
+
+## Sprint 39 Decision
+
+Decision:
+
+- `STAGING_PAYMENT_BLOCKED_NO_PAYMENT_METHODS`
+
+The app is closer: doctor booking works against staging up to the payment step. It is still not ready to invite pilot users because payment proof upload and admin review have not passed.
+
+## Exact Next Action
+
+1. Restore hosting SSH/SFTP/Hostinger access.
+2. Add or activate staging-safe Vodafone Cash and InstaPay manual payment methods.
+3. Confirm `/api/v1/payment-methods` returns active methods.
+4. Install the Sprint 39 APK on the product-owner Android phone.
+5. Book the staging doctor, upload a real proof image, admin accepts/rejects the same payment, then verify the app status refreshes.
