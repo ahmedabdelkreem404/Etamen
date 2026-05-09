@@ -337,3 +337,31 @@ Still deferred:
 - Public radiology launch.
 - DICOM/image viewer.
 - Refund/settlement policy for radiology orders.
+
+## Sprint 45 Implementation Update
+
+Implemented locally in Flutter:
+
+- Patient-facing Radiology entry under Services.
+- Radiology catalog with Arabic-first categories and scan cards.
+- Radiology order builder.
+- Radiology order details with payment and result sections.
+- Reuse of existing manual payment method and proof upload flow.
+- Flutter status refresh after admin payment acceptance.
+- Safe result metadata and local download action.
+
+Accepted locally:
+
+- order creation.
+- manual proof upload from emulator.
+- admin accept.
+- paid/result-ready status reflection in Flutter.
+- no raw private path shown to patient.
+
+Still deferred:
+
+- staging deployment.
+- real phone radiology proof upload.
+- production result download hardening across device matrix.
+- provider-facing mobile radiology UI.
+- public launch readiness.

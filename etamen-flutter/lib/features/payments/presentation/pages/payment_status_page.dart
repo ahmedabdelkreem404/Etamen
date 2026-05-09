@@ -5,6 +5,7 @@ import 'package:etamen_app/core/widgets/app_button.dart';
 import 'package:etamen_app/core/widgets/app_scaffold.dart';
 import 'package:etamen_app/core/widgets/error_view.dart';
 import 'package:etamen_app/core/widgets/loading_view.dart';
+import 'package:etamen_app/features/home/presentation/widgets/home_experience_widgets.dart';
 import 'package:etamen_app/features/payments/domain/entities/payment_status.dart';
 import 'package:etamen_app/features/payments/presentation/providers/payment_status_controller.dart';
 import 'package:etamen_app/features/payments/presentation/widgets/payment_copy.dart';
@@ -20,6 +21,7 @@ class PaymentStatusPage extends ConsumerStatefulWidget {
     this.appointmentId,
     this.pharmacyOrderId,
     this.labOrderId,
+    this.radiologyOrderId,
     super.key,
   });
 
@@ -27,6 +29,7 @@ class PaymentStatusPage extends ConsumerStatefulWidget {
   final int? appointmentId;
   final int? pharmacyOrderId;
   final int? labOrderId;
+  final int? radiologyOrderId;
 
   @override
   ConsumerState<PaymentStatusPage> createState() => _PaymentStatusPageState();
@@ -93,6 +96,8 @@ class _PaymentStatusPageState extends ConsumerState<PaymentStatusPage> {
         AppButton(
           label: widget.labOrderId != null
               ? l10n.get('labOrderDetails')
+              : widget.radiologyOrderId != null
+              ? uxCopy(context, 'تفاصيل طلب الأشعة', 'Radiology order')
               : widget.pharmacyOrderId != null
               ? l10n.get('pharmacyOrderDetails')
               : l10n.get('viewAppointment'),
@@ -109,6 +114,12 @@ class _PaymentStatusPageState extends ConsumerState<PaymentStatusPage> {
             }
             if (widget.labOrderId != null) {
               context.go(RouteNames.labOrderDetails(widget.labOrderId!));
+              return;
+            }
+            if (widget.radiologyOrderId != null) {
+              context.go(
+                RouteNames.radiologyOrderDetails(widget.radiologyOrderId!),
+              );
               return;
             }
             context.go(RouteNames.home);
@@ -135,6 +146,7 @@ class _PaymentStatusPageState extends ConsumerState<PaymentStatusPage> {
               appointmentId: widget.appointmentId,
               pharmacyOrderId: widget.pharmacyOrderId,
               labOrderId: widget.labOrderId,
+              radiologyOrderId: widget.radiologyOrderId,
             ),
           ),
         ),
@@ -185,13 +197,22 @@ class _StatusCard extends StatelessWidget {
               label: l10n.get('paymentMethod'),
               value: friendlyPaymentMethodType(context, status.methodType),
             ),
-            _InfoLine(
-              label: l10n.get('appointmentStatus'),
-              value: friendlyAppointmentStatus(
-                context,
-                status.appointmentStatus,
+            if (status.radiologyOrderStatus != null)
+              _InfoLine(
+                label: uxCopy(context, 'حالة طلب الأشعة', 'Radiology status'),
+                value: _friendlyRadiologyStatus(
+                  context,
+                  status.radiologyOrderStatus,
+                ),
+              )
+            else
+              _InfoLine(
+                label: l10n.get('appointmentStatus'),
+                value: friendlyAppointmentStatus(
+                  context,
+                  status.appointmentStatus,
+                ),
               ),
-            ),
             _InfoLine(
               label: l10n.get('lastUpdated'),
               value: status.updatedAt?.toLocal().toString() ?? '-',
@@ -228,6 +249,25 @@ class _StatusCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _friendlyRadiologyStatus(BuildContext context, String? status) {
+  final isArabic = AppLocalizations.of(context).isArabic;
+  return switch (status) {
+    'pending_payment' => isArabic ? 'في انتظار الدفع' : 'Awaiting payment',
+    'pending_payment_review' =>
+      isArabic ? 'جاري مراجعة الدفع' : 'Payment under review',
+    'paid' => isArabic ? 'تم الدفع' : 'Paid',
+    'accepted' => isArabic ? 'تم قبول الطلب' : 'Accepted',
+    'in_progress' => isArabic ? 'جاري التنفيذ' : 'In progress',
+    'result_ready' => isArabic ? 'النتيجة جاهزة' : 'Result ready',
+    'completed' => isArabic ? 'مكتمل' : 'Completed',
+    'cancelled_by_patient' => isArabic ? 'ملغي بواسطتك' : 'Cancelled by you',
+    'cancelled_by_provider' =>
+      isArabic ? 'ملغي من المركز' : 'Cancelled by center',
+    'rejected' => isArabic ? 'مرفوض' : 'Rejected',
+    _ => isArabic ? 'غير متاح' : 'Unavailable',
+  };
 }
 
 class _InfoLine extends StatelessWidget {

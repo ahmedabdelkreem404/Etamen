@@ -1030,3 +1030,64 @@ Flutter: pub get, format, analyze, test, android-x64 debug build -> PASS
 - Public launch.
 - Physical-device pilot gate.
 - Real hospital operational rollout.
+
+---
+
+# Sprint 45 Local Radiology Flutter UI
+
+Date: 2026-05-09
+
+## Scope
+
+Sprint 45 was local-only and did not touch Hostinger or `etamen.inolty.com`.
+
+## Result
+
+Implemented and verified locally:
+
+- Radiology entry under Services.
+- Patient radiology catalog with categories/scans.
+- Radiology order builder.
+- Radiology order details.
+- Manual payment method selection using the existing payment flow.
+- Proof upload from Android emulator file picker.
+- Admin accept of the same payment through local API.
+- Flutter refresh showing paid/result-ready state.
+- Safe visible result metadata and successful local download action.
+- Logout after flow.
+
+Screenshots:
+
+```text
+I:\Etamen\.tmp\sprint45-local-radiology\
+```
+
+APK:
+
+```text
+I:\Etamen\.tmp\etamen-local-radiology.apk
+C:\Users\Ahmed Abdelkareem\OneDrive\Desktop\Etamen_Android_Website_Ready\etamen-local-radiology.apk
+```
+
+SHA-256:
+
+```text
+E0EAB943839F0862722EB985573DA0831CE2B6563FEE063B0F5BA8CA7800D0AD
+```
+
+## Decision
+
+```text
+LOCAL_RADIOLOGY_FLUTTER_ACCEPTED
+```
+
+## Still Not Approved
+
+- Staging readiness.
+- Public launch readiness.
+- Real phone readiness for radiology proof upload/result download.
+- Production radiology rollout.
+
+## Next Step
+
+Run the same radiology order/payment/result flow on staging only after staging backend deployment and payment methods are verified again.

@@ -12,6 +12,9 @@ class RouteNames {
   static const pharmacyOrders = '/pharmacy/orders';
   static const pharmacyPrescriptionUpload = '/pharmacy/prescription-upload';
   static const labs = '/labs';
+  static const radiology = '/radiology';
+  static const radiologyOrderBuilder = '/radiology/order-builder';
+  static const radiologyOrders = '/radiology/orders';
   static const hospitals = '/hospitals';
   static const labCart = '/labs/cart';
   static const labOrders = '/lab-orders';
@@ -87,6 +90,8 @@ class RouteNames {
 
   static String labOrderDetails(int id) => '/lab-orders/$id';
 
+  static String radiologyOrderDetails(int id) => '/radiology/orders/$id';
+
   static String hospitalDetails(int id) => '/hospitals/$id';
 
   static String hospitalDepartmentDoctors(int hospitalId, int departmentId) =>
@@ -123,11 +128,13 @@ class RouteNames {
     int? appointmentId,
     int? pharmacyOrderId,
     int? labOrderId,
+    int? radiologyOrderId,
   }) {
     final suffix = _query({
       'appointmentId': appointmentId,
       'pharmacyOrderId': pharmacyOrderId,
       'labOrderId': labOrderId,
+      'radiologyOrderId': radiologyOrderId,
     });
     return '/payments/$id$suffix';
   }
@@ -138,12 +145,14 @@ class RouteNames {
     int? appointmentId,
     int? pharmacyOrderId,
     int? labOrderId,
+    int? radiologyOrderId,
   }) {
     final suffix = _query({
       'methodId': methodId,
       'appointmentId': appointmentId,
       'pharmacyOrderId': pharmacyOrderId,
       'labOrderId': labOrderId,
+      'radiologyOrderId': radiologyOrderId,
     });
     return '/payments/$id/manual$suffix';
   }
@@ -153,11 +162,13 @@ class RouteNames {
     int? appointmentId,
     int? pharmacyOrderId,
     int? labOrderId,
+    int? radiologyOrderId,
   }) {
     final suffix = _query({
       'appointmentId': appointmentId,
       'pharmacyOrderId': pharmacyOrderId,
       'labOrderId': labOrderId,
+      'radiologyOrderId': radiologyOrderId,
     });
     return '/payments/$id/status$suffix';
   }
@@ -167,11 +178,13 @@ class RouteNames {
     int? appointmentId,
     int? pharmacyOrderId,
     int? labOrderId,
+    int? radiologyOrderId,
   }) {
     final suffix = _query({
       'appointmentId': appointmentId,
       'pharmacyOrderId': pharmacyOrderId,
       'labOrderId': labOrderId,
+      'radiologyOrderId': radiologyOrderId,
     });
     return '/payments/$id/paymob$suffix';
   }

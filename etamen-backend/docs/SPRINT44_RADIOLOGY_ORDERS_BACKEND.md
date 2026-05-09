@@ -215,3 +215,39 @@ LOCAL_RADIOLOGY_ORDERS_BACKEND_ACCEPTED
 ```
 
 This is local backend acceptance only. It does not approve Flutter radiology, staging, public launch, or production readiness.
+
+---
+
+# Sprint 45 Flutter Follow-Up
+
+Date: 2026-05-09
+
+Flutter Sprint 45 consumed the Sprint 44 backend APIs locally and verified the patient-facing flow on the Android emulator.
+
+Verified locally:
+
+- Scan categories and scans load in Flutter.
+- Patient creates a radiology order.
+- Backend creates payment with backend-owned total.
+- Patient selects Vodafone Cash.
+- Patient uploads payment proof through the existing proof upload endpoint.
+- Admin accepts the same payment through local admin API.
+- Payment becomes `verified`.
+- Radiology order becomes `paid`.
+- Admin uploads a visible private result.
+- Radiology order becomes `result_ready`.
+- Patient sees result metadata without raw private file paths.
+- Download action succeeds locally.
+
+Flutter screenshots:
+
+```text
+I:\Etamen\.tmp\sprint45-local-radiology\
+```
+
+Still not approved:
+
+- staging deployment.
+- physical-device radiology proof upload.
+- public launch.
+- production radiology operations.

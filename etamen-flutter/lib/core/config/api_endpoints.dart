@@ -12,6 +12,9 @@ class ApiEndpoints {
   static const pharmacyPrescriptions = '/pharmacy/prescriptions';
   static const pharmacyOrders = '/pharmacy/orders';
   static const labs = '/labs';
+  static const radiologyScanCategories = '/radiology/scan-categories';
+  static const radiologyScans = '/radiology/scans';
+  static const radiologyOrders = '/radiology/orders';
   static const hospitals = '/hospitals';
   static const labOrders = '/lab/orders';
   static const healthProfile = '/health/profile';
@@ -74,6 +77,16 @@ class ApiEndpoints {
   static String labOrderPay(int id) => '/lab/orders/$id/pay';
 
   static String labResultDownload(int id) => '/lab/results/$id/download';
+
+  static String radiologyOrder(int id) => '/radiology/orders/$id';
+
+  static String radiologyOrderCancel(int id) => '/radiology/orders/$id/cancel';
+
+  static String radiologyOrderResults(int id) =>
+      '/radiology/orders/$id/results';
+
+  static String radiologyResultDownload(int id) =>
+      '/radiology/results/$id/download';
 
   static String hospital(int id) => '/hospitals/$id';
 

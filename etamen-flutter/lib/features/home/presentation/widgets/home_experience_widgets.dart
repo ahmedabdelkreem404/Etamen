@@ -298,6 +298,19 @@ class ServicesTab extends StatelessWidget {
           secondaryLabel: uxCopy(context, 'طلبات المعمل', 'Lab orders'),
           onSecondaryTap: () => context.push(RouteNames.labOrders),
         ),
+        ServiceCard(
+          icon: Icons.medical_information_outlined,
+          title: uxCopy(context, 'الأشعة', 'Radiology'),
+          body: uxCopy(
+            context,
+            'اختار فحص أشعة من مركز معتمد، ادفع يدويًا، وتابع النتيجة من التطبيق بدون تفسير طبي.',
+            'Choose a scan from an approved center, pay manually, and follow results without medical interpretation.',
+          ),
+          actionLabel: uxCopy(context, 'الأشعة', 'Radiology'),
+          onTap: () => context.push(RouteNames.radiology),
+          secondaryLabel: uxCopy(context, 'طلبات الأشعة', 'Radiology orders'),
+          onSecondaryTap: () => context.push(RouteNames.radiologyOrders),
+        ),
       ],
     );
   }

@@ -10,6 +10,7 @@ class PaymentStatusModel extends PaymentStatusDetails {
     required super.payableId,
     super.methodType,
     super.appointmentStatus,
+    super.radiologyOrderStatus,
     super.invoice,
     super.rejectionReason,
     super.createdAt,
@@ -19,6 +20,7 @@ class PaymentStatusModel extends PaymentStatusDetails {
   factory PaymentStatusModel.fromJson(Map<String, dynamic> json) {
     final payable = _asMap(json['payable']);
     final appointment = _asMap(json['appointment']);
+    final radiologyOrder = _asMap(json['radiology_order']);
     final proof = _asMap(json['proof']) ?? _asMap(json['latest_proof']);
     final metadata = _asMap(json['metadata']);
 
@@ -35,6 +37,11 @@ class PaymentStatusModel extends PaymentStatusDetails {
           (json['appointment_status'] ??
                   appointment?['status'] ??
                   payable?['appointment_status'])
+              ?.toString(),
+      radiologyOrderStatus:
+          (json['radiology_order_status'] ??
+                  radiologyOrder?['status'] ??
+                  payable?['radiology_order_status'])
               ?.toString(),
       invoice: _asMap(json['invoice']),
       rejectionReason:

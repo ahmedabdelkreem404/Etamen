@@ -23,6 +23,7 @@ class PaymentPage extends ConsumerWidget {
     this.appointmentId,
     this.pharmacyOrderId,
     this.labOrderId,
+    this.radiologyOrderId,
     super.key,
   });
 
@@ -30,6 +31,7 @@ class PaymentPage extends ConsumerWidget {
   final int? appointmentId;
   final int? pharmacyOrderId;
   final int? labOrderId;
+  final int? radiologyOrderId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -141,6 +143,7 @@ class PaymentPage extends ConsumerWidget {
                   appointmentId: appointmentId,
                   pharmacyOrderId: pharmacyOrderId,
                   labOrderId: labOrderId,
+                  radiologyOrderId: radiologyOrderId,
                 ),
               ),
             ),
@@ -159,6 +162,7 @@ class PaymentPage extends ConsumerWidget {
           appointmentId: appointmentId,
           pharmacyOrderId: pharmacyOrderId,
           labOrderId: labOrderId,
+          radiologyOrderId: radiologyOrderId,
         ),
       );
       return;
@@ -171,6 +175,7 @@ class PaymentPage extends ConsumerWidget {
           appointmentId: appointmentId,
           pharmacyOrderId: pharmacyOrderId,
           labOrderId: labOrderId,
+          radiologyOrderId: radiologyOrderId,
         ),
       );
     }
