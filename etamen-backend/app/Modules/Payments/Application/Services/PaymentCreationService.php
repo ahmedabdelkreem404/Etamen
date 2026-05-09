@@ -9,6 +9,7 @@ use App\Modules\Labs\Infrastructure\Models\LabOrder;
 use App\Modules\Payments\Domain\Enums\PaymentStatus;
 use App\Modules\Payments\Infrastructure\Models\Payment;
 use App\Modules\Pharmacies\Infrastructure\Models\PharmacyOrder;
+use App\Modules\Radiology\Infrastructure\Models\RadiologyOrder;
 
 class PaymentCreationService
 {
@@ -114,6 +115,41 @@ class PaymentCreationService
 
         $this->auditLogService->log('payment.created_for_lab_order', $payment, $actor, metadata: [
             'lab_order_id' => $order->id,
+        ]);
+
+        return $payment->refresh();
+    }
+
+    public function createForRadiologyOrder(RadiologyOrder $order, User $actor): Payment
+    {
+        $payment = Payment::query()->create([
+            'payable_type' => RadiologyOrder::class,
+            'payable_id' => $order->id,
+            'user_id' => $order->patient_user_id,
+            'provider_id' => $order->provider_id,
+            'provider_type' => 'radiology',
+            'amount' => $order->total_amount,
+            'currency' => 'EGP',
+            'status' => PaymentStatus::AwaitingMethod,
+            'created_by' => $actor->id,
+            'metadata' => [
+                'order_number' => $order->order_number,
+                'source' => 'radiology_order',
+            ],
+        ]);
+
+        $payment->statusHistories()->create([
+            'from_status' => null,
+            'to_status' => PaymentStatus::AwaitingMethod->value,
+            'actor_id' => $actor->id,
+            'reason' => 'Payment created for radiology order.',
+            'metadata' => ['radiology_order_id' => $order->id],
+        ]);
+
+        $order->update(['payment_id' => $payment->id]);
+
+        $this->auditLogService->log('payment.created_for_radiology_order', $payment, $actor, metadata: [
+            'radiology_order_id' => $order->id,
         ]);
 
         return $payment->refresh();

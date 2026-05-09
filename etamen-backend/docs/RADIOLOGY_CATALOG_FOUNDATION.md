@@ -82,3 +82,35 @@ Not implemented in Sprint 37:
 ## Future Integration Notes
 
 Radiology scans currently remain their own catalog table. They can later be linked into `provider_services` as `service_type = radiology_scan` when the order/payment/result lifecycle is implemented and price ownership is fully tested end to end.
+
+---
+
+## Sprint 44 Update - Orders, Payments, Results
+
+Sprint 44 adds a local backend order lifecycle on top of the Sprint 37 catalog foundation.
+
+Implemented locally:
+
+- `radiology_orders`
+- `radiology_order_items`
+- `radiology_order_status_histories`
+- `radiology_results`
+- patient order APIs.
+- provider order/result APIs.
+- admin order/result APIs.
+- manual payment integration using the existing payment proof/admin review flow.
+- private result metadata and secure download route.
+
+Chosen payment behavior:
+
+- paid radiology orders start as `pending_payment`.
+- proof upload moves the order to `pending_payment_review`.
+- admin payment acceptance moves the order to `paid`.
+- provider acceptance/fulfillment happens after payment.
+
+Still not implemented:
+
+- Flutter radiology patient screens.
+- public launch radiology operations.
+- DICOM viewer/image portal.
+- refund workflow for paid radiology cancellations.

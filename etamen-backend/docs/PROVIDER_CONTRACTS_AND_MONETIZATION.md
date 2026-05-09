@@ -99,3 +99,20 @@ Future sprints:
 - provider-facing contract summary.
 - pay-at-branch workflow if product approves it.
 - finance reconciliation reports.
+
+---
+
+## Sprint 44 Radiology Payment Policy
+
+Sprint 44 added radiology order payment foundation locally.
+
+Rules:
+
+1. Radiology order totals are calculated from backend-owned `radiology_scans.base_price`.
+2. Flutter/patient requests cannot set subtotal, total, status, or payment id.
+3. A `Payment` is created for paid radiology orders with `provider_type = radiology`.
+4. Manual proof upload reuses the existing private proof storage and admin review workflow.
+5. Admin acceptance verifies the payment and moves the radiology order to `paid`.
+6. Provider/admin result upload does not expose raw private storage paths.
+
+Wallet/settlement release for radiology is intentionally not expanded in this sprint. That should be designed with contract and commission rules before public operation.

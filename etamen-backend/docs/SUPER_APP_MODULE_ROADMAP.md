@@ -317,3 +317,23 @@ Still deferred:
 - Hospital admin analytics/reporting.
 - Real hospital onboarding and document review.
 - Public launch readiness.
+
+## Sprint 44 Implementation Update
+
+Implemented locally as backend foundation only:
+
+- Added radiology order tables and status lifecycle.
+- Added patient order APIs.
+- Added provider order management and result upload APIs.
+- Added admin order/result APIs and Filament resources.
+- Integrated radiology orders with existing manual payment proof/admin accept flow.
+- Added secure private result metadata and download authorization.
+- Added feature tests for pricing, payment, provider scoping, result privacy, and admin filters.
+
+Still deferred:
+
+- Flutter radiology screens.
+- Staging deployment of radiology order APIs.
+- Public radiology launch.
+- DICOM/image viewer.
+- Refund/settlement policy for radiology orders.

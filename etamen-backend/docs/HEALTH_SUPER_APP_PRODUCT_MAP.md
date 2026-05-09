@@ -220,3 +220,26 @@ Remaining hospital roadmap:
 - Rich media and insurance filters.
 - Public website hospital discovery.
 - Real hospital onboarding and legal verification.
+
+---
+
+## Sprint 44 Radiology Order Update
+
+Radiology moved from catalog-only backend foundation to local backend order foundation.
+
+Implemented locally:
+
+- patient can create radiology orders from active scans.
+- backend calculates totals from scan prices.
+- existing manual payment proof flow supports radiology orders.
+- admin payment acceptance moves radiology order to `paid`.
+- provider/admin can upload private result/report files.
+- patient can see only visible result metadata and secure download route.
+
+Not yet implemented:
+
+- Flutter radiology patient screens.
+- staging radiology QA.
+- public launch operations.
+- DICOM viewer.
+- radiology refund/settlement automation.

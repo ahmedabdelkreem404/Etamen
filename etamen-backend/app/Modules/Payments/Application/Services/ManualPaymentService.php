@@ -20,6 +20,8 @@ use App\Modules\Payments\Infrastructure\Models\PaymentMethod;
 use App\Modules\Pharmacies\Domain\Enums\PharmacyOrderPaymentStatus;
 use App\Modules\Pharmacies\Domain\Enums\PharmacyOrderStatus;
 use App\Modules\Pharmacies\Infrastructure\Models\PharmacyOrder;
+use App\Modules\Radiology\Application\Services\RadiologyOrderService;
+use App\Modules\Radiology\Infrastructure\Models\RadiologyOrder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -31,6 +33,7 @@ class ManualPaymentService
         private readonly PaymentVerificationService $paymentVerificationService,
         private readonly AppointmentStatusService $appointmentStatusService,
         private readonly AuditLogService $auditLogService,
+        private readonly RadiologyOrderService $radiologyOrderService,
     ) {}
 
     public function selectMethod(User $patient, Payment $payment, int $paymentMethodId): array
@@ -52,6 +55,7 @@ class ManualPaymentService
             ], ['payment_method_id' => $method->id, 'rejected_at' => null]);
             $this->resetPharmacyOrderForManualRetry($payment, $patient);
             $this->resetLabOrderForManualRetry($payment, $patient);
+            $this->resetRadiologyOrderForManualRetry($payment, $patient);
 
             $this->auditLogService->log('payment.manual_method_selected', $payment, $patient, metadata: [
                 'payment_method_id' => $method->id,
@@ -104,6 +108,7 @@ class ManualPaymentService
             $this->moveAppointmentToPaymentReview($payment, $patient);
             $this->movePharmacyOrderToPaymentReview($payment, $patient);
             $this->moveLabOrderToPaymentReview($payment, $patient);
+            $this->moveRadiologyOrderToPaymentReview($payment, $patient);
 
             $this->auditLogService->log('payment.manual_proof_uploaded', $payment, $patient, metadata: [
                 'file_id' => $uploadedFile->id,
@@ -188,6 +193,7 @@ class ManualPaymentService
             $this->returnAppointmentToPendingPayment($payment, $admin, $reason);
             $this->returnPharmacyOrderToPendingPayment($payment, $admin, $reason);
             $this->returnLabOrderToPendingPayment($payment, $admin, $reason);
+            $this->returnRadiologyOrderToPendingPayment($payment, $admin, $reason);
 
             $this->auditLogService->log('payment.manual_proof_rejected', $proof, $admin, metadata: [
                 'payment_id' => $payment->id,
@@ -476,5 +482,35 @@ class ManualPaymentService
             'payment_id' => $payment->id,
             'reason' => $reason,
         ]);
+    }
+
+    private function moveRadiologyOrderToPaymentReview(Payment $payment, User $actor): void
+    {
+        if ($payment->payable_type !== RadiologyOrder::class || ! $payment->payable_id) {
+            return;
+        }
+
+        $order = RadiologyOrder::query()->whereKey($payment->payable_id)->lockForUpdate()->firstOrFail();
+        $this->radiologyOrderService->moveToPaymentReview($order, $actor, ['payment_id' => $payment->id]);
+    }
+
+    private function resetRadiologyOrderForManualRetry(Payment $payment, User $actor): void
+    {
+        if ($payment->payable_type !== RadiologyOrder::class || ! $payment->payable_id) {
+            return;
+        }
+
+        $order = RadiologyOrder::query()->whereKey($payment->payable_id)->lockForUpdate()->firstOrFail();
+        $this->radiologyOrderService->returnToPendingPayment($order, $actor, 'Manual payment retry started.');
+    }
+
+    private function returnRadiologyOrderToPendingPayment(Payment $payment, User $actor, string $reason): void
+    {
+        if ($payment->payable_type !== RadiologyOrder::class || ! $payment->payable_id) {
+            return;
+        }
+
+        $order = RadiologyOrder::query()->whereKey($payment->payable_id)->lockForUpdate()->firstOrFail();
+        $this->radiologyOrderService->returnToPendingPayment($order, $actor, $reason);
     }
 }

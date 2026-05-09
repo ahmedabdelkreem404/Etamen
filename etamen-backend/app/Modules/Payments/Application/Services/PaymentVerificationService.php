@@ -15,6 +15,8 @@ use App\Modules\Payments\Infrastructure\Models\Payment;
 use App\Modules\Pharmacies\Domain\Enums\PharmacyOrderPaymentStatus;
 use App\Modules\Pharmacies\Domain\Enums\PharmacyOrderStatus;
 use App\Modules\Pharmacies\Infrastructure\Models\PharmacyOrder;
+use App\Modules\Radiology\Application\Services\RadiologyOrderService;
+use App\Modules\Radiology\Infrastructure\Models\RadiologyOrder;
 use App\Modules\Wallets\Application\Services\WalletPostingService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -26,6 +28,7 @@ class PaymentVerificationService
         private readonly InvoiceService $invoiceService,
         private readonly AuditLogService $auditLogService,
         private readonly WalletPostingService $walletPostingService,
+        private readonly RadiologyOrderService $radiologyOrderService,
     ) {}
 
     public function verifyManualAdmin(Payment $payment, User $actor, string $reason = 'Manual payment verified.', array $metadata = []): Payment
@@ -59,6 +62,7 @@ class PaymentVerificationService
                 $this->confirmAppointmentIfNeeded($payment, $actor, $metadata, strict: false);
                 $this->markPharmacyOrderPaidIfNeeded($payment, $actor, $metadata, strict: false);
                 $this->markLabOrderPaidIfNeeded($payment, $actor, $metadata, strict: false);
+                $this->markRadiologyOrderPaidIfNeeded($payment, $actor, $metadata, strict: false);
                 $this->invoiceService->createForPayment($payment);
                 $this->walletPostingService->postVerifiedPayment($payment, $actor);
 
@@ -92,6 +96,7 @@ class PaymentVerificationService
             $this->confirmAppointmentIfNeeded($payment, $actor, $metadata, strict: true);
             $this->markPharmacyOrderPaidIfNeeded($payment, $actor, $metadata, strict: true);
             $this->markLabOrderPaidIfNeeded($payment, $actor, $metadata, strict: true);
+            $this->markRadiologyOrderPaidIfNeeded($payment, $actor, $metadata, strict: true);
 
             $this->invoiceService->createForPayment($payment);
             $this->walletPostingService->postVerifiedPayment($payment, $actor);
@@ -278,5 +283,22 @@ class PaymentVerificationService
         }
 
         $this->auditLogService->log('lab_order.paid_after_payment', $order, $actor, before: $before, after: $order->getAttributes(), metadata: ['payment_id' => $payment->id] + $metadata);
+    }
+
+    private function markRadiologyOrderPaidIfNeeded(Payment $payment, ?User $actor, array $metadata, bool $strict): void
+    {
+        if ($payment->payable_type !== RadiologyOrder::class || ! $payment->payable_id) {
+            return;
+        }
+
+        $order = RadiologyOrder::query()->whereKey($payment->payable_id)->lockForUpdate()->firstOrFail();
+
+        try {
+            $this->radiologyOrderService->markPaidAfterPayment($order, $actor, ['payment_id' => $payment->id] + $metadata);
+        } catch (ValidationException $exception) {
+            if ($strict) {
+                throw $exception;
+            }
+        }
     }
 }
