@@ -433,6 +433,17 @@ Because staging still returns no active payment methods, the Sprint 40 emulator 
 | Real proof upload | NOT TESTED | Requires owner phone after staging activation. |
 | Admin review | NOT TESTED | No real proof exists yet. |
 
+Sprint 40 APK install/launch check on emulator:
+
+- Device: `emulator-5554`.
+- Install: PASS.
+- Launch: PASS.
+- Screenshot:
+
+```text
+I:\Etamen\.tmp\sprint40-payment-methods-proof-gate\01-apk-installed-launched.png
+```
+
 ## Sprint 40 Decision
 
 Decision:
