@@ -311,6 +311,7 @@ Key files:
 - `10-account.png`
 - `11-after-logout.png`
 - `12-final-apk-launch.png`
+- `13-final-apk-home-after-login.png`
 
 ## Important Note
 
@@ -328,10 +329,11 @@ C:\Users\Ahmed Abdelkareem\OneDrive\Desktop\Etamen_Android_Website_Ready\etamen-
 Build result:
 
 - PASS.
-- Size: `53.64 MB`.
-- SHA-256: `87DFB6A3863C6483CDC6B47BEFB52D311983317E65764BDC33DD2C1817D2FF3A`.
+- Size: `98.36 MB`.
+- SHA-256: `09488C9701197E9A501AA3832FB4F675ED152FF15A4C2EDAD27645CE48B0DD01`.
 - Native ABIs: `armeabi-v7a`, `arm64-v8a`, `x86_64`.
 - Final copied APK installed successfully on emulator after build.
+- Final copied APK launched to login and completed a fresh staging login on emulator.
 
 ## Sprint 39 QA Decision
 

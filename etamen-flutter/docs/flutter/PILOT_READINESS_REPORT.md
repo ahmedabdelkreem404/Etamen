@@ -723,8 +723,8 @@ C:\Users\Ahmed Abdelkareem\OneDrive\Desktop\Etamen_Android_Website_Ready\etamen-
 APK build status:
 
 - PASS.
-- Size: `53.64 MB`.
-- SHA-256: `87DFB6A3863C6483CDC6B47BEFB52D311983317E65764BDC33DD2C1817D2FF3A`.
+- Size: `98.36 MB`.
+- SHA-256: `09488C9701197E9A501AA3832FB4F675ED152FF15A4C2EDAD27645CE48B0DD01`.
 - Built with staging API base `https://etamen.inolty.com/api/v1`.
 - Includes `armeabi-v7a`, `arm64-v8a`, and `x86_64`.
 
