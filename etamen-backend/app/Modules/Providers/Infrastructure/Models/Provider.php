@@ -3,6 +3,11 @@
 namespace App\Modules\Providers\Infrastructure\Models;
 
 use App\Models\User;
+use App\Modules\Fitness\Infrastructure\Models\CoachAvailabilitySlot;
+use App\Modules\Fitness\Infrastructure\Models\CoachPackage;
+use App\Modules\Fitness\Infrastructure\Models\CoachSessionType;
+use App\Modules\Fitness\Infrastructure\Models\GymClassModel;
+use App\Modules\Fitness\Infrastructure\Models\GymMembershipPlan;
 use App\Modules\Providers\Domain\Enums\ProviderStatus;
 use App\Modules\Providers\Domain\Enums\ProviderType;
 use Illuminate\Database\Eloquent\Builder;
@@ -204,5 +209,30 @@ class Provider extends Model
     public function affiliatedHospitalLinks(): HasMany
     {
         return $this->hasMany(HospitalDoctor::class, 'doctor_provider_id');
+    }
+
+    public function gymMembershipPlans(): HasMany
+    {
+        return $this->hasMany(GymMembershipPlan::class);
+    }
+
+    public function gymClasses(): HasMany
+    {
+        return $this->hasMany(GymClassModel::class);
+    }
+
+    public function coachSessionTypes(): HasMany
+    {
+        return $this->hasMany(CoachSessionType::class);
+    }
+
+    public function coachAvailabilitySlots(): HasMany
+    {
+        return $this->hasMany(CoachAvailabilitySlot::class);
+    }
+
+    public function coachPackages(): HasMany
+    {
+        return $this->hasMany(CoachPackage::class);
     }
 }

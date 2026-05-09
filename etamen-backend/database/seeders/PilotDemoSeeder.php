@@ -23,6 +23,13 @@ use App\Modules\CarePlans\Infrastructure\Models\CarePlanDay;
 use App\Modules\CarePlans\Infrastructure\Models\CarePlanFoodItem;
 use App\Modules\CarePlans\Infrastructure\Models\CarePlanInstruction;
 use App\Modules\CarePlans\Infrastructure\Models\CarePlanMeal;
+use App\Modules\Fitness\Domain\Enums\CoachAvailabilityStatus;
+use App\Modules\Fitness\Domain\Enums\CoachSessionMode;
+use App\Modules\Fitness\Infrastructure\Models\CoachAvailabilitySlot;
+use App\Modules\Fitness\Infrastructure\Models\CoachPackage;
+use App\Modules\Fitness\Infrastructure\Models\CoachSessionType;
+use App\Modules\Fitness\Infrastructure\Models\GymClassModel;
+use App\Modules\Fitness\Infrastructure\Models\GymMembershipPlan;
 use App\Modules\Health\Domain\Enums\BloodType;
 use App\Modules\Health\Domain\Enums\Gender;
 use App\Modules\Health\Domain\Enums\VitalFlag;
@@ -61,10 +68,13 @@ use App\Modules\Payments\Database\Seeders\PaymentMethodSeeder;
 use App\Modules\Payments\Domain\Enums\PaymentMethodType;
 use App\Modules\Payments\Infrastructure\Models\PaymentMethod;
 use App\Modules\Pharmacies\Infrastructure\Models\PharmacyProduct;
+use App\Modules\Providers\Domain\Enums\CoachType;
 use App\Modules\Providers\Domain\Enums\ProviderStaffRole;
 use App\Modules\Providers\Domain\Enums\ProviderStatus;
 use App\Modules\Providers\Domain\Enums\ProviderType;
 use App\Modules\Providers\Infrastructure\Models\DoctorProfile;
+use App\Modules\Providers\Infrastructure\Models\CoachProfile;
+use App\Modules\Providers\Infrastructure\Models\GymProfile;
 use App\Modules\Providers\Infrastructure\Models\HospitalDepartment;
 use App\Modules\Providers\Infrastructure\Models\HospitalDoctor;
 use App\Modules\Providers\Infrastructure\Models\HospitalProfile;
@@ -116,6 +126,9 @@ class PilotDemoSeeder extends Seeder
             $labUser = $this->demoUser('pilot.lab@example.test', 'Pilot Lab Admin', UserRole::LabAdmin);
             $radiologyUser = $this->demoUser('pilot.radiology@example.test', 'Pilot Radiology Admin', UserRole::ProviderAdmin);
             $hospitalUser = $this->demoUser('pilot.hospital@example.test', 'Pilot Hospital Admin', UserRole::ProviderAdmin);
+            $gymUser = $this->demoUser('pilot.gym@example.test', 'Pilot Gym Admin', UserRole::ProviderAdmin);
+            $fitnessCoachUser = $this->demoUser('pilot.fitness.coach@example.test', 'Pilot Fitness Coach', UserRole::ProviderAdmin);
+            $nutritionCoachUser = $this->demoUser('pilot.nutrition.coach@example.test', 'Pilot Nutrition Coach', UserRole::ProviderAdmin);
 
             $this->seedPatientProfile($patient);
             [$city, $area] = $this->seedLocation();
@@ -126,6 +139,7 @@ class PilotDemoSeeder extends Seeder
             $pharmacyProvider = $this->seedPharmacy($pharmacyUser, $admin, $city, $area);
             $labProvider = $this->seedLab($labUser, $admin, $city, $area);
             $this->seedRadiology($radiologyUser, $admin, $city, $area);
+            $this->seedFitness($gymUser, $fitnessCoachUser, $nutritionCoachUser, $admin, $city, $area);
             $this->seedHealthData($patient);
             $this->seedMedicationData($patient);
             $this->seedCarePlan($patient, $admin, $doctorProvider);
@@ -1443,6 +1457,250 @@ class PilotDemoSeeder extends Seeder
                     'warning_en' => null,
                     'is_active' => true,
                     'sort_order' => 10,
+                ],
+            );
+        }
+
+        return $provider;
+    }
+
+    private function seedFitness(User $gymUser, User $fitnessCoachUser, User $nutritionCoachUser, User $admin, City $city, Area $area): void
+    {
+        $gym = $this->provider(
+            type: ProviderType::Gym,
+            owner: $gymUser,
+            admin: $admin,
+            slug: 'pilot-demo-gym',
+            nameAr: 'جيم اطمن',
+            nameEn: 'Etamen Gym',
+            phone: '01000007001',
+            descriptionAr: 'جيم تجريبي آمن لاختبار حجز الاشتراكات والحصص داخل البيئة المحلية فقط.',
+            descriptionEn: 'Safe demo gym for local membership and class booking QA only.',
+        );
+        $this->providerStaff($gym, $gymUser, ProviderStaffRole::Owner);
+
+        GymProfile::query()->updateOrCreate(
+            ['provider_id' => $gym->id],
+            [
+                'men_allowed' => true,
+                'women_allowed' => true,
+                'ladies_only_hours' => false,
+                'has_classes' => true,
+                'has_personal_training' => true,
+                'description_ar' => 'ملف جيم تجريبي بدون أي ادعاءات طبية.',
+                'description_en' => 'Demo gym profile without medical claims.',
+                'is_active' => true,
+            ],
+        );
+
+        $gymBranch = ProviderBranch::query()->updateOrCreate(
+            ['provider_id' => $gym->id, 'name_en' => 'Etamen Gym Nasr City'],
+            [
+                'city_id' => $city->id,
+                'area_id' => $area->id,
+                'name_ar' => 'جيم اطمن - مدينة نصر',
+                'phone' => '01000007001',
+                'whatsapp' => '01000007001',
+                'address_line_1' => 'Demo Gym Street',
+                'district' => 'Nasr City',
+                'address_ar' => 'شارع تجريبي، مدينة نصر، القاهرة',
+                'address_en' => 'Demo Gym Street, Nasr City, Cairo',
+                'latitude' => 30.0561000,
+                'longitude' => 31.3300000,
+                'is_main' => true,
+                'is_active' => true,
+            ],
+        );
+
+        GymMembershipPlan::query()->updateOrCreate(
+            ['provider_id' => $gym->id, 'name_en' => 'Monthly Demo Membership'],
+            [
+                'branch_id' => $gymBranch->id,
+                'name_ar' => 'اشتراك شهري',
+                'description_ar' => 'اشتراك تجريبي محلي لمدة شهر.',
+                'description_en' => 'Local demo monthly membership.',
+                'duration_days' => 30,
+                'price' => 900,
+                'sessions_count' => null,
+                'includes_classes' => true,
+                'includes_personal_training' => false,
+                'is_active' => true,
+                'sort_order' => 10,
+            ],
+        );
+
+        GymMembershipPlan::query()->updateOrCreate(
+            ['provider_id' => $gym->id, 'name_en' => '12 Sessions Demo Pass'],
+            [
+                'branch_id' => $gymBranch->id,
+                'name_ar' => 'باقة 12 حصة',
+                'description_ar' => 'باقة تجريبية لحجز حصص الجيم.',
+                'description_en' => 'Demo 12-session pass.',
+                'duration_days' => 45,
+                'price' => 1200,
+                'sessions_count' => 12,
+                'includes_classes' => true,
+                'includes_personal_training' => false,
+                'is_active' => true,
+                'sort_order' => 20,
+            ],
+        );
+
+        $fitnessCoach = $this->seedCoachProvider(
+            user: $fitnessCoachUser,
+            admin: $admin,
+            type: ProviderType::FitnessCoach,
+            coachType: CoachType::Fitness,
+            slug: 'pilot-demo-fitness-coach',
+            nameAr: 'كابتن أحمد التجريبي',
+            nameEn: 'Captain Ahmed Demo',
+            phone: '01000007002',
+            sessionOneAr: 'جلسة تقييم لياقة',
+            sessionOneEn: 'Fitness Assessment Session',
+            sessionTwoAr: 'متابعة شهرية',
+            sessionTwoEn: 'Monthly Follow-up',
+        );
+
+        $nutritionCoach = $this->seedCoachProvider(
+            user: $nutritionCoachUser,
+            admin: $admin,
+            type: ProviderType::NutritionCoach,
+            coachType: CoachType::Nutrition,
+            slug: 'pilot-demo-nutrition-coach',
+            nameAr: 'د. تغذية تجريبي',
+            nameEn: 'Demo Nutrition Coach',
+            phone: '01000007003',
+            sessionOneAr: 'جلسة نظام غذائي',
+            sessionOneEn: 'Nutrition Plan Session',
+            sessionTwoAr: 'متابعة أسبوعية',
+            sessionTwoEn: 'Weekly Follow-up',
+        );
+
+        GymClassModel::query()->updateOrCreate(
+            ['provider_id' => $gym->id, 'name_en' => 'Cardio Demo Class'],
+            [
+                'branch_id' => $gymBranch->id,
+                'coach_provider_id' => $fitnessCoach->id,
+                'name_ar' => 'كارديو',
+                'description_ar' => 'حصة كارديو تجريبية بدون أي ادعاء علاجي.',
+                'description_en' => 'Demo cardio class without treatment claims.',
+                'starts_at' => now()->addDays(2)->setTime(18, 0),
+                'ends_at' => now()->addDays(2)->setTime(19, 0),
+                'capacity' => 20,
+                'price' => 120,
+                'is_active' => true,
+            ],
+        );
+
+        GymClassModel::query()->updateOrCreate(
+            ['provider_id' => $gym->id, 'name_en' => 'Strength Demo Class'],
+            [
+                'branch_id' => $gymBranch->id,
+                'coach_provider_id' => $fitnessCoach->id,
+                'name_ar' => 'قوة ولياقة',
+                'description_ar' => 'حصة قوة ولياقة تجريبية للواجهة المحلية فقط.',
+                'description_en' => 'Demo strength class for local QA only.',
+                'starts_at' => now()->addDays(3)->setTime(19, 0),
+                'ends_at' => now()->addDays(3)->setTime(20, 0),
+                'capacity' => 15,
+                'price' => 150,
+                'is_active' => true,
+            ],
+        );
+    }
+
+    private function seedCoachProvider(
+        User $user,
+        User $admin,
+        ProviderType $type,
+        CoachType $coachType,
+        string $slug,
+        string $nameAr,
+        string $nameEn,
+        string $phone,
+        string $sessionOneAr,
+        string $sessionOneEn,
+        string $sessionTwoAr,
+        string $sessionTwoEn,
+    ): Provider {
+        $provider = $this->provider(
+            type: $type,
+            owner: $user,
+            admin: $admin,
+            slug: $slug,
+            nameAr: $nameAr,
+            nameEn: $nameEn,
+            phone: $phone,
+            descriptionAr: 'مقدم خدمة تجريبي للمتابعة الرياضية أو الغذائية بدون تشخيص أو وصفة علاجية.',
+            descriptionEn: 'Demo coach provider for fitness/nutrition QA without diagnosis or prescriptions.',
+        );
+        $this->providerStaff($provider, $user, ProviderStaffRole::Owner);
+
+        CoachProfile::query()->updateOrCreate(
+            ['provider_id' => $provider->id],
+            [
+                'coach_type' => $coachType,
+                'experience_years' => $coachType === CoachType::Nutrition ? 7 : 9,
+                'session_price' => $coachType === CoachType::Nutrition ? 350 : 250,
+                'monthly_followup_price' => $coachType === CoachType::Nutrition ? 900 : 750,
+                'online_coaching_enabled' => true,
+                'gym_visit_enabled' => $coachType !== CoachType::Nutrition,
+                'home_training_enabled' => $coachType !== CoachType::Nutrition,
+                'certifications_summary' => 'Demo certification summary visible for local QA only.',
+                'is_active' => true,
+            ],
+        );
+
+        CoachSessionType::query()->updateOrCreate(
+            ['provider_id' => $provider->id, 'name_en' => $sessionOneEn],
+            [
+                'name_ar' => $sessionOneAr,
+                'description_ar' => 'جلسة تجريبية للإرشاد العام والمتابعة فقط، وليست وصفة طبية.',
+                'description_en' => 'Demo guidance/follow-up session, not medical prescription.',
+                'duration_minutes' => 45,
+                'price' => $coachType === CoachType::Nutrition ? 350 : 250,
+                'session_mode' => CoachSessionMode::Online,
+                'is_active' => true,
+                'sort_order' => 10,
+            ],
+        );
+
+        CoachSessionType::query()->updateOrCreate(
+            ['provider_id' => $provider->id, 'name_en' => $sessionTwoEn],
+            [
+                'name_ar' => $sessionTwoAr,
+                'description_ar' => 'متابعة تجريبية آمنة للواجهة المحلية فقط.',
+                'description_en' => 'Safe demo follow-up for local QA only.',
+                'duration_minutes' => 30,
+                'price' => $coachType === CoachType::Nutrition ? 180 : 150,
+                'session_mode' => CoachSessionMode::Online,
+                'is_active' => true,
+                'sort_order' => 20,
+            ],
+        );
+
+        CoachPackage::query()->updateOrCreate(
+            ['provider_id' => $provider->id, 'name_en' => $nameEn.' Demo Package'],
+            [
+                'name_ar' => 'باقة متابعة تجريبية',
+                'description_ar' => 'باقة تجريبية للمتابعة فقط بدون ادعاءات علاجية.',
+                'description_en' => 'Demo follow-up package without treatment claims.',
+                'sessions_count' => 4,
+                'duration_days' => 30,
+                'price' => $coachType === CoachType::Nutrition ? 950 : 800,
+                'is_active' => true,
+            ],
+        );
+
+        for ($day = 1; $day <= 5; $day++) {
+            CoachAvailabilitySlot::query()->updateOrCreate(
+                [
+                    'provider_id' => $provider->id,
+                    'starts_at' => now()->addDays($day)->setTime(17, 0),
+                ],
+                [
+                    'ends_at' => now()->addDays($day)->setTime(18, 0),
+                    'status' => CoachAvailabilityStatus::Available,
                 ],
             );
         }

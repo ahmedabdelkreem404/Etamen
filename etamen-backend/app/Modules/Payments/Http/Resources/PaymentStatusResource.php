@@ -64,6 +64,28 @@ class PaymentStatusResource extends JsonResource
                     'status' => $this->payable->status->value,
                 ];
             }),
+            'gym_booking' => $this->whenLoaded('payable', function () {
+                if (! $this->payable || ! str_ends_with((string) $this->payable_type, 'GymBooking')) {
+                    return null;
+                }
+
+                return [
+                    'id' => $this->payable->id,
+                    'booking_number' => $this->payable->booking_number,
+                    'status' => $this->payable->status->value,
+                ];
+            }),
+            'coach_booking' => $this->whenLoaded('payable', function () {
+                if (! $this->payable || ! str_ends_with((string) $this->payable_type, 'CoachBooking')) {
+                    return null;
+                }
+
+                return [
+                    'id' => $this->payable->id,
+                    'booking_number' => $this->payable->booking_number,
+                    'status' => $this->payable->status->value,
+                ];
+            }),
             'payment_method' => $this->paymentMethod ? [
                 'id' => $this->paymentMethod->id,
                 'type' => $this->paymentMethod->type->value,

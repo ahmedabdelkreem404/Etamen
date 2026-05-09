@@ -7,6 +7,10 @@ use App\Modules\Appointments\Application\Services\AppointmentStatusService;
 use App\Modules\Appointments\Domain\Enums\AppointmentStatus;
 use App\Modules\Appointments\Infrastructure\Models\Appointment;
 use App\Modules\AuditLogs\Application\Services\AuditLogService;
+use App\Modules\Fitness\Application\Services\CoachBookingService;
+use App\Modules\Fitness\Application\Services\GymBookingService;
+use App\Modules\Fitness\Infrastructure\Models\CoachBooking;
+use App\Modules\Fitness\Infrastructure\Models\GymBooking;
 use App\Modules\Labs\Domain\Enums\LabOrderPaymentStatus;
 use App\Modules\Labs\Domain\Enums\LabOrderStatus;
 use App\Modules\Labs\Infrastructure\Models\LabOrder;
@@ -29,6 +33,8 @@ class PaymentVerificationService
         private readonly AuditLogService $auditLogService,
         private readonly WalletPostingService $walletPostingService,
         private readonly RadiologyOrderService $radiologyOrderService,
+        private readonly GymBookingService $gymBookingService,
+        private readonly CoachBookingService $coachBookingService,
     ) {}
 
     public function verifyManualAdmin(Payment $payment, User $actor, string $reason = 'Manual payment verified.', array $metadata = []): Payment
@@ -63,6 +69,8 @@ class PaymentVerificationService
                 $this->markPharmacyOrderPaidIfNeeded($payment, $actor, $metadata, strict: false);
                 $this->markLabOrderPaidIfNeeded($payment, $actor, $metadata, strict: false);
                 $this->markRadiologyOrderPaidIfNeeded($payment, $actor, $metadata, strict: false);
+                $this->markGymBookingPaidIfNeeded($payment, $actor, $metadata, strict: false);
+                $this->markCoachBookingPaidIfNeeded($payment, $actor, $metadata, strict: false);
                 $this->invoiceService->createForPayment($payment);
                 $this->walletPostingService->postVerifiedPayment($payment, $actor);
 
@@ -97,6 +105,8 @@ class PaymentVerificationService
             $this->markPharmacyOrderPaidIfNeeded($payment, $actor, $metadata, strict: true);
             $this->markLabOrderPaidIfNeeded($payment, $actor, $metadata, strict: true);
             $this->markRadiologyOrderPaidIfNeeded($payment, $actor, $metadata, strict: true);
+            $this->markGymBookingPaidIfNeeded($payment, $actor, $metadata, strict: true);
+            $this->markCoachBookingPaidIfNeeded($payment, $actor, $metadata, strict: true);
 
             $this->invoiceService->createForPayment($payment);
             $this->walletPostingService->postVerifiedPayment($payment, $actor);
@@ -295,6 +305,40 @@ class PaymentVerificationService
 
         try {
             $this->radiologyOrderService->markPaidAfterPayment($order, $actor, ['payment_id' => $payment->id] + $metadata);
+        } catch (ValidationException $exception) {
+            if ($strict) {
+                throw $exception;
+            }
+        }
+    }
+
+    private function markGymBookingPaidIfNeeded(Payment $payment, ?User $actor, array $metadata, bool $strict): void
+    {
+        if ($payment->payable_type !== GymBooking::class || ! $payment->payable_id) {
+            return;
+        }
+
+        $booking = GymBooking::query()->whereKey($payment->payable_id)->lockForUpdate()->firstOrFail();
+
+        try {
+            $this->gymBookingService->markPaidAfterPayment($booking, $actor, ['payment_id' => $payment->id] + $metadata);
+        } catch (ValidationException $exception) {
+            if ($strict) {
+                throw $exception;
+            }
+        }
+    }
+
+    private function markCoachBookingPaidIfNeeded(Payment $payment, ?User $actor, array $metadata, bool $strict): void
+    {
+        if ($payment->payable_type !== CoachBooking::class || ! $payment->payable_id) {
+            return;
+        }
+
+        $booking = CoachBooking::query()->whereKey($payment->payable_id)->lockForUpdate()->firstOrFail();
+
+        try {
+            $this->coachBookingService->markPaidAfterPayment($booking, $actor, ['payment_id' => $payment->id] + $metadata);
         } catch (ValidationException $exception) {
             if ($strict) {
                 throw $exception;

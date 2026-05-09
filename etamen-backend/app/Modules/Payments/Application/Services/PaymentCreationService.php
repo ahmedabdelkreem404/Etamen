@@ -5,6 +5,8 @@ namespace App\Modules\Payments\Application\Services;
 use App\Models\User;
 use App\Modules\Appointments\Infrastructure\Models\Appointment;
 use App\Modules\AuditLogs\Application\Services\AuditLogService;
+use App\Modules\Fitness\Infrastructure\Models\CoachBooking;
+use App\Modules\Fitness\Infrastructure\Models\GymBooking;
 use App\Modules\Labs\Infrastructure\Models\LabOrder;
 use App\Modules\Payments\Domain\Enums\PaymentStatus;
 use App\Modules\Payments\Infrastructure\Models\Payment;
@@ -150,6 +152,78 @@ class PaymentCreationService
 
         $this->auditLogService->log('payment.created_for_radiology_order', $payment, $actor, metadata: [
             'radiology_order_id' => $order->id,
+        ]);
+
+        return $payment->refresh();
+    }
+
+    public function createForGymBooking(GymBooking $booking, User $actor): Payment
+    {
+        $payment = Payment::query()->create([
+            'payable_type' => GymBooking::class,
+            'payable_id' => $booking->id,
+            'user_id' => $booking->patient_user_id,
+            'provider_id' => $booking->provider_id,
+            'provider_type' => 'gym',
+            'amount' => $booking->total_amount,
+            'currency' => 'EGP',
+            'status' => PaymentStatus::AwaitingMethod,
+            'created_by' => $actor->id,
+            'metadata' => [
+                'booking_number' => $booking->booking_number,
+                'source' => 'gym_booking',
+            ],
+        ]);
+
+        $payment->statusHistories()->create([
+            'from_status' => null,
+            'to_status' => PaymentStatus::AwaitingMethod->value,
+            'actor_id' => $actor->id,
+            'reason' => 'Payment created for gym booking.',
+            'metadata' => ['gym_booking_id' => $booking->id],
+        ]);
+
+        $booking->update(['payment_id' => $payment->id]);
+
+        $this->auditLogService->log('payment.created_for_gym_booking', $payment, $actor, metadata: [
+            'gym_booking_id' => $booking->id,
+        ]);
+
+        return $payment->refresh();
+    }
+
+    public function createForCoachBooking(CoachBooking $booking, User $actor): Payment
+    {
+        $providerType = $booking->coachProvider?->type?->value ?? 'fitness_coach';
+
+        $payment = Payment::query()->create([
+            'payable_type' => CoachBooking::class,
+            'payable_id' => $booking->id,
+            'user_id' => $booking->patient_user_id,
+            'provider_id' => $booking->coach_provider_id,
+            'provider_type' => $providerType,
+            'amount' => $booking->total_amount,
+            'currency' => 'EGP',
+            'status' => PaymentStatus::AwaitingMethod,
+            'created_by' => $actor->id,
+            'metadata' => [
+                'booking_number' => $booking->booking_number,
+                'source' => 'coach_booking',
+            ],
+        ]);
+
+        $payment->statusHistories()->create([
+            'from_status' => null,
+            'to_status' => PaymentStatus::AwaitingMethod->value,
+            'actor_id' => $actor->id,
+            'reason' => 'Payment created for coach booking.',
+            'metadata' => ['coach_booking_id' => $booking->id],
+        ]);
+
+        $booking->update(['payment_id' => $payment->id]);
+
+        $this->auditLogService->log('payment.created_for_coach_booking', $payment, $actor, metadata: [
+            'coach_booking_id' => $booking->id,
         ]);
 
         return $payment->refresh();

@@ -13,6 +13,7 @@ Route::prefix('v1')->group(function (): void {
     require app_path('Modules/Pharmacies/Http/routes.php');
     require app_path('Modules/Labs/Http/routes.php');
     require app_path('Modules/Radiology/Http/routes.php');
+    require app_path('Modules/Fitness/Http/routes.php');
     require app_path('Modules/Health/Http/routes.php');
     require app_path('Modules/Medications/Http/routes.php');
     require app_path('Modules/CarePlans/Http/routes.php');

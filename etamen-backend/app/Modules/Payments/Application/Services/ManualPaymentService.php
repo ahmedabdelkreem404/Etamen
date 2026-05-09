@@ -7,6 +7,10 @@ use App\Modules\Appointments\Application\Services\AppointmentStatusService;
 use App\Modules\Appointments\Domain\Enums\AppointmentStatus;
 use App\Modules\Appointments\Infrastructure\Models\Appointment;
 use App\Modules\AuditLogs\Application\Services\AuditLogService;
+use App\Modules\Fitness\Application\Services\CoachBookingService;
+use App\Modules\Fitness\Application\Services\GymBookingService;
+use App\Modules\Fitness\Infrastructure\Models\CoachBooking;
+use App\Modules\Fitness\Infrastructure\Models\GymBooking;
 use App\Modules\Labs\Domain\Enums\LabOrderPaymentStatus;
 use App\Modules\Labs\Domain\Enums\LabOrderStatus;
 use App\Modules\Labs\Infrastructure\Models\LabOrder;
@@ -34,6 +38,8 @@ class ManualPaymentService
         private readonly AppointmentStatusService $appointmentStatusService,
         private readonly AuditLogService $auditLogService,
         private readonly RadiologyOrderService $radiologyOrderService,
+        private readonly GymBookingService $gymBookingService,
+        private readonly CoachBookingService $coachBookingService,
     ) {}
 
     public function selectMethod(User $patient, Payment $payment, int $paymentMethodId): array
@@ -56,6 +62,8 @@ class ManualPaymentService
             $this->resetPharmacyOrderForManualRetry($payment, $patient);
             $this->resetLabOrderForManualRetry($payment, $patient);
             $this->resetRadiologyOrderForManualRetry($payment, $patient);
+            $this->resetGymBookingForManualRetry($payment, $patient);
+            $this->resetCoachBookingForManualRetry($payment, $patient);
 
             $this->auditLogService->log('payment.manual_method_selected', $payment, $patient, metadata: [
                 'payment_method_id' => $method->id,
@@ -109,6 +117,8 @@ class ManualPaymentService
             $this->movePharmacyOrderToPaymentReview($payment, $patient);
             $this->moveLabOrderToPaymentReview($payment, $patient);
             $this->moveRadiologyOrderToPaymentReview($payment, $patient);
+            $this->moveGymBookingToPaymentReview($payment, $patient);
+            $this->moveCoachBookingToPaymentReview($payment, $patient);
 
             $this->auditLogService->log('payment.manual_proof_uploaded', $payment, $patient, metadata: [
                 'file_id' => $uploadedFile->id,
@@ -194,6 +204,8 @@ class ManualPaymentService
             $this->returnPharmacyOrderToPendingPayment($payment, $admin, $reason);
             $this->returnLabOrderToPendingPayment($payment, $admin, $reason);
             $this->returnRadiologyOrderToPendingPayment($payment, $admin, $reason);
+            $this->returnGymBookingToPendingPayment($payment, $admin, $reason);
+            $this->returnCoachBookingToPendingPayment($payment, $admin, $reason);
 
             $this->auditLogService->log('payment.manual_proof_rejected', $proof, $admin, metadata: [
                 'payment_id' => $payment->id,
@@ -512,5 +524,65 @@ class ManualPaymentService
 
         $order = RadiologyOrder::query()->whereKey($payment->payable_id)->lockForUpdate()->firstOrFail();
         $this->radiologyOrderService->returnToPendingPayment($order, $actor, $reason);
+    }
+
+    private function moveGymBookingToPaymentReview(Payment $payment, User $actor): void
+    {
+        if ($payment->payable_type !== GymBooking::class || ! $payment->payable_id) {
+            return;
+        }
+
+        $booking = GymBooking::query()->whereKey($payment->payable_id)->lockForUpdate()->firstOrFail();
+        $this->gymBookingService->moveToPaymentReview($booking, $actor, ['payment_id' => $payment->id]);
+    }
+
+    private function resetGymBookingForManualRetry(Payment $payment, User $actor): void
+    {
+        if ($payment->payable_type !== GymBooking::class || ! $payment->payable_id) {
+            return;
+        }
+
+        $booking = GymBooking::query()->whereKey($payment->payable_id)->lockForUpdate()->firstOrFail();
+        $this->gymBookingService->returnToPendingPayment($booking, $actor, 'Manual payment retry started.');
+    }
+
+    private function returnGymBookingToPendingPayment(Payment $payment, User $actor, string $reason): void
+    {
+        if ($payment->payable_type !== GymBooking::class || ! $payment->payable_id) {
+            return;
+        }
+
+        $booking = GymBooking::query()->whereKey($payment->payable_id)->lockForUpdate()->firstOrFail();
+        $this->gymBookingService->returnToPendingPayment($booking, $actor, $reason);
+    }
+
+    private function moveCoachBookingToPaymentReview(Payment $payment, User $actor): void
+    {
+        if ($payment->payable_type !== CoachBooking::class || ! $payment->payable_id) {
+            return;
+        }
+
+        $booking = CoachBooking::query()->whereKey($payment->payable_id)->lockForUpdate()->firstOrFail();
+        $this->coachBookingService->moveToPaymentReview($booking, $actor, ['payment_id' => $payment->id]);
+    }
+
+    private function resetCoachBookingForManualRetry(Payment $payment, User $actor): void
+    {
+        if ($payment->payable_type !== CoachBooking::class || ! $payment->payable_id) {
+            return;
+        }
+
+        $booking = CoachBooking::query()->whereKey($payment->payable_id)->lockForUpdate()->firstOrFail();
+        $this->coachBookingService->returnToPendingPayment($booking, $actor, 'Manual payment retry started.');
+    }
+
+    private function returnCoachBookingToPendingPayment(Payment $payment, User $actor, string $reason): void
+    {
+        if ($payment->payable_type !== CoachBooking::class || ! $payment->payable_id) {
+            return;
+        }
+
+        $booking = CoachBooking::query()->whereKey($payment->payable_id)->lockForUpdate()->firstOrFail();
+        $this->coachBookingService->returnToPendingPayment($booking, $actor, $reason);
     }
 }

@@ -243,3 +243,32 @@ Not yet implemented:
 - public launch operations.
 - DICOM viewer.
 - radiology refund/settlement automation.
+
+---
+
+## Sprint 46 Gym + Coach Backend Update
+
+Gym and coach moved from provider profile foundation to local backend booking/payment foundation.
+
+Implemented locally:
+
+- approved active gym discovery APIs.
+- gym membership plan and class catalog.
+- patient gym booking APIs.
+- approved active fitness/nutrition coach discovery APIs.
+- coach session type, availability, and package catalog.
+- patient coach booking APIs.
+- existing manual payment proof/admin accept flow supports gym and coach bookings.
+- provider-scoped catalog management APIs.
+- admin APIs and Filament resources.
+- local demo gym, fitness coach, and nutrition coach seed data.
+
+Not yet implemented:
+
+- Flutter gym/coach patient screens.
+- staging gym/coach QA.
+- real phone gym/coach proof upload.
+- advanced subscriptions.
+- coach program progress tracking.
+- gym attendance/check-in.
+- wallet/settlement release rules for gym/coach.

@@ -116,3 +116,21 @@ Rules:
 6. Provider/admin result upload does not expose raw private storage paths.
 
 Wallet/settlement release for radiology is intentionally not expanded in this sprint. That should be designed with contract and commission rules before public operation.
+
+---
+
+## Sprint 46 Gym/Coach Payment Policy
+
+Sprint 46 added local backend payment foundation for gym and coach bookings.
+
+Rules:
+
+1. Gym booking totals come from backend-owned membership plan or class price.
+2. Coach booking totals come from backend-owned session type price.
+3. Patient requests cannot set total, status, or payment id.
+4. A `Payment` is created for paid gym and coach bookings.
+5. Manual proof upload reuses existing private proof storage and admin review.
+6. Admin acceptance verifies the payment and moves the booking to `confirmed`.
+7. Payment config, commission terms, and provider contracts are not exposed publicly.
+
+Wallet posting intentionally ignores gym/coach payable types for now. Commission, holds, releases, refunds, and settlements for these verticals need a dedicated finance design before public operation.

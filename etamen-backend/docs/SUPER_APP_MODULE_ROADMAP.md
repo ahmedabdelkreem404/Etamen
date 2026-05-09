@@ -365,3 +365,27 @@ Still deferred:
 - production result download hardening across device matrix.
 - provider-facing mobile radiology UI.
 - public launch readiness.
+
+## Sprint 46 Implementation Update
+
+Implemented locally as backend foundation only:
+
+- Gym discovery APIs.
+- Gym membership plans and classes.
+- Gym booking/payment lifecycle foundation.
+- Coach discovery APIs.
+- Coach session types, availability slots, and packages.
+- Coach booking/payment lifecycle foundation.
+- Provider-owned management APIs.
+- Admin listing APIs.
+- Filament resources for gym/coach catalog, bookings, and histories.
+- Demo seed data for one gym, one fitness coach, and one nutrition coach.
+- Feature tests for public visibility, provider scoping, payment proof/admin accept, and privacy.
+
+Still deferred:
+
+- Flutter gym/coach screens.
+- local emulator UI QA for gym/coach.
+- staging deployment.
+- production operations.
+- advanced subscriptions, class capacity enforcement, refunds, attendance, and coach progress plans.
