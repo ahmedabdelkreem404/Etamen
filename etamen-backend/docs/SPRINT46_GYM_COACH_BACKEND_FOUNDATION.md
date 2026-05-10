@@ -257,3 +257,69 @@ Required next step:
 
 - complete local gym and coach payment proof/admin accept from Flutter.
 - keep backend ownership of price/status/payment verification unchanged.
+
+---
+
+# Sprint 48 Local Fitness Payment E2E Follow-up
+
+Date: 2026-05-10
+
+Sprint 48 exercised the Sprint 46 backend through the Flutter emulator and closed the local payment E2E gap.
+
+## Backend Behavior Verified
+
+Gym:
+
+- Flutter created a gym booking.
+- Backend calculated the price from the membership plan.
+- Backend created payment `1`.
+- Manual proof upload moved the payment to `pending_review`.
+- Manual proof upload moved the gym booking to `pending_payment_review`.
+- Admin accepted the same payment.
+- Payment became `verified`.
+- Gym booking became `confirmed`.
+- Invoice and audit logs were created.
+
+Coach:
+
+- Flutter created a coach booking.
+- Backend calculated the price from the coach session type.
+- Backend created payment `2`.
+- Manual proof upload moved the payment to `pending_review`.
+- Manual proof upload moved the coach booking to `pending_payment_review`.
+- Admin accepted the same payment.
+- Payment became `verified`.
+- Coach booking became `confirmed`.
+- Invoice and audit logs were created.
+
+## Local Records
+
+```text
+gym_booking_id=1
+gym_payment_id=1
+gym_final_status=confirmed
+
+coach_booking_id=1
+coach_payment_id=2
+coach_final_status=confirmed
+```
+
+## Security Check
+
+Patient-facing responses for gym booking, coach booking, payment status, and payment methods were checked.
+
+Result:
+
+- no private uploaded file paths exposed.
+- no `medical_private` disk name exposed.
+- no payment proof storage path exposed.
+- no Paymob/config secrets exposed.
+- no private provider document fields exposed.
+
+## Decision
+
+```text
+LOCAL_FITNESS_PAYMENT_E2E_ACCEPTED
+```
+
+This confirms only local emulator fitness payment E2E. It does not approve staging, real-phone QA, public launch, or production readiness.

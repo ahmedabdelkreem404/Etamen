@@ -1156,3 +1156,61 @@ LOCAL_FITNESS_PAYMENT_UI_BLOCKED
 ## Next Step
 
 Run a focused local Sprint 48 to finish the gym/coach payment proof/admin accept E2E from Flutter and add route-level tests for payment navigation.
+
+---
+
+# Sprint 48 Local Fitness Payment E2E
+
+Date: 2026-05-10
+
+## Scope
+
+Sprint 48 was local emulator QA only. It did not touch Hostinger, `etamen.inolty.com`, SSH, staging, or public launch readiness.
+
+## Result
+
+The Sprint 47 payment UI blocker was closed locally.
+
+Passed locally:
+
+- Gym booking from Flutter.
+- Gym payment method selection.
+- Gym payment proof upload through Flutter.
+- Local admin accept for the same gym payment.
+- Flutter refresh shows gym booking confirmed/paid.
+- Coach booking from Flutter.
+- Coach payment method selection.
+- Coach payment proof upload through Flutter.
+- Local admin accept for the same coach payment.
+- Flutter refresh shows coach booking confirmed/paid.
+- Patient-facing leak check for gym/coach booking/payment responses.
+
+Evidence:
+
+```text
+I:\Etamen\.tmp\sprint48-local-fitness-e2e\
+```
+
+APK:
+
+```text
+I:\Etamen\.tmp\etamen-local-fitness-e2e.apk
+C:\Users\Ahmed Abdelkareem\OneDrive\Desktop\Etamen_Android_Website_Ready\etamen-local-fitness-e2e.apk
+```
+
+## Decision
+
+```text
+LOCAL_FITNESS_PAYMENT_E2E_ACCEPTED
+```
+
+## Important Limits
+
+This does not approve:
+
+- staging readiness.
+- public launch readiness.
+- real-phone readiness.
+- production fitness rollout.
+
+Next required gate remains staging/real-device validation after deployment access and staging data/payment methods are stable.

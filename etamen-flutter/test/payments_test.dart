@@ -43,6 +43,7 @@ void main() {
         'status': 'pending_review',
         'payable': {'type': 'appointment', 'id': 55},
         'appointment': {'id': 55, 'status': 'pending_payment_review'},
+        'payment_method': {'id': 2, 'type': 'manual_vodafone_cash'},
         'invoice': null,
         'updated_at': '2026-05-05T10:00:00.000000Z',
       });
@@ -52,9 +53,23 @@ void main() {
       expect(status.status.shouldPoll, true);
       expect(status.payableType, 'appointment');
       expect(status.payableId, 55);
+      expect(status.methodType, 'manual_instapay');
       expect(status.appointmentStatus, 'pending_payment_review');
     },
   );
+
+  test('PaymentStatus parsing reads nested payment method when needed', () {
+    final status = PaymentStatusModel.fromJson({
+      'id': 201,
+      'amount': '250.00',
+      'currency': 'EGP',
+      'status': 'awaiting_proof',
+      'payable': {'type': 'GymBooking', 'id': 70},
+      'payment_method': {'id': 2, 'type': 'manual_vodafone_cash'},
+    });
+
+    expect(status.methodType, 'manual_vodafone_cash');
+  });
 
   test('PaymentStatus parsing maps gym and coach booking statuses', () {
     final gymStatus = PaymentStatusModel.fromJson({

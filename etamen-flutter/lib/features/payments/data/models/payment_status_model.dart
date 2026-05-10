@@ -25,6 +25,7 @@ class PaymentStatusModel extends PaymentStatusDetails {
     final radiologyOrder = _asMap(json['radiology_order']);
     final gymBooking = _asMap(json['gym_booking']);
     final coachBooking = _asMap(json['coach_booking']);
+    final paymentMethod = _asMap(json['payment_method']);
     final proof = _asMap(json['proof']) ?? _asMap(json['latest_proof']);
     final metadata = _asMap(json['metadata']);
 
@@ -33,8 +34,11 @@ class PaymentStatusModel extends PaymentStatusDetails {
       status: PaymentStatusEnum.fromWire(json['status']?.toString()),
       amount: (json['amount'] ?? '0.00').toString(),
       currency: (json['currency'] ?? 'EGP').toString(),
-      methodType: (json['method_type'] ?? json['payment_method_type'])
-          ?.toString(),
+      methodType:
+          (json['method_type'] ??
+                  json['payment_method_type'] ??
+                  paymentMethod?['type'])
+              ?.toString(),
       payableType: (json['payable_type'] ?? payable?['type'])?.toString(),
       payableId: _toInt(json['payable_id'] ?? payable?['id']),
       appointmentStatus:

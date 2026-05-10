@@ -466,17 +466,20 @@ class CoachBookingModel extends CoachBooking {
 
 class CreateGymBookingRequest {
   const CreateGymBookingRequest({
+    required this.providerId,
     this.membershipPlanId,
     this.gymClassId,
     this.notes,
   });
 
+  final int providerId;
   final int? membershipPlanId;
   final int? gymClassId;
   final String? notes;
 
   Map<String, dynamic> toJson() {
     return {
+      'provider_id': providerId,
       if (membershipPlanId != null) 'membership_plan_id': membershipPlanId,
       if (gymClassId != null) 'gym_class_id': gymClassId,
       if (notes?.trim().isNotEmpty == true) 'notes': notes!.trim(),

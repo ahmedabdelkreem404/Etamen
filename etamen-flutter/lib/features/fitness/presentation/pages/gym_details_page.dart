@@ -189,6 +189,7 @@ class _GymDetailsPageState extends ConsumerState<GymDetailsPage> {
         .read(createGymBookingControllerProvider.notifier)
         .create(
           CreateGymBookingRequest(
+            providerId: widget.gymId,
             membershipPlanId: plan.id,
             notes: _notesController.text,
           ),
@@ -202,6 +203,7 @@ class _GymDetailsPageState extends ConsumerState<GymDetailsPage> {
         .read(createGymBookingControllerProvider.notifier)
         .create(
           CreateGymBookingRequest(
+            providerId: widget.gymId,
             gymClassId: gymClass.id,
             notes: _notesController.text,
           ),

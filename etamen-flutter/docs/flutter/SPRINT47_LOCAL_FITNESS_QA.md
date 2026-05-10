@@ -131,3 +131,48 @@ Sprint 48 should be a local Fitness E2E hardening sprint only:
 - add route-level tests for gym/coach payment navigation.
 - complete proof upload/admin accept for both gym and coach.
 - only then move toward staging QA.
+
+---
+
+# Sprint 48 Follow-up
+
+Date: 2026-05-10
+
+Sprint 48 completed the missing local emulator payment E2E gate for both Gym and Coach.
+
+Fixes:
+
+- Flutter gym booking payload now sends backend-required `provider_id`.
+- Gym plan/class booking now preserves the selected gym provider context.
+- Payment status parsing now accepts nested `payment_method.type` as a safe fallback.
+
+Local E2E results:
+
+- Gym booking -> Vodafone Cash -> proof upload -> admin accept -> Flutter confirmed state: PASS.
+- Coach booking -> Vodafone Cash -> proof upload -> admin accept -> Flutter confirmed state: PASS.
+- Patient API leak check for gym/coach booking/payment responses: PASS.
+
+Evidence:
+
+```text
+I:\Etamen\.tmp\sprint48-local-fitness-e2e\
+```
+
+APK:
+
+```text
+I:\Etamen\.tmp\etamen-local-fitness-e2e.apk
+C:\Users\Ahmed Abdelkareem\OneDrive\Desktop\Etamen_Android_Website_Ready\etamen-local-fitness-e2e.apk
+```
+
+Sprint 48 decision:
+
+```text
+LOCAL_FITNESS_PAYMENT_E2E_ACCEPTED
+```
+
+Still not approved:
+
+- staging readiness.
+- public launch readiness.
+- real-phone readiness.

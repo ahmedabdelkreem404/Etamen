@@ -41,9 +41,14 @@ void main() {
   });
 
   test('Gym booking request never sends trusted totals or status', () {
-    const request = CreateGymBookingRequest(membershipPlanId: 5, notes: 'Test');
+    const request = CreateGymBookingRequest(
+      providerId: 10,
+      membershipPlanId: 5,
+      notes: 'Test',
+    );
     final json = request.toJson();
 
+    expect(json['provider_id'], 10);
     expect(json['membership_plan_id'], 5);
     expect(json['notes'], 'Test');
     expect(json.containsKey('total_amount'), false);
