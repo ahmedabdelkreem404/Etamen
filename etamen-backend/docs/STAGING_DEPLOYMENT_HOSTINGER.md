@@ -490,3 +490,56 @@ Provide one safe access path:
 - Hostinger File Manager/SFTP plus a safe migration terminal path.
 
 After that, the first commands must be backup/inspection, not migration.
+
+---
+
+# Sprint 56 Post-Access Deployment Attempt
+
+Date: 2026-05-11
+
+## Result
+
+Access was reported as available, but the current Codex environment still cannot authenticate through SSH.
+
+Safe SSH attempt result:
+
+```text
+Permission denied (publickey,password).
+```
+
+Decision:
+
+```text
+STAGING_DEPLOY_BLOCKED
+```
+
+No deployment, backup, migration, seed, cache clear, or `.env` operation was performed.
+
+## Current Staging API State
+
+Evidence:
+
+```text
+I:\Etamen\.tmp\sprint56-post-access-staging-deployment\http-baseline.json
+```
+
+Staging remains stale/incomplete:
+
+- health: 200.
+- readiness with JSON accept: 401.
+- readiness default: 500 with `Route [login] not defined.`
+- payment methods: empty.
+- doctors: one doctor.
+- hospitals: 404.
+- radiology scans: empty.
+- gyms: 404.
+- coaches: 404.
+
+## Required Access Fix
+
+Make access usable from this local Codex environment before retrying:
+
+- add this machine's SSH public key to the Hostinger SSH account, or
+- provide a safe Hostinger Terminal/File Manager/SFTP workflow that can run backup and artisan commands without exposing secrets.
+
+First successful command sequence must start with backup and inspection, not deploy/migrate.
