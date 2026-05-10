@@ -1214,3 +1214,76 @@ This does not approve:
 - production fitness rollout.
 
 Next required gate remains staging/real-device validation after deployment access and staging data/payment methods are stable.
+
+---
+
+# Sprint 49 Local Super App Regression
+
+Date: 2026-05-10
+
+## Scope
+
+Sprint 49 was local emulator regression only. It did not touch Hostinger, `etamen.inolty.com`, SSH, staging deployment, or public launch readiness.
+
+## Result
+
+Accepted locally:
+
+- authentication/session/logout
+- direct doctor booking/payment proof/admin accept
+- hospital discovery and validated hospital booking context to payment
+- radiology catalog/order/payment proof/admin accept/result metadata
+- gym booking/payment proof/admin accept
+- coach booking/payment proof/admin accept
+
+Smoke only:
+
+- pharmacy list/products entry
+- lab list/catalog entry
+
+Evidence:
+
+```text
+I:\Etamen\.tmp\sprint49-local-superapp-regression\
+```
+
+APK:
+
+```text
+I:\Etamen\.tmp\etamen-local-superapp-regression.apk
+C:\Users\Ahmed Abdelkareem\OneDrive\Desktop\Etamen_Android_Website_Ready\etamen-local-superapp-regression.apk
+```
+
+## Security Sweep
+
+Checked patient-facing responses showed no raw private storage paths, raw proof/result file paths, payment config, Paymob secrets, private provider documents, national ID/tax/commercial/bank documents, admin notes, or internal contract terms.
+
+## Tests / Build
+
+- Backend `php artisan test`: PASS, 244 tests.
+- Backend `git diff --check`: PASS.
+- Flutter `flutter analyze`: PASS.
+- Flutter `flutter test`: PASS, 182 tests.
+- Flutter local debug APK build: PASS.
+
+## Decision
+
+```text
+LOCAL_SUPERAPP_REGRESSION_ACCEPTED
+```
+
+## Still Not Approved
+
+- staging readiness
+- Hostinger readiness
+- real Android phone readiness
+- public launch readiness
+- live Paymob readiness
+- live FCM readiness
+- legal/refund/support SOP readiness
+- load testing readiness
+- app store release
+
+## Next Step
+
+Fix staging access/readiness/data and repeat the doctor payment proof/admin review gate on a real Android phone using a staging APK. Do not invite pilot users before that real-phone gate passes.
