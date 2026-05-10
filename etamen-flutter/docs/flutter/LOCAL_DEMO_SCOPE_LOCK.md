@@ -231,3 +231,39 @@ The local demo lock remains unchanged:
 - local emulator/LAN phone flows are accepted locally.
 - Hostinger/staging is not accepted.
 - external users must not be invited.
+
+## Sprint 58 Local Admin Operations Center
+
+Sprint 58 added local admin operations APIs and Flutter pages for:
+
+- admin operations dashboard
+- payment review queue
+- provider approval queue
+- support tickets
+- refund requests
+- disputes
+- audit log
+- patient/provider support basics
+
+Automated backend and Flutter tests passed, and a local debug APK was built:
+
+```text
+I:\Etamen\.tmp\etamen-local-admin-operations.apk
+```
+
+However, Sprint 58 is not accepted as a local demo gate yet. The emulator visual QA screenshot set is incomplete. The admin workspace switcher, dashboard, quick actions, and payment queue were captured, but the remaining admin/support/refund/dispute/non-admin-blocked screens still need a clean visual pass.
+
+Current Sprint 58 decision:
+
+```text
+LOCAL_ADMIN_OPERATIONS_NOT_READY_DUE_BLOCKERS
+```
+
+Still not approved:
+
+- staging
+- Hostinger
+- production/public launch
+- app store release
+- external users
+- full admin operations acceptance until visual QA is rerun

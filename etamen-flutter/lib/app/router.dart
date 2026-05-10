@@ -5,7 +5,7 @@ import 'package:etamen_app/features/account/presentation/pages/account_page.dart
 import 'package:etamen_app/features/account/presentation/pages/language_settings_page.dart';
 import 'package:etamen_app/features/account/presentation/pages/legal_page.dart';
 import 'package:etamen_app/features/account/presentation/pages/settings_page.dart';
-import 'package:etamen_app/features/account/presentation/pages/support_page.dart';
+import 'package:etamen_app/features/admin_operations/presentation/pages/admin_operations_pages.dart';
 import 'package:etamen_app/features/appointments/domain/entities/hospital_booking_context.dart';
 import 'package:etamen_app/features/appointments/presentation/pages/appointment_booking_page.dart';
 import 'package:etamen_app/features/appointments/presentation/pages/appointment_details_page.dart';
@@ -72,7 +72,6 @@ import 'package:etamen_app/features/radiology/presentation/pages/radiology_home_
 import 'package:etamen_app/features/radiology/presentation/pages/radiology_order_builder_page.dart';
 import 'package:etamen_app/features/radiology/presentation/pages/radiology_order_details_page.dart';
 import 'package:etamen_app/features/splash/presentation/pages/splash_page.dart';
-import 'package:etamen_app/features/workspaces/presentation/pages/platform_admin_dashboard_page.dart';
 import 'package:etamen_app/features/workspaces/presentation/pages/provider_dashboard_page.dart';
 import 'package:etamen_app/features/workspaces/presentation/pages/provider_operation_details_page.dart';
 import 'package:etamen_app/features/workspaces/presentation/pages/provider_operation_list_page.dart';
@@ -177,7 +176,61 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteNames.platformAdminDashboard,
-        builder: (context, state) => const PlatformAdminDashboardPage(),
+        builder: (context, state) => const AdminOperationsDashboardPage(),
+      ),
+      GoRoute(
+        path: RouteNames.adminPayments,
+        builder: (context, state) => const AdminPaymentReviewQueuePage(),
+      ),
+      GoRoute(
+        path: RouteNames.adminProviders,
+        builder: (context, state) => const AdminProviderApprovalQueuePage(),
+      ),
+      GoRoute(
+        path: RouteNames.adminSupportTickets,
+        builder: (context, state) => const AdminSupportTicketsPage(),
+      ),
+      GoRoute(
+        path: RouteNames.adminRefunds,
+        builder: (context, state) => const AdminRefundRequestsPage(),
+      ),
+      GoRoute(
+        path: RouteNames.adminDisputes,
+        builder: (context, state) => const AdminDisputesPage(),
+      ),
+      GoRoute(
+        path: RouteNames.adminAuditLog,
+        builder: (context, state) => const AdminAuditLogPage(),
+      ),
+      GoRoute(
+        path: '/workspace/platform-admin/payments/:id',
+        builder: (context, state) => AdminPaymentReviewDetailsPage(
+          id: int.tryParse(state.pathParameters['id'] ?? '') ?? 0,
+        ),
+      ),
+      GoRoute(
+        path: '/workspace/platform-admin/providers/:id',
+        builder: (context, state) => AdminProviderDetailsPage(
+          id: int.tryParse(state.pathParameters['id'] ?? '') ?? 0,
+        ),
+      ),
+      GoRoute(
+        path: '/workspace/platform-admin/support-tickets/:id',
+        builder: (context, state) => AdminSupportTicketDetailsPage(
+          id: int.tryParse(state.pathParameters['id'] ?? '') ?? 0,
+        ),
+      ),
+      GoRoute(
+        path: '/workspace/platform-admin/refunds/:id',
+        builder: (context, state) => AdminRefundDetailsPage(
+          id: int.tryParse(state.pathParameters['id'] ?? '') ?? 0,
+        ),
+      ),
+      GoRoute(
+        path: '/workspace/platform-admin/disputes/:id',
+        builder: (context, state) => AdminDisputeDetailsPage(
+          id: int.tryParse(state.pathParameters['id'] ?? '') ?? 0,
+        ),
       ),
       GoRoute(
         path: RouteNames.doctors,
@@ -673,7 +726,33 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteNames.support,
-        builder: (context, state) => const SupportPage(),
+        builder: (context, state) => const UserSupportTicketsPage(),
+      ),
+      GoRoute(
+        path: RouteNames.createSupportTicket,
+        builder: (context, state) => const UserCreateSupportTicketPage(),
+      ),
+      GoRoute(
+        path: '/support/tickets/:id',
+        builder: (context, state) => UserSupportTicketDetailsPage(
+          id: int.tryParse(state.pathParameters['id'] ?? '') ?? 0,
+        ),
+      ),
+      GoRoute(
+        path: RouteNames.refunds,
+        builder: (context, state) => const UserRefundRequestsPage(),
+      ),
+      GoRoute(
+        path: RouteNames.createRefund,
+        builder: (context, state) => const UserCreateRefundPage(),
+      ),
+      GoRoute(
+        path: RouteNames.disputes,
+        builder: (context, state) => const UserDisputesPage(),
+      ),
+      GoRoute(
+        path: RouteNames.createDispute,
+        builder: (context, state) => const UserCreateDisputePage(),
       ),
       GoRoute(
         path: RouteNames.about,

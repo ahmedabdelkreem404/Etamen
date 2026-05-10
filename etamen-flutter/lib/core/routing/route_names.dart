@@ -44,8 +44,29 @@ class RouteNames {
   static const legalAiDisclaimer = '/legal/ai-disclaimer';
   static const legalRefundPolicy = '/legal/refund-policy';
   static const support = '/support';
+  static const createSupportTicket = '/support/create';
+  static const refunds = '/support/refunds';
+  static const createRefund = '/support/refunds/create';
+  static const disputes = '/support/disputes';
+  static const createDispute = '/support/disputes/create';
   static const about = '/about';
   static const platformAdminDashboard = '/workspace/platform-admin';
+  static const adminPayments = '/workspace/platform-admin/payment-reviews';
+  static const adminProviders = '/workspace/platform-admin/provider-approvals';
+  static const adminSupportTickets =
+      '/workspace/platform-admin/support-tickets';
+  static const adminRefunds = '/workspace/platform-admin/refunds';
+  static const adminDisputes = '/workspace/platform-admin/disputes';
+  static const adminAuditLog = '/workspace/platform-admin/audit-log';
+
+  static String adminOperationDetails(String section, int id) =>
+      '/workspace/platform-admin/$section/$id';
+
+  static String supportTicketDetails(int id) => '/support/tickets/$id';
+
+  static String refundDetails(int id) => '/support/refunds/$id';
+
+  static String disputeDetails(int id) => '/support/disputes/$id';
 
   static String providerDashboard(int providerId) =>
       '/workspace/provider/$providerId';

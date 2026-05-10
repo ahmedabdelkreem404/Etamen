@@ -3,6 +3,33 @@
 Date: 2026-05-08  
 Sprint: 35 - Egypt-Scale Health Super App Architecture + Product Expansion Blueprint
 
+## Sprint 58 Local Admin Operations Update
+
+Sprint 58 added a local Platform Admin operations foundation:
+
+- admin operations dashboard API
+- payment review queue
+- provider approval queue
+- support ticket foundation
+- refund/dispute foundation
+- audit log
+- Flutter admin workspace pages
+- patient/provider support entry points
+
+Automated backend and Flutter tests passed, and the local admin operations APK was built:
+
+```text
+I:\Etamen\.tmp\etamen-local-admin-operations.apk
+```
+
+Acceptance is still blocked pending complete emulator visual QA because the local emulator entered an Android ANR state during login reset automation.
+
+Decision:
+
+```text
+LOCAL_ADMIN_OPERATIONS_NOT_READY_DUE_BLOCKERS
+```
+
 This roadmap keeps the current MVP safe while preparing Etamen to become a broader Egyptian Health Super App.
 
 ## Phase A: Close Pilot Blockers

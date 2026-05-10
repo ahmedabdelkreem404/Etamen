@@ -1,5 +1,30 @@
 # Etamen Flutter Pilot Readiness Report
 
+## Sprint 58 Local Admin Operations Update
+
+Sprint 58 added Flutter pages for the local Platform Admin operations center and support/refund/dispute foundations.
+
+Automated validation passed:
+
+- `flutter analyze`: no issues
+- `flutter test`: 192 tests passed
+- local debug APK build passed
+
+APK artifact:
+
+```text
+I:\Etamen\.tmp\etamen-local-admin-operations.apk
+C:\Users\Ahmed Abdelkareem\OneDrive\Desktop\Etamen_Android_Website_Ready\etamen-local-admin-operations.apk
+```
+
+Acceptance remains blocked because only partial emulator visual QA was completed. The admin workspace switcher, dashboard, quick actions, and payment queue were captured, but the full Sprint 58 screenshot set is still incomplete after emulator login automation showed ANR/text-entry fragility.
+
+Decision:
+
+```text
+LOCAL_ADMIN_OPERATIONS_NOT_READY_DUE_BLOCKERS
+```
+
 ## Readiness Estimate
 
 Current estimate: **72% ready for a limited supervised pilot**.

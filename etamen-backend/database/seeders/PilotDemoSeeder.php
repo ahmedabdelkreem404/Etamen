@@ -23,6 +23,9 @@ use App\Modules\CarePlans\Infrastructure\Models\CarePlanDay;
 use App\Modules\CarePlans\Infrastructure\Models\CarePlanFoodItem;
 use App\Modules\CarePlans\Infrastructure\Models\CarePlanInstruction;
 use App\Modules\CarePlans\Infrastructure\Models\CarePlanMeal;
+use App\Modules\AdminOperations\Infrastructure\Models\Dispute;
+use App\Modules\AdminOperations\Infrastructure\Models\RefundRequest;
+use App\Modules\AdminOperations\Infrastructure\Models\SupportTicket;
 use App\Modules\Fitness\Domain\Enums\CoachAvailabilityStatus;
 use App\Modules\Fitness\Domain\Enums\CoachSessionMode;
 use App\Modules\Fitness\Infrastructure\Models\CoachAvailabilitySlot;
@@ -66,8 +69,13 @@ use App\Modules\Notifications\Domain\Enums\NotificationPriority;
 use App\Modules\Notifications\Infrastructure\Models\Notification;
 use App\Modules\Payments\Database\Seeders\PaymentMethodSeeder;
 use App\Modules\Payments\Domain\Enums\PaymentMethodType;
+use App\Modules\Payments\Domain\Enums\PaymentProofStatus;
+use App\Modules\Payments\Domain\Enums\PaymentStatus;
+use App\Modules\Payments\Infrastructure\Models\Payment;
 use App\Modules\Payments\Infrastructure\Models\PaymentMethod;
+use App\Modules\Payments\Infrastructure\Models\PaymentProof;
 use App\Modules\Pharmacies\Infrastructure\Models\PharmacyProduct;
+use App\Modules\Providers\Domain\Enums\ApprovalRequestStatus;
 use App\Modules\Providers\Domain\Enums\CoachType;
 use App\Modules\Providers\Domain\Enums\ProviderPermission;
 use App\Modules\Providers\Domain\Enums\ProviderStaffRole;
@@ -82,6 +90,7 @@ use App\Modules\Providers\Infrastructure\Models\HospitalProfile;
 use App\Modules\Providers\Infrastructure\Models\LabProfile;
 use App\Modules\Providers\Infrastructure\Models\PharmacyProfile;
 use App\Modules\Providers\Infrastructure\Models\Provider;
+use App\Modules\Providers\Infrastructure\Models\ProviderApprovalRequest;
 use App\Modules\Providers\Infrastructure\Models\ProviderBookingSetting;
 use App\Modules\Providers\Infrastructure\Models\ProviderBranch;
 use App\Modules\Providers\Infrastructure\Models\ProviderStaff;
@@ -154,6 +163,7 @@ class PilotDemoSeeder extends Seeder
             $this->seedDemoLabResultOrder($patient, $labUser, $labProvider);
             $this->seedExpandedDemoCatalog($admin, $city, $area);
             $this->seedHospital($hospitalUser, $admin, $city, $area);
+            $this->seedAdminOperationsDemo($admin, $patient, $doctorProvider, $pharmacyProvider, $labProvider);
         });
     }
 
@@ -1745,6 +1755,201 @@ class PilotDemoSeeder extends Seeder
                 'created_by' => $admin->id,
                 'reviewed_by' => $admin->id,
                 'metadata' => ['pilot_demo' => true],
+            ],
+        );
+    }
+
+    private function seedAdminOperationsDemo(User $admin, User $patient, Provider $doctorProvider, Provider $pharmacyProvider, Provider $labProvider): void
+    {
+        $radiologyProvider = Provider::query()->where('slug', 'pilot-demo-radiology')->first();
+        $gymProvider = Provider::query()->where('slug', 'pilot-demo-gym')->first();
+        $coachProvider = Provider::query()->where('slug', 'pilot-demo-fitness-coach')->first();
+
+        $this->seedPendingPaymentReview($patient, $doctorProvider, 'doctor', 300, 'admin-demo-doctor-payment');
+        if ($radiologyProvider) {
+            $this->seedPendingPaymentReview($patient, $radiologyProvider, 'radiology', 450, 'admin-demo-radiology-payment');
+        }
+        if ($gymProvider) {
+            $this->seedPendingPaymentReview($patient, $gymProvider, 'gym', 900, 'admin-demo-gym-payment');
+        }
+
+        foreach ([
+            [
+                'email' => 'pilot.pending.hospital@example.test',
+                'slug' => 'pilot-pending-hospital',
+                'type' => ProviderType::Hospital,
+                'name_ar' => 'مستشفى تجريبية قيد المراجعة',
+                'name_en' => 'Pending Demo Hospital',
+            ],
+            [
+                'email' => 'pilot.pending.radiology@example.test',
+                'slug' => 'pilot-pending-radiology',
+                'type' => ProviderType::Radiology,
+                'name_ar' => 'مركز أشعة تجريبي قيد المراجعة',
+                'name_en' => 'Pending Demo Radiology',
+            ],
+        ] as $row) {
+            $owner = $this->demoUser($row['email'], $row['name_en'].' Owner', UserRole::ProviderAdmin);
+            $provider = Provider::query()->updateOrCreate(
+                ['slug' => $row['slug']],
+                [
+                    'type' => $row['type'],
+                    'owner_user_id' => $owner->id,
+                    'name_ar' => $row['name_ar'],
+                    'name_en' => $row['name_en'],
+                    'phone' => '01000999000',
+                    'email' => $owner->email,
+                    'description_ar' => 'مزود تجريبي محلي لاختبار قائمة موافقات الإدارة.',
+                    'description_en' => 'Local demo provider for admin approval queue.',
+                    'status' => ProviderStatus::PendingReview,
+                    'is_active' => false,
+                    'approved_at' => null,
+                    'rejected_at' => null,
+                    'suspended_at' => null,
+                    'created_by' => $admin->id,
+                    'reviewed_by' => null,
+                    'metadata' => ['pilot_demo' => true, 'admin_operations_demo' => true],
+                ],
+            );
+            $this->providerStaff($provider, $owner, ProviderStaffRole::Owner);
+            ProviderApprovalRequest::query()->updateOrCreate(
+                ['provider_id' => $provider->id, 'requested_by' => $owner->id],
+                [
+                    'status' => ApprovalRequestStatus::Pending,
+                    'notes' => 'Local demo approval request for Sprint 58.',
+                    'review_notes' => null,
+                    'reviewed_by' => null,
+                    'reviewed_at' => null,
+                ],
+            );
+        }
+
+        $ticketRows = [
+            ['ticket_number' => 'SUP-DEMO-001', 'provider_id' => $doctorProvider->id, 'category' => SupportTicket::CATEGORY_PAYMENT, 'subject' => 'مراجعة إثبات دفع تجريبي'],
+            ['ticket_number' => 'SUP-DEMO-002', 'provider_id' => $pharmacyProvider->id, 'category' => SupportTicket::CATEGORY_PROVIDER, 'subject' => 'استفسار مزود تجريبي'],
+            ['ticket_number' => 'SUP-DEMO-003', 'provider_id' => $labProvider->id, 'category' => SupportTicket::CATEGORY_TECHNICAL, 'subject' => 'مشكلة تقنية تجريبية'],
+        ];
+
+        foreach ($ticketRows as $row) {
+            $ticket = SupportTicket::query()->updateOrCreate(
+                ['ticket_number' => $row['ticket_number']],
+                [
+                    'user_id' => $patient->id,
+                    'provider_id' => $row['provider_id'],
+                    'category' => $row['category'],
+                    'subject' => $row['subject'],
+                    'description' => 'تذكرة دعم تجريبية محلية لمركز عمليات الإدارة.',
+                    'status' => SupportTicket::STATUS_OPEN,
+                    'priority' => 'normal',
+                    'source' => 'seed',
+                    'assigned_admin_id' => $admin->id,
+                    'closed_at' => null,
+                ],
+            );
+
+            $ticket->messages()->updateOrCreate(
+                ['sender_user_id' => $patient->id, 'sender_type' => 'patient', 'message' => $ticket->description],
+                ['is_internal_note' => false],
+            );
+        }
+
+        foreach ([1 => 150, 2 => 300] as $index => $amount) {
+            RefundRequest::query()->updateOrCreate(
+                ['refund_number' => 'REF-DEMO-00'.$index],
+                [
+                    'user_id' => $patient->id,
+                    'payment_id' => null,
+                    'context_type' => 'demo',
+                    'context_id' => $index,
+                    'amount' => $amount,
+                    'currency' => 'EGP',
+                    'reason' => 'طلب استرداد تجريبي محلي.',
+                    'status' => $index === 1 ? RefundRequest::STATUS_REQUESTED : RefundRequest::STATUS_UNDER_REVIEW,
+                    'admin_note' => null,
+                    'resolved_by' => null,
+                    'resolved_at' => null,
+                ],
+            );
+
+            Dispute::query()->updateOrCreate(
+                ['dispute_number' => 'DSP-DEMO-00'.$index],
+                [
+                    'user_id' => $patient->id,
+                    'provider_id' => $index === 1 ? $doctorProvider->id : $pharmacyProvider->id,
+                    'payment_id' => null,
+                    'context_type' => 'demo',
+                    'context_id' => $index,
+                    'reason' => 'نزاع تجريبي محلي لفحص مركز العمليات.',
+                    'status' => $index === 1 ? Dispute::STATUS_OPEN : Dispute::STATUS_INVESTIGATING,
+                    'priority' => 'normal',
+                    'assigned_admin_id' => $admin->id,
+                    'resolved_at' => null,
+                ],
+            );
+        }
+    }
+
+    private function seedPendingPaymentReview(User $patient, Provider $provider, string $providerType, int $amount, string $seedKey): void
+    {
+        $method = PaymentMethod::query()
+            ->where('type', PaymentMethodType::ManualVodafoneCash)
+            ->first();
+
+        if (! $method) {
+            return;
+        }
+
+        $payment = Payment::query()
+            ->get()
+            ->first(fn (Payment $payment): bool => ($payment->metadata['seed_key'] ?? null) === $seedKey);
+
+        if (! $payment) {
+            $payment = new Payment;
+        }
+
+        $payment->forceFill([
+            'payable_type' => null,
+            'payable_id' => null,
+            'user_id' => $patient->id,
+            'provider_id' => $provider->id,
+            'provider_type' => $providerType,
+            'payment_method_id' => $method->id,
+            'amount' => $amount,
+            'currency' => 'EGP',
+            'status' => PaymentStatus::PendingReview,
+            'created_by' => $patient->id,
+            'reviewed_by' => null,
+            'metadata' => ['pilot_demo' => true, 'seed_key' => $seedKey],
+        ])->save();
+
+        $file = UploadedFile::query()->updateOrCreate(
+            ['path' => 'payment-proofs/'.$seedKey.'.jpg'],
+            [
+                'owner_type' => Payment::class,
+                'owner_id' => $payment->id,
+                'uploaded_by' => $patient->id,
+                'disk' => 'medical_private',
+                'original_name' => $seedKey.'.jpg',
+                'mime_type' => 'image/jpeg',
+                'size' => 12800,
+                'file_category' => FileCategory::PaymentProof,
+                'visibility' => FileVisibility::Private,
+                'checksum' => hash('sha256', $seedKey),
+                'metadata' => ['pilot_demo' => true],
+            ],
+        );
+
+        PaymentProof::query()->updateOrCreate(
+            ['payment_id' => $payment->id, 'file_id' => $file->id],
+            [
+                'uploaded_by' => $patient->id,
+                'reference_number' => strtoupper($seedKey),
+                'sender_phone' => '01000000001',
+                'notes' => 'Local demo payment proof for admin operations.',
+                'status' => PaymentProofStatus::PendingReview,
+                'reviewed_by' => null,
+                'reviewed_at' => null,
+                'rejection_reason' => null,
             ],
         );
     }

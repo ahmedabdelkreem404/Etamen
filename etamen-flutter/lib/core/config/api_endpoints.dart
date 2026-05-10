@@ -6,6 +6,11 @@ class ApiEndpoints {
   static const logout = '/auth/logout';
   static const me = '/me';
   static const workspaces = '/me/workspaces';
+  static const supportTickets = '/support/tickets';
+  static const refunds = '/refunds';
+  static const disputes = '/disputes';
+  static const adminOperationsDashboard = '/admin/operations/dashboard';
+  static const adminOperationsAuditLog = '/admin/operations/audit-log';
   static const doctors = '/doctors';
   static const appointments = '/appointments';
   static const paymentMethods = '/payment-methods';
@@ -58,6 +63,24 @@ class ApiEndpoints {
       '/payments/$paymentId/manual/select';
 
   static String paymentProofs(int paymentId) => '/payments/$paymentId/proofs';
+
+  static String supportTicket(int id) => '/support/tickets/$id';
+
+  static String supportTicketMessages(int id) =>
+      '/support/tickets/$id/messages';
+
+  static String refund(int id) => '/refunds/$id';
+
+  static String dispute(int id) => '/disputes/$id';
+
+  static String adminOperationsList(String section) =>
+      '/admin/operations/$section';
+
+  static String adminOperationsItem(String section, int id) =>
+      '/admin/operations/$section/$id';
+
+  static String adminOperationsAction(String section, int id, String action) =>
+      '/admin/operations/$section/$id/$action';
 
   static String paymobCreateSession(int paymentId) =>
       '/payments/$paymentId/paymob/create-session';

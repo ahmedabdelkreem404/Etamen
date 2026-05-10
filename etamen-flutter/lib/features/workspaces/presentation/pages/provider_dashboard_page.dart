@@ -156,6 +156,12 @@ class _DashboardBody extends StatelessWidget {
           label: const Text('الرجوع لمساحة المريض'),
         ),
         const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: () => context.push(RouteNames.support),
+          icon: const Icon(Icons.support_agent),
+          label: const Text('دعم المزود'),
+        ),
+        const SizedBox(height: 8),
         const LogoutButton(),
       ],
     );
