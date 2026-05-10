@@ -512,3 +512,26 @@ Still deferred:
 - staging deployment
 - real-phone provider operations QA
 - public launch readiness
+
+## Sprint 53 Real Phone Local Gate
+
+Sprint 53 tested the local super-app APK on an Infinix X657C running Android 10 against a LAN backend URL.
+
+Accepted locally on a real phone:
+
+- auth/session/logout
+- doctor booking, real proof upload, and admin accept
+- radiology order, real proof upload, admin accept, visible result metadata, and download success state
+- gym booking, real proof upload, and admin accept
+- coach booking, real proof upload, and admin accept
+- provider workspace dashboards for doctor, hospital, radiology, gym, and coach
+- limited staff restricted workspace behavior
+- local privacy/security sweep
+
+Still not approved:
+
+- staging readiness
+- Hostinger readiness
+- public launch
+- production readiness
+- app store readiness

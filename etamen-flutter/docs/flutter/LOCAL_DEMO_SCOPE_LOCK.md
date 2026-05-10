@@ -160,3 +160,39 @@ Still not approved:
 - Hostinger
 - real phone provider operations QA
 - public or production launch
+
+## Sprint 53 Real Phone Local Gate
+
+Accepted locally on a real Android phone:
+
+- patient auth/session/logout
+- doctor booking/payment proof/admin accept
+- radiology order/payment proof/admin accept/result metadata/download success state
+- gym booking/payment proof/admin accept
+- coach booking/payment proof/admin accept
+- provider workspace dashboards and operation pages for doctor, hospital, radiology, gym, and coach
+- limited staff restricted access
+
+Evidence:
+
+```text
+I:\Etamen\.tmp\sprint53-real-phone-gate\
+```
+
+APK:
+
+```text
+I:\Etamen\.tmp\etamen-local-real-phone.apk
+C:\Users\Ahmed Abdelkareem\OneDrive\Desktop\Etamen_Android_Website_Ready\etamen-local-real-phone.apk
+```
+
+Still not approved:
+
+- staging
+- Hostinger
+- production/public launch
+- app store release
+- live Paymob
+- live FCM
+- legal/support/refund SOP approval
+- load testing
