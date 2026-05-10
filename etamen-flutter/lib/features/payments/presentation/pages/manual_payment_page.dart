@@ -26,6 +26,8 @@ class ManualPaymentPage extends ConsumerStatefulWidget {
     this.pharmacyOrderId,
     this.labOrderId,
     this.radiologyOrderId,
+    this.gymBookingId,
+    this.coachBookingId,
     super.key,
   });
 
@@ -35,6 +37,8 @@ class ManualPaymentPage extends ConsumerStatefulWidget {
   final int? pharmacyOrderId;
   final int? labOrderId;
   final int? radiologyOrderId;
+  final int? gymBookingId;
+  final int? coachBookingId;
 
   @override
   ConsumerState<ManualPaymentPage> createState() => _ManualPaymentPageState();
@@ -257,6 +261,8 @@ class _ManualPaymentPageState extends ConsumerState<ManualPaymentPage> {
           pharmacyOrderId: widget.pharmacyOrderId,
           labOrderId: widget.labOrderId,
           radiologyOrderId: widget.radiologyOrderId,
+          gymBookingId: widget.gymBookingId,
+          coachBookingId: widget.coachBookingId,
         ),
       );
     }

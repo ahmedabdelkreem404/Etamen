@@ -75,6 +75,8 @@ class PaymentStatusDetails {
     this.methodType,
     this.appointmentStatus,
     this.radiologyOrderStatus,
+    this.gymBookingStatus,
+    this.coachBookingStatus,
     this.invoice,
     this.rejectionReason,
     this.createdAt,
@@ -90,6 +92,8 @@ class PaymentStatusDetails {
   final int? payableId;
   final String? appointmentStatus;
   final String? radiologyOrderStatus;
+  final String? gymBookingStatus;
+  final String? coachBookingStatus;
   final Map<String, dynamic>? invoice;
   final String? rejectionReason;
   final DateTime? createdAt;

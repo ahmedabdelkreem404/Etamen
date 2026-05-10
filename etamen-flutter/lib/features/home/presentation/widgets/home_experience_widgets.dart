@@ -311,6 +311,32 @@ class ServicesTab extends StatelessWidget {
           secondaryLabel: uxCopy(context, 'طلبات الأشعة', 'Radiology orders'),
           onSecondaryTap: () => context.push(RouteNames.radiologyOrders),
         ),
+        ServiceCard(
+          icon: Icons.fitness_center_outlined,
+          title: uxCopy(context, 'الجيمات', 'Gyms'),
+          body: uxCopy(
+            context,
+            'اختار جيم أو حصة تدريبية، والحجز والدفع يتمان بنفس تدفق الدفع الآمن.',
+            'Choose a gym or class, then complete booking through the same safe payment flow.',
+          ),
+          actionLabel: uxCopy(context, 'الجيمات', 'Gyms'),
+          onTap: () => context.push(RouteNames.gyms),
+          secondaryLabel: uxCopy(context, 'حجوزات الجيم', 'Gym bookings'),
+          onSecondaryTap: () => context.push(RouteNames.gymBookings),
+        ),
+        ServiceCard(
+          icon: Icons.sports_handball_outlined,
+          title: uxCopy(context, 'الكوتشات', 'Coaches'),
+          body: uxCopy(
+            context,
+            'احجز جلسة لياقة أو تغذية بدون وعود علاجية، والسعر يؤخذ من النظام فقط.',
+            'Book fitness or nutrition sessions without treatment claims; pricing stays backend-owned.',
+          ),
+          actionLabel: uxCopy(context, 'الكوتشات', 'Coaches'),
+          onTap: () => context.push(RouteNames.coaches),
+          secondaryLabel: uxCopy(context, 'حجوزات الكوتش', 'Coach bookings'),
+          onSecondaryTap: () => context.push(RouteNames.coachBookings),
+        ),
       ],
     );
   }

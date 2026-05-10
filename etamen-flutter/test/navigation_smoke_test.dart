@@ -26,6 +26,14 @@ void main() {
       '/payments/10?radiologyOrderId=12',
     );
     expect(
+      RouteNames.payment(10, gymBookingId: 13),
+      '/payments/10?gymBookingId=13',
+    );
+    expect(
+      RouteNames.payment(10, coachBookingId: 14),
+      '/payments/10?coachBookingId=14',
+    );
+    expect(
       RouteNames.manualPayment(10, methodId: 2, appointmentId: 7),
       '/payments/10/manual?methodId=2&appointmentId=7',
     );
@@ -49,6 +57,10 @@ void main() {
     expect(RouteNames.radiologyOrderBuilder, '/radiology/order-builder');
     expect(RouteNames.radiologyOrders, '/radiology/orders');
     expect(RouteNames.hospitals, '/hospitals');
+    expect(RouteNames.gyms, '/gyms');
+    expect(RouteNames.gymBookings, '/gym/bookings');
+    expect(RouteNames.coaches, '/coaches');
+    expect(RouteNames.coachBookings, '/coach/bookings');
     expect(RouteNames.labCart, '/labs/cart');
     expect(RouteNames.labOrders, '/lab-orders');
     expect(RouteNames.health, '/health');
@@ -90,6 +102,10 @@ void main() {
     expect(RouteNames.labOrderDetails(3), '/lab-orders/3');
     expect(RouteNames.radiologyOrderDetails(3), '/radiology/orders/3');
     expect(RouteNames.hospitalDetails(4), '/hospitals/4');
+    expect(RouteNames.gymDetails(8), '/gyms/8');
+    expect(RouteNames.gymBookingDetails(9), '/gym/bookings/9');
+    expect(RouteNames.coachDetails(10), '/coaches/10');
+    expect(RouteNames.coachBookingDetails(11), '/coach/bookings/11');
     expect(
       RouteNames.hospitalDepartmentDoctors(4, 5),
       '/hospitals/4/departments/5/doctors',

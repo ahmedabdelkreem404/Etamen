@@ -389,3 +389,36 @@ Still deferred:
 - staging deployment.
 - production operations.
 - advanced subscriptions, class capacity enforcement, refunds, attendance, and coach progress plans.
+
+## Sprint 47 Implementation Update
+
+Implemented locally in Flutter:
+
+- Services entries for Gyms and Coaches.
+- Gym list/details/my bookings/booking details UI.
+- Coach list/details/my bookings/booking details UI.
+- Flutter fitness models, repositories, controllers, widgets, and route wiring.
+- Payment route context for `gymBookingId` and `coachBookingId`.
+- Fitness JSON parsing fix so booking responses keep backend-owned `status`, `payment_id`, and `booking_number`.
+
+Partially verified locally:
+
+- local backend health.
+- public gym and coach discovery.
+- active manual payment methods.
+- local Android emulator APK install/launch.
+- coach list/details rendering.
+
+Still deferred:
+
+- complete gym payment proof/admin accept from Flutter.
+- complete coach payment proof/admin accept from Flutter.
+- staging deployment.
+- real phone fitness proof upload.
+- production marketplace readiness.
+
+Decision:
+
+```text
+LOCAL_FITNESS_PAYMENT_UI_BLOCKED
+```

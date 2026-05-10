@@ -16,6 +16,10 @@ class ApiEndpoints {
   static const radiologyScans = '/radiology/scans';
   static const radiologyOrders = '/radiology/orders';
   static const hospitals = '/hospitals';
+  static const gyms = '/gyms';
+  static const gymBookings = '/gym/bookings';
+  static const coaches = '/coaches';
+  static const coachBookings = '/coach/bookings';
   static const labOrders = '/lab/orders';
   static const healthProfile = '/health/profile';
   static const healthVitals = '/health/vitals';
@@ -98,6 +102,31 @@ class ApiEndpoints {
 
   static String hospitalDepartmentDoctors(int hospitalId, int departmentId) =>
       '/hospitals/$hospitalId/departments/$departmentId/doctors';
+
+  static String gym(int id) => '/gyms/$id';
+
+  static String gymMembershipPlans(int gymId) =>
+      '/gyms/$gymId/membership-plans';
+
+  static String gymClasses(int gymId) => '/gyms/$gymId/classes';
+
+  static String gymBooking(int id) => '/gym/bookings/$id';
+
+  static String gymBookingCancel(int id) => '/gym/bookings/$id/cancel';
+
+  static String coach(int id) => '/coaches/$id';
+
+  static String coachSessionTypes(int coachId) =>
+      '/coaches/$coachId/session-types';
+
+  static String coachAvailability(int coachId) =>
+      '/coaches/$coachId/availability';
+
+  static String coachPackages(int coachId) => '/coaches/$coachId/packages';
+
+  static String coachBooking(int id) => '/coach/bookings/$id';
+
+  static String coachBookingCancel(int id) => '/coach/bookings/$id/cancel';
 
   static String medicationReminder(int id) => '/medications/reminders/$id';
 

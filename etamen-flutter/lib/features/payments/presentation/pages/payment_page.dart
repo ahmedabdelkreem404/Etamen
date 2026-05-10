@@ -24,6 +24,8 @@ class PaymentPage extends ConsumerWidget {
     this.pharmacyOrderId,
     this.labOrderId,
     this.radiologyOrderId,
+    this.gymBookingId,
+    this.coachBookingId,
     super.key,
   });
 
@@ -32,6 +34,8 @@ class PaymentPage extends ConsumerWidget {
   final int? pharmacyOrderId;
   final int? labOrderId;
   final int? radiologyOrderId;
+  final int? gymBookingId;
+  final int? coachBookingId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -94,6 +98,16 @@ class PaymentPage extends ConsumerWidget {
                       Text(
                         '${l10n.get('appointmentStatus')}: ${friendlyAppointmentStatus(context, status.appointmentStatus)}',
                       ),
+                    ] else if (status.gymBookingStatus != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        '${uxCopy(context, 'حالة حجز الجيم', 'Gym booking status')}: ${_friendlyGymStatus(context, status.gymBookingStatus)}',
+                      ),
+                    ] else if (status.coachBookingStatus != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        '${uxCopy(context, 'حالة حجز الكوتش', 'Coach booking status')}: ${_friendlyCoachStatus(context, status.coachBookingStatus)}',
+                      ),
                     ],
                   ] else
                     Text(l10n.get('paymentStatusUnavailable')),
@@ -144,6 +158,8 @@ class PaymentPage extends ConsumerWidget {
                   pharmacyOrderId: pharmacyOrderId,
                   labOrderId: labOrderId,
                   radiologyOrderId: radiologyOrderId,
+                  gymBookingId: gymBookingId,
+                  coachBookingId: coachBookingId,
                 ),
               ),
             ),
@@ -163,6 +179,8 @@ class PaymentPage extends ConsumerWidget {
           pharmacyOrderId: pharmacyOrderId,
           labOrderId: labOrderId,
           radiologyOrderId: radiologyOrderId,
+          gymBookingId: gymBookingId,
+          coachBookingId: coachBookingId,
         ),
       );
       return;
@@ -176,10 +194,46 @@ class PaymentPage extends ConsumerWidget {
           pharmacyOrderId: pharmacyOrderId,
           labOrderId: labOrderId,
           radiologyOrderId: radiologyOrderId,
+          gymBookingId: gymBookingId,
+          coachBookingId: coachBookingId,
         ),
       );
     }
   }
+}
+
+String _friendlyGymStatus(BuildContext context, String? status) {
+  final isArabic = AppLocalizations.of(context).isArabic;
+  return switch (status) {
+    'pending_payment' => isArabic ? 'في انتظار الدفع' : 'Awaiting payment',
+    'pending_payment_review' =>
+      isArabic ? 'جاري مراجعة الدفع' : 'Payment under review',
+    'paid' => isArabic ? 'تم الدفع' : 'Paid',
+    'confirmed' => isArabic ? 'مؤكد' : 'Confirmed',
+    'active' => isArabic ? 'نشط' : 'Active',
+    'completed' => isArabic ? 'مكتمل' : 'Completed',
+    'cancelled_by_user' => isArabic ? 'ملغي بواسطتك' : 'Cancelled by you',
+    'cancelled_by_provider' => isArabic ? 'ملغي من الجيم' : 'Cancelled by gym',
+    'rejected' => isArabic ? 'مرفوض' : 'Rejected',
+    _ => isArabic ? 'غير متاح' : 'Unavailable',
+  };
+}
+
+String _friendlyCoachStatus(BuildContext context, String? status) {
+  final isArabic = AppLocalizations.of(context).isArabic;
+  return switch (status) {
+    'pending_payment' => isArabic ? 'في انتظار الدفع' : 'Awaiting payment',
+    'pending_payment_review' =>
+      isArabic ? 'جاري مراجعة الدفع' : 'Payment under review',
+    'paid' => isArabic ? 'تم الدفع' : 'Paid',
+    'confirmed' => isArabic ? 'مؤكد' : 'Confirmed',
+    'in_progress' => isArabic ? 'قيد التنفيذ' : 'In progress',
+    'completed' => isArabic ? 'مكتمل' : 'Completed',
+    'cancelled_by_user' => isArabic ? 'ملغي بواسطتك' : 'Cancelled by you',
+    'cancelled_by_coach' => isArabic ? 'ملغي من الكوتش' : 'Cancelled by coach',
+    'rejected' => isArabic ? 'مرفوض' : 'Rejected',
+    _ => isArabic ? 'غير متاح' : 'Unavailable',
+  };
 }
 
 class _PaymentFlowBanner extends StatelessWidget {

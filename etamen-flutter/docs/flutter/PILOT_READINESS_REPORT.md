@@ -1091,3 +1091,68 @@ LOCAL_RADIOLOGY_FLUTTER_ACCEPTED
 ## Next Step
 
 Run the same radiology order/payment/result flow on staging only after staging backend deployment and payment methods are verified again.
+
+---
+
+# Sprint 47 Local Fitness Flutter UI
+
+Date: 2026-05-10
+
+## Scope
+
+Sprint 47 was local-only. It did not touch Hostinger, `etamen.inolty.com`, SSH, or deployment.
+
+## Implemented
+
+- Added patient-facing Gyms and Coaches entries under Services.
+- Added gym list/details/my bookings/booking details screens.
+- Added coach list/details/my bookings/booking details screens.
+- Reused the existing manual payment flow with optional `gymBookingId` and `coachBookingId` context.
+- Added Flutter models/repositories/providers/tests for fitness data.
+- Fixed a JSON unwrapping bug where booking detail responses could be mistaken for nested plan/session objects.
+
+## Local QA
+
+Passed:
+
+- local API health.
+- demo gyms/coaches available from local backend.
+- payment methods available locally.
+- Services entries render in Flutter.
+- coach list and details render in Flutter.
+- local APK builds and installs on emulator.
+
+Not accepted yet:
+
+- full gym booking -> payment method -> proof upload -> admin accept was not completed from Flutter emulator.
+- full coach booking -> payment method -> proof upload -> admin accept was not completed from Flutter emulator.
+
+Screenshots:
+
+```text
+I:\Etamen\.tmp\sprint47-local-fitness\
+```
+
+APK:
+
+```text
+I:\Etamen\.tmp\etamen-local-fitness.apk
+C:\Users\Ahmed Abdelkareem\OneDrive\Desktop\Etamen_Android_Website_Ready\etamen-local-fitness.apk
+```
+
+## Decision
+
+```text
+LOCAL_FITNESS_PAYMENT_UI_BLOCKED
+```
+
+## Still Not Approved
+
+- staging readiness.
+- public launch readiness.
+- real phone readiness.
+- gym/coach pilot readiness.
+
+## Next Step
+
+Run a focused local Sprint 48 to finish the gym/coach payment proof/admin accept E2E from Flutter and add route-level tests for payment navigation.

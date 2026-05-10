@@ -16,6 +16,8 @@ class PaymobCheckoutPage extends ConsumerWidget {
     this.pharmacyOrderId,
     this.labOrderId,
     this.radiologyOrderId,
+    this.gymBookingId,
+    this.coachBookingId,
     super.key,
   });
 
@@ -24,6 +26,8 @@ class PaymobCheckoutPage extends ConsumerWidget {
   final int? pharmacyOrderId;
   final int? labOrderId;
   final int? radiologyOrderId;
+  final int? gymBookingId;
+  final int? coachBookingId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -96,6 +100,8 @@ class PaymobCheckoutPage extends ConsumerWidget {
                 pharmacyOrderId: pharmacyOrderId,
                 labOrderId: labOrderId,
                 radiologyOrderId: radiologyOrderId,
+                gymBookingId: gymBookingId,
+                coachBookingId: coachBookingId,
               ),
             ),
           ),

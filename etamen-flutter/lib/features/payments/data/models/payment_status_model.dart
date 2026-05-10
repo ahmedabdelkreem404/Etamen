@@ -11,6 +11,8 @@ class PaymentStatusModel extends PaymentStatusDetails {
     super.methodType,
     super.appointmentStatus,
     super.radiologyOrderStatus,
+    super.gymBookingStatus,
+    super.coachBookingStatus,
     super.invoice,
     super.rejectionReason,
     super.createdAt,
@@ -21,6 +23,8 @@ class PaymentStatusModel extends PaymentStatusDetails {
     final payable = _asMap(json['payable']);
     final appointment = _asMap(json['appointment']);
     final radiologyOrder = _asMap(json['radiology_order']);
+    final gymBooking = _asMap(json['gym_booking']);
+    final coachBooking = _asMap(json['coach_booking']);
     final proof = _asMap(json['proof']) ?? _asMap(json['latest_proof']);
     final metadata = _asMap(json['metadata']);
 
@@ -42,6 +46,16 @@ class PaymentStatusModel extends PaymentStatusDetails {
           (json['radiology_order_status'] ??
                   radiologyOrder?['status'] ??
                   payable?['radiology_order_status'])
+              ?.toString(),
+      gymBookingStatus:
+          (json['gym_booking_status'] ??
+                  gymBooking?['status'] ??
+                  payable?['gym_booking_status'])
+              ?.toString(),
+      coachBookingStatus:
+          (json['coach_booking_status'] ??
+                  coachBooking?['status'] ??
+                  payable?['coach_booking_status'])
               ?.toString(),
       invoice: _asMap(json['invoice']),
       rejectionReason:

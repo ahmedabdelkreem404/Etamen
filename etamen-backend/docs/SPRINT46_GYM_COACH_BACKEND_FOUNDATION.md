@@ -233,3 +233,27 @@ Still not ready:
 - real phone gym/coach QA.
 - production launch.
 - public marketplace exposure.
+
+## Sprint 47 Flutter Follow-up
+
+Sprint 47 added the local Flutter patient-facing Gym and Coach screens and reused the existing manual payment flow context.
+
+Backend status after Sprint 47:
+
+- no backend business changes were required.
+- Sprint 46 gym/coach APIs remain the source of truth for prices and statuses.
+- Flutter does not verify payment and does not send trusted totals/statuses.
+- local backend health, gyms, coaches, and payment methods were verified during Sprint 47.
+
+Sprint 47 decision:
+
+```text
+LOCAL_FITNESS_PAYMENT_UI_BLOCKED
+```
+
+Reason: Flutter UI foundation was implemented, but the full emulator payment proof/admin accept E2E for both gym and coach was not completed yet.
+
+Required next step:
+
+- complete local gym and coach payment proof/admin accept from Flutter.
+- keep backend ownership of price/status/payment verification unchanged.

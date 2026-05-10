@@ -25,6 +25,14 @@ import 'package:etamen_app/features/care_plans/presentation/pages/care_plans_pag
 import 'package:etamen_app/features/care_plans/presentation/pages/meal_log_page.dart';
 import 'package:etamen_app/features/doctors/presentation/pages/doctor_profile_page.dart';
 import 'package:etamen_app/features/doctors/presentation/pages/doctors_list_page.dart';
+import 'package:etamen_app/features/fitness/presentation/pages/coach_booking_details_page.dart';
+import 'package:etamen_app/features/fitness/presentation/pages/coach_details_page.dart';
+import 'package:etamen_app/features/fitness/presentation/pages/coaches_page.dart';
+import 'package:etamen_app/features/fitness/presentation/pages/gym_booking_details_page.dart';
+import 'package:etamen_app/features/fitness/presentation/pages/gym_details_page.dart';
+import 'package:etamen_app/features/fitness/presentation/pages/gyms_page.dart';
+import 'package:etamen_app/features/fitness/presentation/pages/my_coach_bookings_page.dart';
+import 'package:etamen_app/features/fitness/presentation/pages/my_gym_bookings_page.dart';
 import 'package:etamen_app/features/home/presentation/pages/home_page.dart';
 import 'package:etamen_app/features/hospitals/presentation/pages/hospital_department_doctors_page.dart';
 import 'package:etamen_app/features/hospitals/presentation/pages/hospital_details_page.dart';
@@ -133,6 +141,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.radiology,
         builder: (context, state) => const RadiologyHomePage(),
+      ),
+      GoRoute(
+        path: RouteNames.gyms,
+        builder: (context, state) => const GymsPage(),
+      ),
+      GoRoute(
+        path: RouteNames.gymBookings,
+        builder: (context, state) => const MyGymBookingsPage(),
+      ),
+      GoRoute(
+        path: RouteNames.coaches,
+        builder: (context, state) => const CoachesPage(),
+      ),
+      GoRoute(
+        path: RouteNames.coachBookings,
+        builder: (context, state) => const MyCoachBookingsPage(),
       ),
       GoRoute(
         path: RouteNames.hospitals,
@@ -319,6 +343,34 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        path: '/gyms/:id',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          return GymDetailsPage(gymId: id ?? 0);
+        },
+      ),
+      GoRoute(
+        path: '/gym/bookings/:id',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          return GymBookingDetailsPage(bookingId: id ?? 0);
+        },
+      ),
+      GoRoute(
+        path: '/coaches/:id',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          return CoachDetailsPage(coachId: id ?? 0);
+        },
+      ),
+      GoRoute(
+        path: '/coach/bookings/:id',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          return CoachBookingDetailsPage(bookingId: id ?? 0);
+        },
+      ),
+      GoRoute(
         path: '/lab-orders/:id',
         builder: (context, state) {
           final id = int.tryParse(state.pathParameters['id'] ?? '');
@@ -405,12 +457,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final radiologyOrderId = int.tryParse(
             state.uri.queryParameters['radiologyOrderId'] ?? '',
           );
+          final gymBookingId = int.tryParse(
+            state.uri.queryParameters['gymBookingId'] ?? '',
+          );
+          final coachBookingId = int.tryParse(
+            state.uri.queryParameters['coachBookingId'] ?? '',
+          );
           return PaymentPage(
             paymentId: id ?? 0,
             appointmentId: appointmentId,
             pharmacyOrderId: pharmacyOrderId,
             labOrderId: labOrderId,
             radiologyOrderId: radiologyOrderId,
+            gymBookingId: gymBookingId,
+            coachBookingId: coachBookingId,
           );
         },
       ),
@@ -433,6 +493,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final radiologyOrderId = int.tryParse(
             state.uri.queryParameters['radiologyOrderId'] ?? '',
           );
+          final gymBookingId = int.tryParse(
+            state.uri.queryParameters['gymBookingId'] ?? '',
+          );
+          final coachBookingId = int.tryParse(
+            state.uri.queryParameters['coachBookingId'] ?? '',
+          );
           return ManualPaymentPage(
             paymentId: id ?? 0,
             methodId: methodId ?? 0,
@@ -440,6 +506,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             pharmacyOrderId: pharmacyOrderId,
             labOrderId: labOrderId,
             radiologyOrderId: radiologyOrderId,
+            gymBookingId: gymBookingId,
+            coachBookingId: coachBookingId,
           );
         },
       ),
@@ -459,12 +527,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final radiologyOrderId = int.tryParse(
             state.uri.queryParameters['radiologyOrderId'] ?? '',
           );
+          final gymBookingId = int.tryParse(
+            state.uri.queryParameters['gymBookingId'] ?? '',
+          );
+          final coachBookingId = int.tryParse(
+            state.uri.queryParameters['coachBookingId'] ?? '',
+          );
           return PaymentStatusPage(
             paymentId: id ?? 0,
             appointmentId: appointmentId,
             pharmacyOrderId: pharmacyOrderId,
             labOrderId: labOrderId,
             radiologyOrderId: radiologyOrderId,
+            gymBookingId: gymBookingId,
+            coachBookingId: coachBookingId,
           );
         },
       ),
@@ -484,12 +560,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final radiologyOrderId = int.tryParse(
             state.uri.queryParameters['radiologyOrderId'] ?? '',
           );
+          final gymBookingId = int.tryParse(
+            state.uri.queryParameters['gymBookingId'] ?? '',
+          );
+          final coachBookingId = int.tryParse(
+            state.uri.queryParameters['coachBookingId'] ?? '',
+          );
           return PaymobCheckoutPage(
             paymentId: id ?? 0,
             appointmentId: appointmentId,
             pharmacyOrderId: pharmacyOrderId,
             labOrderId: labOrderId,
             radiologyOrderId: radiologyOrderId,
+            gymBookingId: gymBookingId,
+            coachBookingId: coachBookingId,
           );
         },
       ),

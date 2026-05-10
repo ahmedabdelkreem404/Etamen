@@ -16,6 +16,10 @@ class RouteNames {
   static const radiologyOrderBuilder = '/radiology/order-builder';
   static const radiologyOrders = '/radiology/orders';
   static const hospitals = '/hospitals';
+  static const gyms = '/gyms';
+  static const gymBookings = '/gym/bookings';
+  static const coaches = '/coaches';
+  static const coachBookings = '/coach/bookings';
   static const labCart = '/labs/cart';
   static const labOrders = '/lab-orders';
   static const health = '/health';
@@ -97,6 +101,14 @@ class RouteNames {
   static String hospitalDepartmentDoctors(int hospitalId, int departmentId) =>
       '/hospitals/$hospitalId/departments/$departmentId/doctors';
 
+  static String gymDetails(int id) => '/gyms/$id';
+
+  static String gymBookingDetails(int id) => '/gym/bookings/$id';
+
+  static String coachDetails(int id) => '/coaches/$id';
+
+  static String coachBookingDetails(int id) => '/coach/bookings/$id';
+
   static String addVital([dynamic type]) {
     if (type == null) return '/health/vitals/add';
     final value = type is String ? type : type.wireValue.toString();
@@ -129,12 +141,16 @@ class RouteNames {
     int? pharmacyOrderId,
     int? labOrderId,
     int? radiologyOrderId,
+    int? gymBookingId,
+    int? coachBookingId,
   }) {
     final suffix = _query({
       'appointmentId': appointmentId,
       'pharmacyOrderId': pharmacyOrderId,
       'labOrderId': labOrderId,
       'radiologyOrderId': radiologyOrderId,
+      'gymBookingId': gymBookingId,
+      'coachBookingId': coachBookingId,
     });
     return '/payments/$id$suffix';
   }
@@ -146,6 +162,8 @@ class RouteNames {
     int? pharmacyOrderId,
     int? labOrderId,
     int? radiologyOrderId,
+    int? gymBookingId,
+    int? coachBookingId,
   }) {
     final suffix = _query({
       'methodId': methodId,
@@ -153,6 +171,8 @@ class RouteNames {
       'pharmacyOrderId': pharmacyOrderId,
       'labOrderId': labOrderId,
       'radiologyOrderId': radiologyOrderId,
+      'gymBookingId': gymBookingId,
+      'coachBookingId': coachBookingId,
     });
     return '/payments/$id/manual$suffix';
   }
@@ -163,12 +183,16 @@ class RouteNames {
     int? pharmacyOrderId,
     int? labOrderId,
     int? radiologyOrderId,
+    int? gymBookingId,
+    int? coachBookingId,
   }) {
     final suffix = _query({
       'appointmentId': appointmentId,
       'pharmacyOrderId': pharmacyOrderId,
       'labOrderId': labOrderId,
       'radiologyOrderId': radiologyOrderId,
+      'gymBookingId': gymBookingId,
+      'coachBookingId': coachBookingId,
     });
     return '/payments/$id/status$suffix';
   }
@@ -179,12 +203,16 @@ class RouteNames {
     int? pharmacyOrderId,
     int? labOrderId,
     int? radiologyOrderId,
+    int? gymBookingId,
+    int? coachBookingId,
   }) {
     final suffix = _query({
       'appointmentId': appointmentId,
       'pharmacyOrderId': pharmacyOrderId,
       'labOrderId': labOrderId,
       'radiologyOrderId': radiologyOrderId,
+      'gymBookingId': gymBookingId,
+      'coachBookingId': coachBookingId,
     });
     return '/payments/$id/paymob$suffix';
   }

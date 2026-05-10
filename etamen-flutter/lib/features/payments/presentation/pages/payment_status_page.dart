@@ -22,6 +22,8 @@ class PaymentStatusPage extends ConsumerStatefulWidget {
     this.pharmacyOrderId,
     this.labOrderId,
     this.radiologyOrderId,
+    this.gymBookingId,
+    this.coachBookingId,
     super.key,
   });
 
@@ -30,6 +32,8 @@ class PaymentStatusPage extends ConsumerStatefulWidget {
   final int? pharmacyOrderId;
   final int? labOrderId;
   final int? radiologyOrderId;
+  final int? gymBookingId;
+  final int? coachBookingId;
 
   @override
   ConsumerState<PaymentStatusPage> createState() => _PaymentStatusPageState();
@@ -94,36 +98,8 @@ class _PaymentStatusPageState extends ConsumerState<PaymentStatusPage> {
     if (status == PaymentStatusEnum.verified) {
       return [
         AppButton(
-          label: widget.labOrderId != null
-              ? l10n.get('labOrderDetails')
-              : widget.radiologyOrderId != null
-              ? uxCopy(context, 'تفاصيل طلب الأشعة', 'Radiology order')
-              : widget.pharmacyOrderId != null
-              ? l10n.get('pharmacyOrderDetails')
-              : l10n.get('viewAppointment'),
-          onPressed: () {
-            if (widget.appointmentId != null) {
-              context.go(RouteNames.appointmentDetails(widget.appointmentId!));
-              return;
-            }
-            if (widget.pharmacyOrderId != null) {
-              context.go(
-                RouteNames.pharmacyOrderDetails(widget.pharmacyOrderId!),
-              );
-              return;
-            }
-            if (widget.labOrderId != null) {
-              context.go(RouteNames.labOrderDetails(widget.labOrderId!));
-              return;
-            }
-            if (widget.radiologyOrderId != null) {
-              context.go(
-                RouteNames.radiologyOrderDetails(widget.radiologyOrderId!),
-              );
-              return;
-            }
-            context.go(RouteNames.home);
-          },
+          label: _verifiedActionLabel(context, l10n),
+          onPressed: () => _goToPayable(context),
         ),
         const SizedBox(height: 12),
         AppButton(
@@ -147,6 +123,8 @@ class _PaymentStatusPageState extends ConsumerState<PaymentStatusPage> {
               pharmacyOrderId: widget.pharmacyOrderId,
               labOrderId: widget.labOrderId,
               radiologyOrderId: widget.radiologyOrderId,
+              gymBookingId: widget.gymBookingId,
+              coachBookingId: widget.coachBookingId,
             ),
           ),
         ),
@@ -164,6 +142,49 @@ class _PaymentStatusPageState extends ConsumerState<PaymentStatusPage> {
         onPressed: () => context.go(RouteNames.home),
       ),
     ];
+  }
+
+  String _verifiedActionLabel(BuildContext context, AppLocalizations l10n) {
+    if (widget.labOrderId != null) return l10n.get('labOrderDetails');
+    if (widget.radiologyOrderId != null) {
+      return uxCopy(context, 'تفاصيل طلب الأشعة', 'Radiology order');
+    }
+    if (widget.gymBookingId != null) {
+      return uxCopy(context, 'تفاصيل حجز الجيم', 'Gym booking');
+    }
+    if (widget.coachBookingId != null) {
+      return uxCopy(context, 'تفاصيل حجز الكوتش', 'Coach booking');
+    }
+    if (widget.pharmacyOrderId != null) return l10n.get('pharmacyOrderDetails');
+    return l10n.get('viewAppointment');
+  }
+
+  void _goToPayable(BuildContext context) {
+    if (widget.appointmentId != null) {
+      context.go(RouteNames.appointmentDetails(widget.appointmentId!));
+      return;
+    }
+    if (widget.pharmacyOrderId != null) {
+      context.go(RouteNames.pharmacyOrderDetails(widget.pharmacyOrderId!));
+      return;
+    }
+    if (widget.labOrderId != null) {
+      context.go(RouteNames.labOrderDetails(widget.labOrderId!));
+      return;
+    }
+    if (widget.radiologyOrderId != null) {
+      context.go(RouteNames.radiologyOrderDetails(widget.radiologyOrderId!));
+      return;
+    }
+    if (widget.gymBookingId != null) {
+      context.go(RouteNames.gymBookingDetails(widget.gymBookingId!));
+      return;
+    }
+    if (widget.coachBookingId != null) {
+      context.go(RouteNames.coachBookingDetails(widget.coachBookingId!));
+      return;
+    }
+    context.go(RouteNames.home);
   }
 }
 
@@ -197,22 +218,7 @@ class _StatusCard extends StatelessWidget {
               label: l10n.get('paymentMethod'),
               value: friendlyPaymentMethodType(context, status.methodType),
             ),
-            if (status.radiologyOrderStatus != null)
-              _InfoLine(
-                label: uxCopy(context, 'حالة طلب الأشعة', 'Radiology status'),
-                value: _friendlyRadiologyStatus(
-                  context,
-                  status.radiologyOrderStatus,
-                ),
-              )
-            else
-              _InfoLine(
-                label: l10n.get('appointmentStatus'),
-                value: friendlyAppointmentStatus(
-                  context,
-                  status.appointmentStatus,
-                ),
-              ),
+            _PayableStatusLine(status: status),
             _InfoLine(
               label: l10n.get('lastUpdated'),
               value: status.updatedAt?.toLocal().toString() ?? '-',
@@ -251,6 +257,38 @@ class _StatusCard extends StatelessWidget {
   }
 }
 
+class _PayableStatusLine extends StatelessWidget {
+  const _PayableStatusLine({required this.status});
+
+  final PaymentStatusDetails status;
+
+  @override
+  Widget build(BuildContext context) {
+    if (status.radiologyOrderStatus != null) {
+      return _InfoLine(
+        label: uxCopy(context, 'حالة طلب الأشعة', 'Radiology status'),
+        value: _friendlyRadiologyStatus(context, status.radiologyOrderStatus),
+      );
+    }
+    if (status.gymBookingStatus != null) {
+      return _InfoLine(
+        label: uxCopy(context, 'حالة حجز الجيم', 'Gym booking status'),
+        value: _friendlyGymStatus(context, status.gymBookingStatus),
+      );
+    }
+    if (status.coachBookingStatus != null) {
+      return _InfoLine(
+        label: uxCopy(context, 'حالة حجز الكوتش', 'Coach booking status'),
+        value: _friendlyCoachStatus(context, status.coachBookingStatus),
+      );
+    }
+    return _InfoLine(
+      label: AppLocalizations.of(context).get('appointmentStatus'),
+      value: friendlyAppointmentStatus(context, status.appointmentStatus),
+    );
+  }
+}
+
 String _friendlyRadiologyStatus(BuildContext context, String? status) {
   final isArabic = AppLocalizations.of(context).isArabic;
   return switch (status) {
@@ -265,6 +303,40 @@ String _friendlyRadiologyStatus(BuildContext context, String? status) {
     'cancelled_by_patient' => isArabic ? 'ملغي بواسطتك' : 'Cancelled by you',
     'cancelled_by_provider' =>
       isArabic ? 'ملغي من المركز' : 'Cancelled by center',
+    'rejected' => isArabic ? 'مرفوض' : 'Rejected',
+    _ => isArabic ? 'غير متاح' : 'Unavailable',
+  };
+}
+
+String _friendlyGymStatus(BuildContext context, String? status) {
+  final isArabic = AppLocalizations.of(context).isArabic;
+  return switch (status) {
+    'pending_payment' => isArabic ? 'في انتظار الدفع' : 'Awaiting payment',
+    'pending_payment_review' =>
+      isArabic ? 'جاري مراجعة الدفع' : 'Payment under review',
+    'paid' => isArabic ? 'تم الدفع' : 'Paid',
+    'confirmed' => isArabic ? 'مؤكد' : 'Confirmed',
+    'active' => isArabic ? 'نشط' : 'Active',
+    'completed' => isArabic ? 'مكتمل' : 'Completed',
+    'cancelled_by_user' => isArabic ? 'ملغي بواسطتك' : 'Cancelled by you',
+    'cancelled_by_provider' => isArabic ? 'ملغي من الجيم' : 'Cancelled by gym',
+    'rejected' => isArabic ? 'مرفوض' : 'Rejected',
+    _ => isArabic ? 'غير متاح' : 'Unavailable',
+  };
+}
+
+String _friendlyCoachStatus(BuildContext context, String? status) {
+  final isArabic = AppLocalizations.of(context).isArabic;
+  return switch (status) {
+    'pending_payment' => isArabic ? 'في انتظار الدفع' : 'Awaiting payment',
+    'pending_payment_review' =>
+      isArabic ? 'جاري مراجعة الدفع' : 'Payment under review',
+    'paid' => isArabic ? 'تم الدفع' : 'Paid',
+    'confirmed' => isArabic ? 'مؤكد' : 'Confirmed',
+    'in_progress' => isArabic ? 'قيد التنفيذ' : 'In progress',
+    'completed' => isArabic ? 'مكتمل' : 'Completed',
+    'cancelled_by_user' => isArabic ? 'ملغي بواسطتك' : 'Cancelled by you',
+    'cancelled_by_coach' => isArabic ? 'ملغي من الكوتش' : 'Cancelled by coach',
     'rejected' => isArabic ? 'مرفوض' : 'Rejected',
     _ => isArabic ? 'غير متاح' : 'Unavailable',
   };

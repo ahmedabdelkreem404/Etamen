@@ -56,6 +56,34 @@ void main() {
     },
   );
 
+  test('PaymentStatus parsing maps gym and coach booking statuses', () {
+    final gymStatus = PaymentStatusModel.fromJson({
+      'id': 301,
+      'status': 'pending_review',
+      'amount': '600.00',
+      'currency': 'EGP',
+      'payable': {'type': 'GymBooking', 'id': 70},
+      'gym_booking': {'id': 70, 'booking_number': 'GYM-70', 'status': 'paid'},
+    });
+    final coachStatus = PaymentStatusModel.fromJson({
+      'id': 302,
+      'status': 'verified',
+      'amount': '450.00',
+      'currency': 'EGP',
+      'payable': {'type': 'CoachBooking', 'id': 71},
+      'coach_booking': {
+        'id': 71,
+        'booking_number': 'COACH-71',
+        'status': 'confirmed',
+      },
+    });
+
+    expect(gymStatus.payableId, 70);
+    expect(gymStatus.gymBookingStatus, 'paid');
+    expect(coachStatus.payableId, 71);
+    expect(coachStatus.coachBookingStatus, 'confirmed');
+  });
+
   test('Payment enum mapping treats duplicate verified status as terminal', () {
     expect(PaymentStatusEnum.fromWire('verified'), PaymentStatusEnum.verified);
     expect(PaymentStatusEnum.verified.isTerminal, true);
