@@ -1,6 +1,8 @@
 import 'package:etamen_app/core/config/api_endpoints.dart';
 import 'package:etamen_app/core/routing/route_names.dart';
+import 'package:etamen_app/features/workspaces/data/models/provider_operation_models.dart';
 import 'package:etamen_app/features/workspaces/data/models/workspace_models.dart';
+import 'package:etamen_app/features/workspaces/presentation/pages/provider_operation_sections.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -92,5 +94,57 @@ void main() {
     );
     expect(RouteNames.providerDashboard(12), '/workspace/provider/12');
     expect(RouteNames.platformAdminDashboard, '/workspace/platform-admin');
+  });
+
+  test('provider operation routes and quick action mapping are stable', () {
+    expect(
+      ApiEndpoints.providerWorkspaceOperation(12, 'doctor/appointments'),
+      '/provider/workspace/12/doctor/appointments',
+    );
+    expect(
+      ApiEndpoints.providerWorkspaceOperationAction(
+        12,
+        'doctor/appointments',
+        5,
+        'confirm',
+      ),
+      '/provider/workspace/12/doctor/appointments/5/confirm',
+    );
+    expect(
+      RouteNames.providerOperation(12, 'radiology/orders'),
+      '/workspace/provider/12/operations?section=radiology__orders',
+    );
+    expect(
+      RouteNames.providerOperationDetails(12, 'gym/bookings', 8),
+      '/workspace/provider/12/operations/8?section=gym__bookings',
+    );
+
+    final appointments = operationSectionForQuickAction(
+      'doctor',
+      'appointments',
+    );
+    expect(appointments?.section, 'doctor/appointments');
+    expect(operationSectionForQuickAction('doctor', 'schedule'), isNull);
+  });
+
+  test('provider operation list and friendly statuses parse safely', () {
+    final list = ProviderOperationList.fromJson({
+      'items': [
+        {
+          'id': 7,
+          'number': 'APT-7',
+          'status': 'pending_payment_review',
+          'total_amount': '300.00',
+          'patient': {'id': 2, 'name': 'Demo Patient'},
+          'payment': {'id': 9, 'status': 'pending_review'},
+        },
+      ],
+      'meta': {'count': 1},
+    });
+
+    expect(list.count, 1);
+    expect(list.items.single.id, 7);
+    expect(list.items.single.amountLabel(true), '300 جنيه');
+    expect(list.items.single.subtitle(true), contains('جاري مراجعة الدفع'));
   });
 }

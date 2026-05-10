@@ -136,6 +136,7 @@ class PilotDemoSeeder extends Seeder
             [$city, $area] = $this->seedLocation();
             [$doctorProvider, $doctorProfile, $branch] = $this->seedDoctor($doctorUser, $admin, $city, $area);
             $this->providerStaff($doctorProvider, $limitedStaffUser, ProviderStaffRole::Staff, [
+                ProviderPermission::ViewAppointments->value,
                 ProviderPermission::ViewBookings->value,
                 ProviderPermission::ViewPayments->value,
             ]);

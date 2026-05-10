@@ -7,6 +7,7 @@ use App\Modules\Providers\Http\Controllers\ProviderAccountController;
 use App\Modules\Providers\Http\Controllers\ProviderRegistrationController;
 use App\Modules\Providers\Http\Controllers\ProviderServiceController;
 use App\Modules\Providers\Http\Controllers\ProviderWorkspaceDashboardController;
+use App\Modules\Providers\Http\Controllers\ProviderWorkspaceOperationsController;
 use App\Modules\Providers\Http\Controllers\ProviderWorkspaceStaffController;
 use App\Modules\Providers\Http\Controllers\PublicHospitalController;
 use App\Modules\Providers\Http\Controllers\PublicProviderController;
@@ -54,6 +55,51 @@ Route::prefix('provider/workspace/{provider}')->middleware(['auth:sanctum'])->gr
     Route::post('/staff', [ProviderWorkspaceStaffController::class, 'store'])->middleware('throttle:sensitive-action');
     Route::patch('/staff/{staff}', [ProviderWorkspaceStaffController::class, 'update'])->middleware('throttle:sensitive-action');
     Route::delete('/staff/{staff}', [ProviderWorkspaceStaffController::class, 'destroy'])->middleware('throttle:sensitive-action');
+
+    Route::get('/doctor/appointments', [ProviderWorkspaceOperationsController::class, 'doctorAppointments']);
+    Route::get('/doctor/appointments/{appointment}', [ProviderWorkspaceOperationsController::class, 'doctorAppointment']);
+    Route::post('/doctor/appointments/{appointment}/confirm', [ProviderWorkspaceOperationsController::class, 'confirmDoctorAppointment'])->middleware('throttle:sensitive-action');
+    Route::post('/doctor/appointments/{appointment}/complete', [ProviderWorkspaceOperationsController::class, 'completeDoctorAppointment'])->middleware('throttle:sensitive-action');
+    Route::post('/doctor/appointments/{appointment}/cancel', [ProviderWorkspaceOperationsController::class, 'cancelDoctorAppointment'])->middleware('throttle:sensitive-action');
+
+    Route::get('/hospital/appointments', [ProviderWorkspaceOperationsController::class, 'hospitalAppointments']);
+    Route::get('/hospital/departments', [ProviderWorkspaceOperationsController::class, 'hospitalDepartments']);
+    Route::get('/hospital/doctors', [ProviderWorkspaceOperationsController::class, 'hospitalDoctors']);
+
+    Route::get('/radiology/orders', [ProviderWorkspaceOperationsController::class, 'radiologyOrders']);
+    Route::get('/radiology/orders/{order}', [ProviderWorkspaceOperationsController::class, 'radiologyOrder']);
+    Route::post('/radiology/orders/{order}/accept', [ProviderWorkspaceOperationsController::class, 'acceptRadiologyOrder'])->middleware('throttle:sensitive-action');
+    Route::post('/radiology/orders/{order}/reject', [ProviderWorkspaceOperationsController::class, 'rejectRadiologyOrder'])->middleware('throttle:sensitive-action');
+    Route::post('/radiology/orders/{order}/start', [ProviderWorkspaceOperationsController::class, 'startRadiologyOrder'])->middleware('throttle:sensitive-action');
+    Route::post('/radiology/orders/{order}/result-ready', [ProviderWorkspaceOperationsController::class, 'markRadiologyResultReady'])->middleware('throttle:sensitive-action');
+    Route::post('/radiology/orders/{order}/complete', [ProviderWorkspaceOperationsController::class, 'completeRadiologyOrder'])->middleware('throttle:sensitive-action');
+
+    Route::get('/pharmacy/orders', [ProviderWorkspaceOperationsController::class, 'pharmacyOrders']);
+    Route::get('/pharmacy/orders/{order}', [ProviderWorkspaceOperationsController::class, 'pharmacyOrder']);
+    Route::get('/pharmacy/products', [ProviderWorkspaceOperationsController::class, 'pharmacyProducts']);
+
+    Route::get('/lab/orders', [ProviderWorkspaceOperationsController::class, 'labOrders']);
+    Route::get('/lab/orders/{order}', [ProviderWorkspaceOperationsController::class, 'labOrder']);
+    Route::get('/lab/catalog', [ProviderWorkspaceOperationsController::class, 'labCatalog']);
+
+    Route::get('/gym/bookings', [ProviderWorkspaceOperationsController::class, 'gymBookings']);
+    Route::get('/gym/bookings/{booking}', [ProviderWorkspaceOperationsController::class, 'gymBooking']);
+    Route::post('/gym/bookings/{booking}/confirm', [ProviderWorkspaceOperationsController::class, 'confirmGymBooking'])->middleware('throttle:sensitive-action');
+    Route::post('/gym/bookings/{booking}/activate', [ProviderWorkspaceOperationsController::class, 'activateGymBooking'])->middleware('throttle:sensitive-action');
+    Route::post('/gym/bookings/{booking}/complete', [ProviderWorkspaceOperationsController::class, 'completeGymBooking'])->middleware('throttle:sensitive-action');
+    Route::post('/gym/bookings/{booking}/cancel', [ProviderWorkspaceOperationsController::class, 'cancelGymBooking'])->middleware('throttle:sensitive-action');
+    Route::get('/gym/plans', [ProviderWorkspaceOperationsController::class, 'gymPlans']);
+    Route::get('/gym/classes', [ProviderWorkspaceOperationsController::class, 'gymClasses']);
+
+    Route::get('/coach/bookings', [ProviderWorkspaceOperationsController::class, 'coachBookings']);
+    Route::get('/coach/bookings/{booking}', [ProviderWorkspaceOperationsController::class, 'coachBooking']);
+    Route::post('/coach/bookings/{booking}/confirm', [ProviderWorkspaceOperationsController::class, 'confirmCoachBooking'])->middleware('throttle:sensitive-action');
+    Route::post('/coach/bookings/{booking}/start', [ProviderWorkspaceOperationsController::class, 'startCoachBooking'])->middleware('throttle:sensitive-action');
+    Route::post('/coach/bookings/{booking}/complete', [ProviderWorkspaceOperationsController::class, 'completeCoachBooking'])->middleware('throttle:sensitive-action');
+    Route::post('/coach/bookings/{booking}/cancel', [ProviderWorkspaceOperationsController::class, 'cancelCoachBooking'])->middleware('throttle:sensitive-action');
+    Route::get('/coach/availability', [ProviderWorkspaceOperationsController::class, 'coachAvailability']);
+    Route::get('/coach/session-types', [ProviderWorkspaceOperationsController::class, 'coachSessionTypes']);
+    Route::get('/coach/packages', [ProviderWorkspaceOperationsController::class, 'coachPackages']);
 });
 
 Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function (): void {

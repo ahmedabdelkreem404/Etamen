@@ -50,6 +50,20 @@ class RouteNames {
   static String providerDashboard(int providerId) =>
       '/workspace/provider/$providerId';
 
+  static String providerOperation(int providerId, String section) {
+    final suffix = _query({'section': _encodeSection(section)});
+    return '/workspace/provider/$providerId/operations$suffix';
+  }
+
+  static String providerOperationDetails(
+    int providerId,
+    String section,
+    int itemId,
+  ) {
+    final suffix = _query({'section': _encodeSection(section)});
+    return '/workspace/provider/$providerId/operations/$itemId$suffix';
+  }
+
   static String doctorProfile(
     int id, {
     int? hospitalId,
@@ -231,4 +245,6 @@ class RouteNames {
     if (query.isEmpty) return '';
     return '?${Uri(queryParameters: query).query}';
   }
+
+  static String _encodeSection(String section) => section.replaceAll('/', '__');
 }

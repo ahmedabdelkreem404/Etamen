@@ -132,6 +132,22 @@ class ApiEndpoints {
   static String providerWorkspaceDashboard(int providerId) =>
       '/provider/workspace/$providerId/dashboard';
 
+  static String providerWorkspaceOperation(int providerId, String section) =>
+      '/provider/workspace/$providerId/$section';
+
+  static String providerWorkspaceOperationItem(
+    int providerId,
+    String section,
+    int itemId,
+  ) => '/provider/workspace/$providerId/$section/$itemId';
+
+  static String providerWorkspaceOperationAction(
+    int providerId,
+    String section,
+    int itemId,
+    String action,
+  ) => '/provider/workspace/$providerId/$section/$itemId/$action';
+
   static String medicationReminder(int id) => '/medications/reminders/$id';
 
   static String medicationReminderPause(int id) =>

@@ -1,6 +1,7 @@
 import 'package:etamen_app/core/config/api_endpoints.dart';
 import 'package:etamen_app/core/network/api_client.dart';
 import 'package:etamen_app/core/network/api_result.dart';
+import 'package:etamen_app/features/workspaces/data/models/provider_operation_models.dart';
 import 'package:etamen_app/features/workspaces/data/models/workspace_models.dart';
 
 class WorkspaceRemoteDataSource {
@@ -19,6 +20,44 @@ class WorkspaceRemoteDataSource {
     return _client.get<ProviderDashboard>(
       ApiEndpoints.providerWorkspaceDashboard(providerId),
       parser: (raw) => ProviderDashboard.fromJson(_asMap(raw)),
+    );
+  }
+
+  Future<ApiResult<ProviderOperationList>> getProviderOperationList(
+    int providerId,
+    String section,
+  ) {
+    return _client.get<ProviderOperationList>(
+      ApiEndpoints.providerWorkspaceOperation(providerId, section),
+      parser: (raw) => ProviderOperationList.fromJson(_asMap(raw)),
+    );
+  }
+
+  Future<ApiResult<ProviderOperationItem>> getProviderOperationItem(
+    int providerId,
+    String section,
+    int itemId,
+  ) {
+    return _client.get<ProviderOperationItem>(
+      ApiEndpoints.providerWorkspaceOperationItem(providerId, section, itemId),
+      parser: (raw) => ProviderOperationItem(raw: _asMap(raw)),
+    );
+  }
+
+  Future<ApiResult<ProviderOperationItem>> runProviderOperationAction(
+    int providerId,
+    String section,
+    int itemId,
+    String action,
+  ) {
+    return _client.post<ProviderOperationItem>(
+      ApiEndpoints.providerWorkspaceOperationAction(
+        providerId,
+        section,
+        itemId,
+        action,
+      ),
+      parser: (raw) => ProviderOperationItem(raw: _asMap(raw)),
     );
   }
 

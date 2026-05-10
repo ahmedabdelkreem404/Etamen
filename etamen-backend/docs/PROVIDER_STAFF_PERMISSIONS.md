@@ -123,3 +123,23 @@ Coach:
 - Fine-grained audit UI for staff changes.
 - Full provider portal operations.
 - Staff activity reports.
+
+## Sprint 51 Operations MVP
+
+Sprint 51 added workspace-scoped provider operations APIs under:
+
+```text
+/api/v1/provider/workspace/{provider}/...
+```
+
+The same permission model now guards limited operational pages for:
+
+- doctor appointments
+- hospital appointments/departments/doctors
+- radiology orders
+- pharmacy orders/products
+- lab orders/catalog
+- gym bookings/plans/classes
+- coach bookings/availability/session types/packages
+
+Writable status actions are intentionally limited to doctor, radiology, gym, and coach flows. Pharmacy and lab stay read-only in the Flutter provider MVP until their full paid patient flows are hardened beyond smoke coverage.

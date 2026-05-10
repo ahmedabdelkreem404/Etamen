@@ -84,3 +84,35 @@ Still not approved:
 - provider invitation flow
 - staging provider dashboard
 - public launch
+
+## Sprint 51 Local Provider Operations Update
+
+Sprint 51 expands the local provider dashboard shell into limited operational pages.
+
+Implemented and covered by backend/Flutter tests:
+
+- doctor appointment operations
+- hospital appointments/departments/doctors read views
+- radiology order operations
+- pharmacy orders/products read views
+- lab orders/catalog read views
+- gym bookings/plans/classes operations/read views
+- coach bookings/availability/session types/packages operations/read views
+- backend permission enforcement for provider operations
+
+Emulator verification completed for:
+
+- doctor owner workspace switcher
+- doctor provider dashboard
+- doctor appointments list
+- doctor appointment details
+
+Full per-provider emulator screenshots for hospital/radiology/pharmacy/lab/gym/coach are still pending, so Sprint 51 is not locked as a fully accepted local provider-ops gate yet.
+
+Still not approved:
+
+- full provider portal completeness
+- provider-side result upload UI for all verticals
+- staging readiness
+- real Android phone readiness
+- public or production launch

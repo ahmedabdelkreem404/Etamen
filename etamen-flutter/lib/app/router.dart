@@ -74,6 +74,8 @@ import 'package:etamen_app/features/radiology/presentation/pages/radiology_order
 import 'package:etamen_app/features/splash/presentation/pages/splash_page.dart';
 import 'package:etamen_app/features/workspaces/presentation/pages/platform_admin_dashboard_page.dart';
 import 'package:etamen_app/features/workspaces/presentation/pages/provider_dashboard_page.dart';
+import 'package:etamen_app/features/workspaces/presentation/pages/provider_operation_details_page.dart';
+import 'package:etamen_app/features/workspaces/presentation/pages/provider_operation_list_page.dart';
 import 'package:etamen_app/features/workspaces/presentation/providers/workspace_providers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -141,6 +143,36 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             state.pathParameters['providerId'] ?? '',
           );
           return ProviderDashboardPage(providerId: providerId ?? 0);
+        },
+      ),
+      GoRoute(
+        path: '/workspace/provider/:providerId/operations',
+        builder: (context, state) {
+          final providerId = int.tryParse(
+            state.pathParameters['providerId'] ?? '',
+          );
+          return ProviderOperationListPage(
+            providerId: providerId ?? 0,
+            section: _decodeProviderOperationSection(
+              state.uri.queryParameters['section'] ?? '',
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/workspace/provider/:providerId/operations/:itemId',
+        builder: (context, state) {
+          final providerId = int.tryParse(
+            state.pathParameters['providerId'] ?? '',
+          );
+          final itemId = int.tryParse(state.pathParameters['itemId'] ?? '');
+          return ProviderOperationDetailsPage(
+            providerId: providerId ?? 0,
+            itemId: itemId ?? 0,
+            section: _decodeProviderOperationSection(
+              state.uri.queryParameters['section'] ?? '',
+            ),
+          );
         },
       ),
       GoRoute(
@@ -668,4 +700,8 @@ class RouterRefreshNotifier extends ChangeNotifier {
     _subscription.close();
     super.dispose();
   }
+}
+
+String _decodeProviderOperationSection(String section) {
+  return section.replaceAll('__', '/');
 }

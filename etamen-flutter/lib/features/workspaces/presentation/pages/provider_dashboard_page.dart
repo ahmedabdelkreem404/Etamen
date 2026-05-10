@@ -4,6 +4,7 @@ import 'package:etamen_app/core/routing/route_names.dart';
 import 'package:etamen_app/core/widgets/app_scaffold.dart';
 import 'package:etamen_app/features/account/presentation/widgets/logout_button.dart';
 import 'package:etamen_app/features/workspaces/data/models/workspace_models.dart';
+import 'package:etamen_app/features/workspaces/presentation/pages/provider_operation_sections.dart';
 import 'package:etamen_app/features/workspaces/presentation/providers/workspace_providers.dart';
 import 'package:etamen_app/features/workspaces/presentation/widgets/workspace_widgets.dart';
 import 'package:flutter/material.dart';
@@ -120,6 +121,19 @@ class _DashboardBody extends StatelessWidget {
               title: Text(action.label(isArabic)),
               subtitle: const Text('سيتم تفعيلها في مرحلة تشغيل لوحة المزود'),
               onTap: () {
+                final section = operationSectionForQuickAction(
+                  dashboard.provider.type,
+                  action.key,
+                );
+                if (section != null) {
+                  context.push(
+                    RouteNames.providerOperation(
+                      dashboard.provider.id,
+                      section.section,
+                    ),
+                  );
+                  return;
+                }
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('سيتم تفعيلها في مرحلة تشغيل لوحة المزود'),

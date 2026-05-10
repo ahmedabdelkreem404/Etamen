@@ -1309,3 +1309,33 @@ Important limitation:
 - Provider dashboards are shells with summaries and permission-filtered quick actions only.
 - Full provider operations are not implemented in Flutter yet.
 - This does not approve staging, real phone pilot, production, or public launch.
+
+## Sprint 51 Local Provider Operations Update
+
+Sprint 51 adds limited local provider operations inside Flutter, backed by workspace-scoped backend APIs.
+
+Implemented local provider pages:
+
+- doctor appointments
+- hospital appointments, departments, doctors
+- radiology orders
+- pharmacy orders/products read-only
+- lab orders/catalog read-only
+- gym bookings/plans/classes
+- coach bookings/availability/session types/packages
+
+Verification status:
+
+- Backend targeted Sprint 51 tests: PASS.
+- Flutter workspace/provider operation tests: PASS.
+- Local APK build: PASS.
+- Emulator QA: PASS for doctor provider dashboard, doctor appointments list, and doctor appointment details.
+- Emulator QA for hospital/radiology/pharmacy/lab/gym/coach provider pages is still pending as a full screenshot pass.
+
+Important limitation:
+
+- This remains a local demo/provider-ops MVP.
+- Flutter does not own permissions; backend enforces all access.
+- Pharmacy and lab are provider read-only in this Sprint 51 layer.
+- Sprint 51 should be treated as backend accepted with Flutter doctor-path proof, not a fully signed-off provider portal.
+- This does not approve staging, real phone pilot, production, public launch, or a complete provider portal.

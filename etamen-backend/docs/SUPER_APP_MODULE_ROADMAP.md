@@ -459,3 +459,26 @@ Decision:
 ```text
 LOCAL_WORKSPACE_PROVIDER_DASHBOARD_ACCEPTED
 ```
+## Sprint 51 Local Provider Operations MVP
+
+Sprint 51 adds the first limited provider operations layer inside the unified workspace model.
+
+Accepted local scope when tests/build/QA pass:
+
+- workspace-scoped provider operation APIs
+- doctor appointment list/details/status actions
+- hospital context appointment list plus departments/doctors read-only pages
+- radiology order list/details/status actions
+- pharmacy orders/products read-only provider pages
+- lab orders/catalog read-only provider pages
+- gym bookings/plans/classes provider pages
+- coach bookings/availability/session types/packages provider pages
+- backend permission guards for every provider operation
+
+Still not approved:
+
+- full provider portal replacement
+- staging deployment
+- real phone provider dashboard QA
+- public launch
+- production readiness
