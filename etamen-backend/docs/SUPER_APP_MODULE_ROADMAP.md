@@ -535,3 +535,35 @@ Still not approved:
 - public launch
 - production readiness
 - app store readiness
+
+## Sprint 54 Staging Gate Update
+
+Sprint 54 attempted to move the accepted local real-phone behavior to staging, but deployment could not proceed because server access remains blocked.
+
+Staging baseline:
+
+- Landing and health respond.
+- Readiness still fails: JSON request returns 401 and default/browser-style request returns 500 with `Route [login] not defined.`
+- Payment methods are empty.
+- Hospitals, gyms, and coaches endpoints are missing/stale on staging.
+- Radiology scans endpoint responds but has empty data.
+- Demo login accounts are not available on staging.
+
+Decision:
+
+```text
+STAGING_ACCESS_BLOCKED
+```
+
+Still required before any supervised staging pilot consideration:
+
+- restore SSH/Hostinger deployment access.
+- back up staging database.
+- deploy latest `main`.
+- run safe migrations and staging demo seed.
+- fix readiness from server logs.
+- rebuild staging APK.
+- pass real Android phone doctor proof upload/admin accept.
+- pass staging provider workspace and limited staff guard.
+
+This does not approve production, public launch, app-store release, or external user invitations.

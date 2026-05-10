@@ -331,3 +331,104 @@ Expected:
 - Paymob remains hidden if inactive.
 
 Then repeat the Android booking flow to the proof upload screen.
+
+---
+
+# Sprint 54 Staging Real Phone Gate Update
+
+Date: 2026-05-11
+
+## Access Result
+
+SSH remains blocked.
+
+Safe non-interactive attempt:
+
+```text
+ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new -p 65002 u797172084@89.116.147.138 "pwd && php -v"
+```
+
+Result:
+
+```text
+Permission denied (publickey,password).
+```
+
+No staging files were changed. No server `.env` was read or printed. No database backup, migration, seeder, composer install, or cache command was run.
+
+## Current HTTP Baseline
+
+Evidence:
+
+```text
+I:\Etamen\.tmp\sprint54-staging-real-phone\baseline-http.json
+```
+
+| Endpoint | Status | Notes |
+| --- | ---: | --- |
+| `/` | 200 | Landing responds. |
+| `/?lang=en` | 200 | English landing responds. |
+| `/api/v1/system/health` | 200 | Health responds. |
+| `/api/v1/system/readiness` | 401 with JSON accept, 500 by default | Default request returns `Route [login] not defined.` |
+| `/api/v1/doctors` | 200 | One approved doctor returned. |
+| `/api/v1/payment-methods` | 200 | Empty data; payment proof blocked. |
+| `/api/v1/hospitals` | 404 | Missing/stale route. |
+| `/api/v1/radiology/scans` | 200 | Empty data. |
+| `/api/v1/gyms` | 404 | Missing/stale route. |
+| `/api/v1/coaches` | 404 | Missing/stale route. |
+
+## Staging Gate Result
+
+Decision:
+
+```text
+STAGING_ACCESS_BLOCKED
+```
+
+Reason:
+
+- Server access is unavailable.
+- Deployed staging code could not be updated or verified.
+- Readiness still fails.
+- Staging data is incomplete.
+- Active manual payment methods are missing.
+- Provider workspace/provider operations endpoints are not live enough for Sprint 54 QA.
+
+## Security Exposure Check
+
+Evidence:
+
+```text
+I:\Etamen\.tmp\sprint54-staging-real-phone\security-sweep.json
+```
+
+Checked:
+
+- `/.env`
+- `/composer.json`
+- `/storage`
+- `/vendor`
+- `/database`
+
+Result:
+
+- All returned 404.
+- No raw secret content was observed.
+
+## Required Next Action
+
+Restore a safe deployment path first:
+
+- SSH key/password entered by the owner during a live deployment session, or
+- Hostinger Git deployment access, or
+- SFTP/File Manager with clear application path and terminal/migration path.
+
+After access is restored:
+
+1. Confirm deployed commit.
+2. Back up staging database.
+3. Pull/deploy latest `main`.
+4. Run safe migrations only: `php artisan migrate --force`.
+5. Run staging-safe demo/payment seed.
+6. Fix readiness from logs.
+7. Rebuild staging APK and repeat real-phone proof/admin/provider workspace QA.

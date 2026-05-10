@@ -1447,3 +1447,49 @@ Still not approved:
 - public launch
 - production launch
 - app store release
+
+## Sprint 54 Staging Real Phone Gate
+
+Sprint 54 attempted to move the accepted local real-phone behavior to staging.
+
+Result:
+
+```text
+STAGING_ACCESS_BLOCKED
+```
+
+What was confirmed:
+
+- `https://etamen.inolty.com/` responds.
+- `/api/v1/system/health` responds with HTTP 200.
+- public hardening checks for `/.env`, `/composer.json`, `/storage`, `/vendor`, and `/database` returned 404 with no raw secret content.
+
+What blocked the gate:
+
+- SSH/deployment access still fails with `Permission denied (publickey,password)`.
+- `/api/v1/system/readiness` is not healthy; default request returns HTTP 500 with `Route [login] not defined.`
+- `/api/v1/payment-methods` returns empty data.
+- hospital/gym/coach staging endpoints are missing or stale.
+- radiology scans are empty.
+- local demo accounts are not available on staging.
+
+The Sprint 54 staging APK was built but not installed or phone-tested to acceptance:
+
+```text
+I:\Etamen\.tmp\etamen-staging-real-phone.apk
+```
+
+SHA-256:
+
+```text
+98D596E703B45BF4E47C8943E2931542A3BD65594DA1C7B9F95A37A5966BD338
+```
+
+The Sprint 53 local real-phone pass remains local-only and cannot be treated as staging approval.
+
+Still not approved:
+
+- staging readiness
+- supervised staging pilot
+- production/public launch
+- app-store release
