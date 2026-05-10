@@ -432,3 +432,61 @@ After access is restored:
 5. Run staging-safe demo/payment seed.
 6. Fix readiness from logs.
 7. Rebuild staging APK and repeat real-phone proof/admin/provider workspace QA.
+
+---
+
+# Sprint 55 Access-First Recovery Update
+
+Date: 2026-05-11
+
+## Access Result
+
+SSH remains blocked with the same error:
+
+```text
+Permission denied (publickey,password).
+```
+
+No Hostinger Git, Terminal, SFTP, or File Manager access was available in this session.
+
+No deployment, backup, migration, seed, composer install, cache clear, storage link, or `.env` operation was performed.
+
+## Current Staging API Diagnostics
+
+Evidence:
+
+```text
+I:\Etamen\.tmp\sprint55-staging-access-recovery\http-baseline.json
+```
+
+| Endpoint | Status | Notes |
+| --- | ---: | --- |
+| `/api/v1/system/health` | 200 | Health responds. |
+| `/api/v1/system/readiness` with JSON accept | 401 | `Unauthenticated.` |
+| `/api/v1/system/readiness` default | 500 | `Route [login] not defined.` |
+| `/api/v1/doctors` | 200 | One approved doctor. |
+| `/api/v1/payment-methods` | 200 | Empty data. |
+| `/api/v1/hospitals` | 404 | Missing/stale route. |
+| `/api/v1/radiology/scans` | 200 | Empty data. |
+| `/api/v1/gyms` | 404 | Missing/stale route. |
+| `/api/v1/coaches` | 404 | Missing/stale route. |
+
+Demo patient login with the local fake pilot email returned HTTP 401 invalid credentials.
+
+## Recovery Decision
+
+```text
+STAGING_ACCESS_BLOCKED
+```
+
+Sprint 55 remains blocked before backup and deployment.
+
+## Next Required Action
+
+Provide one safe access path:
+
+- SSH key or owner-entered SSH password, or
+- Hostinger Git deployment and Terminal, or
+- Hostinger File Manager/SFTP plus a safe migration terminal path.
+
+After that, the first commands must be backup/inspection, not migration.
