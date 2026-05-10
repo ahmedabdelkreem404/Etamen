@@ -543,3 +543,51 @@ Make access usable from this local Codex environment before retrying:
 - provide a safe Hostinger Terminal/File Manager/SFTP workflow that can run backup and artisan commands without exposing secrets.
 
 First successful command sequence must start with backup and inspection, not deploy/migrate.
+
+---
+
+# Sprint 57 SSH Key Bootstrap
+
+Date: 2026-05-11
+
+## Result
+
+A dedicated local SSH key was generated for Codex staging access bootstrap.
+
+Decision:
+
+```text
+SSH_PUBLIC_KEY_READY_FOR_HOSTINGER
+```
+
+Private key path, not printed and not committed:
+
+```text
+C:\Users\Ahmed Abdelkareem\.ssh\etamen_staging_codex
+```
+
+Public key path:
+
+```text
+C:\Users\Ahmed Abdelkareem\.ssh\etamen_staging_codex.pub
+```
+
+Fingerprint:
+
+```text
+SHA256:d30k0e2CZMALd85KmuTh1S9u2QMU3a1IEPtT2DbiMmM
+```
+
+Owner must add the public key to Hostinger SSH Keys / Authorized Keys for user `u797172084`.
+
+No deployment, migration, seed, composer install, `.env` read, cache operation, staging file write, or APK build happened in Sprint 57.
+
+## Next Step
+
+After the owner confirms the public key was added, verify access only:
+
+```text
+ssh -i ~/.ssh/etamen_staging_codex -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new -p 65002 u797172084@89.116.147.138 "pwd && php -v"
+```
+
+If access works, proceed next sprint to backup-first deployment recovery.

@@ -1546,3 +1546,29 @@ The same staging blockers remain:
 - provider workspaces cannot be verified.
 
 Next action is to make server access usable from this machine, preferably by adding an SSH key, then repeat backup -> deploy -> migrate -> seed -> verify -> APK.
+
+## Sprint 57 SSH Key Bootstrap
+
+Sprint 57 generated a dedicated local SSH key for staging access.
+
+Decision:
+
+```text
+SSH_PUBLIC_KEY_READY_FOR_HOSTINGER
+```
+
+Public key path:
+
+```text
+C:\Users\Ahmed Abdelkareem\.ssh\etamen_staging_codex.pub
+```
+
+Private key was not printed, copied to the repo, or committed.
+
+No staging deploy, migration, seed, composer install, `.env` read, APK build, or phone QA happened.
+
+Next action:
+
+- owner adds the public key to Hostinger for user `u797172084`.
+- then Codex verifies SSH access only.
+- after access verification, run a backup-first staging recovery sprint.
