@@ -90,6 +90,7 @@ void main() {
     expect(RouteNames.legalRefundPolicy, '/legal/refund-policy');
     expect(RouteNames.support, '/support');
     expect(RouteNames.about, '/about');
+    expect(RouteNames.platformAdminDashboard, '/workspace/platform-admin');
   });
 
   test('parameterized routes are constructed without crashing', () {
@@ -120,6 +121,7 @@ void main() {
     expect(RouteNames.carePlanProgress(5), '/care-plans/5/progress');
     expect(RouteNames.notificationDetails(6), '/notifications/6');
     expect(RouteNames.aiConversation(7), '/ai/conversations/7');
+    expect(RouteNames.providerDashboard(12), '/workspace/provider/12');
   });
 
   test('pilot configuration values are string safe and secrets are absent', () {

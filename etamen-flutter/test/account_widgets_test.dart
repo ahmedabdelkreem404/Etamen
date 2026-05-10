@@ -26,6 +26,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('تبديل مساحة العمل'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Privacy Policy'), 300);
     expect(find.text('Privacy Policy'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Medical Disclaimer'), 300);
     expect(find.text('Medical Disclaimer'), findsOneWidget);

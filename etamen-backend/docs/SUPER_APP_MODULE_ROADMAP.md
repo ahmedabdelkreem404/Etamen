@@ -422,3 +422,40 @@ Decision:
 ```text
 LOCAL_FITNESS_PAYMENT_UI_BLOCKED
 ```
+
+## Sprint 50 Implementation Update
+
+Implemented locally as workspace/provider foundation:
+
+- Backend-owned `/api/v1/me/workspaces` contract.
+- Provider staff permission layer on top of existing `owner`, `admin`, and `staff` roles.
+- Provider dashboard summary endpoint for active same-provider staff only.
+- Provider staff management foundation for existing users by email.
+- Flutter account workspace section.
+- Flutter workspace switcher.
+- Flutter provider dashboard shell.
+- Flutter platform admin shell.
+
+Accepted locally:
+
+- patient workspace.
+- doctor provider dashboard.
+- hospital provider dashboard.
+- radiology provider dashboard.
+- gym provider dashboard.
+- coach provider dashboard.
+- limited staff dashboard with filtered permissions.
+
+Still deferred:
+
+- full provider operational pages.
+- provider invitation emails.
+- staging deployment.
+- real-phone workspace QA.
+- public launch readiness.
+
+Decision:
+
+```text
+LOCAL_WORKSPACE_PROVIDER_DASHBOARD_ACCEPTED
+```

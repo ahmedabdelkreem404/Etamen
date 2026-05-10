@@ -2,9 +2,12 @@
 
 use App\Modules\Providers\Http\Controllers\AdminProviderController;
 use App\Modules\Providers\Http\Controllers\AdminSpecialtyController;
+use App\Modules\Providers\Http\Controllers\MeWorkspaceController;
 use App\Modules\Providers\Http\Controllers\ProviderAccountController;
 use App\Modules\Providers\Http\Controllers\ProviderRegistrationController;
 use App\Modules\Providers\Http\Controllers\ProviderServiceController;
+use App\Modules\Providers\Http\Controllers\ProviderWorkspaceDashboardController;
+use App\Modules\Providers\Http\Controllers\ProviderWorkspaceStaffController;
 use App\Modules\Providers\Http\Controllers\PublicHospitalController;
 use App\Modules\Providers\Http\Controllers\PublicProviderController;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +32,9 @@ Route::get('/hospitals/{hospital}/doctors', [PublicHospitalController::class, 'd
 Route::get('/hospitals/{hospital}/departments/{department}/doctors', [PublicHospitalController::class, 'departmentDoctors']);
 Route::get('/specialties', [PublicProviderController::class, 'specialties']);
 
+Route::get('/me/workspaces', [MeWorkspaceController::class, 'index'])
+    ->middleware(['auth:sanctum']);
+
 Route::prefix('provider')->middleware(['auth:sanctum', 'provider.user'])->group(function (): void {
     Route::get('/me', [ProviderAccountController::class, 'me']);
     Route::put('/profile', [ProviderAccountController::class, 'updateProfile']);
@@ -40,6 +46,14 @@ Route::prefix('provider')->middleware(['auth:sanctum', 'provider.user'])->group(
     Route::get('/services', [ProviderServiceController::class, 'index']);
     Route::post('/services', [ProviderServiceController::class, 'store'])->middleware('throttle:sensitive-action');
     Route::put('/services/{service}', [ProviderServiceController::class, 'update'])->middleware('throttle:sensitive-action');
+});
+
+Route::prefix('provider/workspace/{provider}')->middleware(['auth:sanctum'])->group(function (): void {
+    Route::get('/dashboard', [ProviderWorkspaceDashboardController::class, 'show']);
+    Route::get('/staff', [ProviderWorkspaceStaffController::class, 'index']);
+    Route::post('/staff', [ProviderWorkspaceStaffController::class, 'store'])->middleware('throttle:sensitive-action');
+    Route::patch('/staff/{staff}', [ProviderWorkspaceStaffController::class, 'update'])->middleware('throttle:sensitive-action');
+    Route::delete('/staff/{staff}', [ProviderWorkspaceStaffController::class, 'destroy'])->middleware('throttle:sensitive-action');
 });
 
 Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function (): void {

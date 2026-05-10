@@ -6,6 +6,7 @@ import 'package:etamen_app/features/auth/data/models/register_request.dart';
 import 'package:etamen_app/features/auth/domain/entities/auth_user.dart';
 import 'package:etamen_app/features/auth/presentation/providers/auth_providers.dart';
 import 'package:etamen_app/features/notifications/presentation/providers/notifications_providers.dart';
+import 'package:etamen_app/features/workspaces/presentation/providers/workspace_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum AuthStatus { unknown, authenticated, unauthenticated }
@@ -59,12 +60,13 @@ class AuthController extends StateNotifier<AuthState> {
   Future<void> restoreSession() async {
     state = state.copyWith(isLoading: true, clearError: true);
     final result = await _ref.read(restoreSessionUseCaseProvider).call();
-    result.when(
-      success: (user) {
+    await result.when<Future<void>>(
+      success: (user) async {
         state = AuthState(status: AuthStatus.authenticated, user: user);
+        _loadWorkspacesInBackground();
         _registerNotificationToken();
       },
-      failure: (failure) {
+      failure: (failure) async {
         state = AuthState(
           status: AuthStatus.unauthenticated,
           error: failure.error.message,
@@ -80,13 +82,14 @@ class AuthController extends StateNotifier<AuthState> {
       validationErrors: {},
     );
     final result = await _ref.read(loginUseCaseProvider).call(request);
-    return result.when(
-      success: (session) {
+    return result.when<Future<bool>>(
+      success: (session) async {
         state = AuthState(status: AuthStatus.authenticated, user: session.user);
+        _loadWorkspacesInBackground();
         _registerNotificationToken();
         return true;
       },
-      failure: (failure) {
+      failure: (failure) async {
         _setFailure(failure.error);
         return false;
       },
@@ -100,13 +103,14 @@ class AuthController extends StateNotifier<AuthState> {
       validationErrors: {},
     );
     final result = await _ref.read(registerUseCaseProvider).call(request);
-    return result.when(
-      success: (session) {
+    return result.when<Future<bool>>(
+      success: (session) async {
         state = AuthState(status: AuthStatus.authenticated, user: session.user);
+        _loadWorkspacesInBackground();
         _registerNotificationToken();
         return true;
       },
-      failure: (failure) {
+      failure: (failure) async {
         _setFailure(failure.error);
         return false;
       },
@@ -132,11 +136,13 @@ class AuthController extends StateNotifier<AuthState> {
       remoteLogoutSucceeded = false;
     }
 
+    await _ref.read(workspaceControllerProvider.notifier).clearSelection();
     state = const AuthState(status: AuthStatus.unauthenticated);
     return remoteLogoutSucceeded && tokenCleanupSucceeded;
   }
 
   void forceLoggedOut() {
+    unawaited(_ref.read(workspaceControllerProvider.notifier).clearSelection());
     state = const AuthState(status: AuthStatus.unauthenticated);
   }
 
@@ -154,5 +160,9 @@ class AuthController extends StateNotifier<AuthState> {
           .read(notificationTokenControllerProvider.notifier)
           .registerLocalToken(),
     );
+  }
+
+  void _loadWorkspacesInBackground() {
+    unawaited(_ref.read(workspaceControllerProvider.notifier).load());
   }
 }

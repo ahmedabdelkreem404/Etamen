@@ -72,6 +72,9 @@ import 'package:etamen_app/features/radiology/presentation/pages/radiology_home_
 import 'package:etamen_app/features/radiology/presentation/pages/radiology_order_builder_page.dart';
 import 'package:etamen_app/features/radiology/presentation/pages/radiology_order_details_page.dart';
 import 'package:etamen_app/features/splash/presentation/pages/splash_page.dart';
+import 'package:etamen_app/features/workspaces/presentation/pages/platform_admin_dashboard_page.dart';
+import 'package:etamen_app/features/workspaces/presentation/pages/provider_dashboard_page.dart';
+import 'package:etamen_app/features/workspaces/presentation/providers/workspace_providers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -100,6 +103,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       if (authState.status == AuthStatus.authenticated &&
           (isAuthRoute || location == RouteNames.splash)) {
+        final workspace = ref
+            .read(workspaceControllerProvider)
+            .selectedWorkspace;
+        if (workspace?.isProvider == true && workspace?.providerId != null) {
+          return RouteNames.providerDashboard(workspace!.providerId!);
+        }
+        if (workspace?.isPlatformAdmin == true) {
+          return RouteNames.platformAdminDashboard;
+        }
         return RouteNames.home;
       }
 
@@ -121,6 +133,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.home,
         builder: (context, state) => const HomePage(),
+      ),
+      GoRoute(
+        path: '/workspace/provider/:providerId',
+        builder: (context, state) {
+          final providerId = int.tryParse(
+            state.pathParameters['providerId'] ?? '',
+          );
+          return ProviderDashboardPage(providerId: providerId ?? 0);
+        },
+      ),
+      GoRoute(
+        path: RouteNames.platformAdminDashboard,
+        builder: (context, state) => const PlatformAdminDashboardPage(),
       ),
       GoRoute(
         path: RouteNames.doctors,

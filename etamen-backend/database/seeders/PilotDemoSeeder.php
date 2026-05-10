@@ -69,6 +69,7 @@ use App\Modules\Payments\Domain\Enums\PaymentMethodType;
 use App\Modules\Payments\Infrastructure\Models\PaymentMethod;
 use App\Modules\Pharmacies\Infrastructure\Models\PharmacyProduct;
 use App\Modules\Providers\Domain\Enums\CoachType;
+use App\Modules\Providers\Domain\Enums\ProviderPermission;
 use App\Modules\Providers\Domain\Enums\ProviderStaffRole;
 use App\Modules\Providers\Domain\Enums\ProviderStatus;
 use App\Modules\Providers\Domain\Enums\ProviderType;
@@ -129,10 +130,15 @@ class PilotDemoSeeder extends Seeder
             $gymUser = $this->demoUser('pilot.gym@example.test', 'Pilot Gym Admin', UserRole::ProviderAdmin);
             $fitnessCoachUser = $this->demoUser('pilot.fitness.coach@example.test', 'Pilot Fitness Coach', UserRole::ProviderAdmin);
             $nutritionCoachUser = $this->demoUser('pilot.nutrition.coach@example.test', 'Pilot Nutrition Coach', UserRole::ProviderAdmin);
+            $limitedStaffUser = $this->demoUser('pilot.provider.staff@example.test', 'Pilot Limited Provider Staff', UserRole::ProviderAdmin);
 
             $this->seedPatientProfile($patient);
             [$city, $area] = $this->seedLocation();
             [$doctorProvider, $doctorProfile, $branch] = $this->seedDoctor($doctorUser, $admin, $city, $area);
+            $this->providerStaff($doctorProvider, $limitedStaffUser, ProviderStaffRole::Staff, [
+                ProviderPermission::ViewBookings->value,
+                ProviderPermission::ViewPayments->value,
+            ]);
             $this->seedDoctorScheduleAndSlots($doctorProvider, $doctorProfile, $branch);
             $this->seedDoctorReviews($patient, $doctorProvider, $doctorProfile, $branch);
             $this->seedPaymentMethods();
@@ -1742,7 +1748,7 @@ class PilotDemoSeeder extends Seeder
         );
     }
 
-    private function providerStaff(Provider $provider, User $user, ProviderStaffRole $role): void
+    private function providerStaff(Provider $provider, User $user, ProviderStaffRole $role, ?array $permissions = null): void
     {
         ProviderStaff::query()->updateOrCreate(
             ['provider_id' => $provider->id, 'user_id' => $user->id],
@@ -1750,6 +1756,7 @@ class PilotDemoSeeder extends Seeder
                 'role' => $role,
                 'is_owner' => $role === ProviderStaffRole::Owner,
                 'status' => 'active',
+                'permissions' => $permissions,
             ],
         );
     }

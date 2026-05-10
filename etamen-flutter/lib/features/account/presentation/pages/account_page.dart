@@ -6,6 +6,7 @@ import 'package:etamen_app/features/account/presentation/widgets/app_version_car
 import 'package:etamen_app/features/account/presentation/widgets/logout_button.dart';
 import 'package:etamen_app/features/account/presentation/widgets/settings_tile.dart';
 import 'package:etamen_app/features/auth/presentation/providers/auth_controller.dart';
+import 'package:etamen_app/features/workspaces/presentation/widgets/workspace_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -26,6 +27,8 @@ class AccountPage extends ConsumerWidget {
       children: [
         AccountHeader(user: user),
         const AppVersionCard(),
+        const SizedBox(height: 12),
+        const WorkspaceAccountSection(),
         const SizedBox(height: 12),
         SettingsTile(
           icon: Icons.settings_outlined,

@@ -66,3 +66,21 @@ Fix staging access/readiness/data, deploy the known-good backend safely, build a
 - admin review of the same payment
 - Flutter state refresh
 - logout/session restore
+
+## Sprint 50 Local Addition
+
+Accepted locally after Sprint 50:
+
+- unified workspace endpoint
+- Flutter workspace switcher
+- provider dashboard shell for doctor, hospital, radiology, gym, and coach accounts
+- platform admin shell
+- provider staff permission foundation
+- limited staff dashboard with backend-filtered permissions
+
+Still not approved:
+
+- full provider portal operations
+- provider invitation flow
+- staging provider dashboard
+- public launch

@@ -5,6 +5,7 @@ class ApiEndpoints {
   static const register = '/auth/register';
   static const logout = '/auth/logout';
   static const me = '/me';
+  static const workspaces = '/me/workspaces';
   static const doctors = '/doctors';
   static const appointments = '/appointments';
   static const paymentMethods = '/payment-methods';
@@ -127,6 +128,9 @@ class ApiEndpoints {
   static String coachBooking(int id) => '/coach/bookings/$id';
 
   static String coachBookingCancel(int id) => '/coach/bookings/$id/cancel';
+
+  static String providerWorkspaceDashboard(int providerId) =>
+      '/provider/workspace/$providerId/dashboard';
 
   static String medicationReminder(int id) => '/medications/reminders/$id';
 

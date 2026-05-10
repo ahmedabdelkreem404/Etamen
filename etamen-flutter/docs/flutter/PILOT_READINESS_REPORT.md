@@ -1287,3 +1287,25 @@ LOCAL_SUPERAPP_REGRESSION_ACCEPTED
 ## Next Step
 
 Fix staging access/readiness/data and repeat the doctor payment proof/admin review gate on a real Android phone using a staging APK. Do not invite pilot users before that real-phone gate passes.
+
+## Sprint 50 Local Workspace Update
+
+Sprint 50 added a local unified workspace and provider dashboard foundation.
+
+Accepted locally after tests and emulator QA:
+
+- patient workspace
+- provider workspace switcher
+- doctor provider dashboard shell
+- hospital provider dashboard shell
+- radiology provider dashboard shell
+- gym provider dashboard shell
+- coach provider dashboard shell
+- limited staff provider dashboard
+- logout clears selected workspace
+
+Important limitation:
+
+- Provider dashboards are shells with summaries and permission-filtered quick actions only.
+- Full provider operations are not implemented in Flutter yet.
+- This does not approve staging, real phone pilot, production, or public launch.

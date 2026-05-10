@@ -272,3 +272,23 @@ Not yet implemented:
 - coach program progress tracking.
 - gym attendance/check-in.
 - wallet/settlement release rules for gym/coach.
+
+---
+
+## Sprint 50 Workspace Layer
+
+The super app now has a local workspace foundation:
+
+- patient workspace.
+- provider workspace for each active provider staff membership.
+- platform admin workspace for platform admins.
+
+Provider dashboards are intentionally lightweight. They expose safe summaries and backend-filtered quick actions, not full operational tools yet.
+
+Safety rules:
+
+- Flutter does not decide permissions.
+- Provider staff cannot manage another provider.
+- Workspace and dashboard responses do not expose private provider documents, internal contracts, bank data, or payment configuration.
+
+This prepares Etamen for future provider portals without claiming staging, production, or Egypt-scale readiness.

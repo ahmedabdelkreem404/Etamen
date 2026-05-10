@@ -3,6 +3,7 @@
 namespace App\Modules\Providers\Infrastructure\Models;
 
 use App\Models\User;
+use App\Modules\Providers\Domain\Enums\ProviderPermission;
 use App\Modules\Providers\Domain\Enums\ProviderStaffRole;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,6 +18,7 @@ class ProviderStaff extends Model
         'role',
         'is_owner',
         'status',
+        'permissions',
     ];
 
     protected function casts(): array
@@ -24,7 +26,37 @@ class ProviderStaff extends Model
         return [
             'role' => ProviderStaffRole::class,
             'is_owner' => 'boolean',
+            'permissions' => 'array',
         ];
+    }
+
+    public function effectivePermissions(): array
+    {
+        if ($this->is_owner || $this->role === ProviderStaffRole::Owner) {
+            return ProviderPermission::ownerValues();
+        }
+
+        $custom = collect($this->permissions ?? [])
+            ->filter(fn (mixed $permission): bool => is_string($permission))
+            ->values()
+            ->all();
+
+        if ($custom !== []) {
+            return array_values(array_intersect($custom, ProviderPermission::values()));
+        }
+
+        if ($this->role === ProviderStaffRole::Admin) {
+            return ProviderPermission::adminDefaults();
+        }
+
+        return ProviderPermission::staffDefaults();
+    }
+
+    public function hasPermission(ProviderPermission|string $permission): bool
+    {
+        $value = $permission instanceof ProviderPermission ? $permission->value : $permission;
+
+        return in_array($value, $this->effectivePermissions(), true);
     }
 
     public function provider(): BelongsTo

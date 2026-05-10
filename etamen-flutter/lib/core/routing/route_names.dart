@@ -45,6 +45,10 @@ class RouteNames {
   static const legalRefundPolicy = '/legal/refund-policy';
   static const support = '/support';
   static const about = '/about';
+  static const platformAdminDashboard = '/workspace/platform-admin';
+
+  static String providerDashboard(int providerId) =>
+      '/workspace/provider/$providerId';
 
   static String doctorProfile(
     int id, {
