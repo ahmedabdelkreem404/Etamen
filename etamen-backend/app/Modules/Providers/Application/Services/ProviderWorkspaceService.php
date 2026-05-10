@@ -516,6 +516,7 @@ class ProviderWorkspaceService
                 ['key' => 'bookings', 'label_ar' => 'الحجوزات', 'label_en' => 'Bookings', 'permission' => ProviderPermission::ViewCoachBookings->value],
                 ['key' => 'availability', 'label_ar' => 'المواعيد المتاحة', 'label_en' => 'Availability', 'permission' => ProviderPermission::ManageCoachAvailability->value],
                 ['key' => 'session_types', 'label_ar' => 'أنواع الجلسات', 'label_en' => 'Session types', 'permission' => ProviderPermission::ManageCoachSessions->value],
+                ['key' => 'packages', 'label_ar' => 'الباقات', 'label_en' => 'Packages', 'permission' => ProviderPermission::ManageCoachSessions->value],
             ],
             default => [
                 ['key' => 'profile', 'label_ar' => 'الملف', 'label_en' => 'Profile', 'permission' => ProviderPermission::ManageProfile->value],

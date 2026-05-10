@@ -1339,3 +1339,59 @@ Important limitation:
 - Pharmacy and lab are provider read-only in this Sprint 51 layer.
 - Sprint 51 should be treated as backend accepted with Flutter doctor-path proof, not a fully signed-off provider portal.
 - This does not approve staging, real phone pilot, production, public launch, or a complete provider portal.
+
+## Sprint 52 Local Provider Operations QA Completion
+
+Sprint 52 completed the missing emulator QA evidence for the provider operations MVP.
+
+Accepted locally:
+
+- doctor owner provider operations
+- hospital owner provider operations
+- radiology owner provider operations
+- pharmacy owner read-only operations
+- lab owner read-only operations
+- gym owner provider operations
+- coach owner provider operations
+- limited staff read-only access and blocked wrong-provider API access
+
+Polish completed:
+
+- workspace switcher now opens provider dashboard reliably after modal selection.
+- coach packages quick action opens a real operation page.
+- Arabic mojibake in provider/hospital context UI was fixed.
+
+Evidence:
+
+```text
+I:\Etamen\.tmp\sprint52-provider-operations-qa\
+```
+
+APK:
+
+```text
+I:\Etamen\.tmp\etamen-local-provider-operations-qa.apk
+C:\Users\Ahmed Abdelkareem\OneDrive\Desktop\Etamen_Android_Website_Ready\etamen-local-provider-operations-qa.apk
+```
+
+Tests/build:
+
+- backend `php artisan test`: PASS, 254 tests / 2092 assertions.
+- Flutter `flutter analyze`: PASS.
+- Flutter `flutter test`: PASS, 187 tests.
+- Flutter local APK build: PASS.
+
+Decision:
+
+```text
+LOCAL_PROVIDER_OPERATIONS_MVP_ACCEPTED
+```
+
+Still not approved:
+
+- staging readiness
+- Hostinger readiness
+- real Android phone readiness
+- public launch readiness
+- production readiness
+- full provider portal completeness

@@ -124,6 +124,10 @@ void main() {
       'appointments',
     );
     expect(appointments?.section, 'doctor/appointments');
+    expect(
+      operationSectionForQuickAction('fitness_coach', 'packages')?.section,
+      'coach/packages',
+    );
     expect(operationSectionForQuickAction('doctor', 'schedule'), isNull);
   });
 

@@ -249,7 +249,7 @@ class _HospitalBookingContextCard extends StatelessWidget {
           ? null
           : uxCopy(
               context,
-              'Ù‚Ø³Ù… ${contextHint.departmentName}',
+              'قسم ${contextHint.departmentName}',
               '${contextHint.departmentName} department',
             ),
     ].whereType<String>().join(' - ');
@@ -268,7 +268,7 @@ class _HospitalBookingContextCard extends StatelessWidget {
                 Text(
                   uxCopy(
                     context,
-                    'Ø³ÙŠØªÙ… ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø­Ø¬Ø² Ø¹Ù„Ù‰ Ø§Ù„Ù…Ø³ØªØ´ÙÙ‰ Ø¨Ø¹Ø¯ ØªØ­Ù‚Ù‚ Ø§Ù„Ø®Ø§Ø¯Ù….',
+                    'سيتم تسجيل الحجز على المستشفى بعد تحقق الخادم.',
                     'The server will validate and attach this hospital context.',
                   ),
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -281,7 +281,7 @@ class _HospitalBookingContextCard extends StatelessWidget {
                   label.isEmpty
                       ? uxCopy(
                           context,
-                          'Ø­Ø¬Ø² Ù…Ù† Ø®Ù„Ø§Ù„ Ù…Ø³ØªØ´ÙÙ‰',
+                          'حجز من خلال مستشفى',
                           'Hospital booking',
                         )
                       : label,

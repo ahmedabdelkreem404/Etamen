@@ -2,6 +2,25 @@
 
 Sprint 51 adds limited provider-facing operational pages inside the same Flutter app.
 
+## Sprint 52 Completion Note
+
+Sprint 51 ended with the Flutter provider operations gate blocked because full emulator screenshots were not completed for every provider type.
+
+Sprint 52 completed that gate:
+
+- doctor, hospital, radiology, pharmacy, lab, gym, coach, and limited staff QA screenshots exist.
+- provider workspace switching was fixed.
+- coach packages quick action now opens a real operation page.
+- Arabic mojibake in provider/hospital context UI was fixed.
+- final local APK was rebuilt and installed on emulator.
+- final Sprint 52 decision: `LOCAL_PROVIDER_OPERATIONS_MVP_ACCEPTED`.
+
+Full QA report:
+
+```text
+etamen-flutter/docs/flutter/SPRINT52_PROVIDER_OPERATIONS_QA_COMPLETION.md
+```
+
 This is local-only work against:
 
 ```text

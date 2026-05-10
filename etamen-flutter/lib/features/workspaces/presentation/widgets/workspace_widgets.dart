@@ -94,6 +94,7 @@ class WorkspaceAccountSection extends ConsumerWidget {
 }
 
 Future<void> showWorkspaceSwitcher(BuildContext context, WidgetRef ref) {
+  final parentContext = context;
   final isArabic = AppLocalizations.of(context).isArabic;
   if (ref.read(workspaceControllerProvider).workspaces.isEmpty) {
     ref.read(workspaceControllerProvider.notifier).load();
@@ -104,7 +105,7 @@ Future<void> showWorkspaceSwitcher(BuildContext context, WidgetRef ref) {
     showDragHandle: true,
     builder: (sheetContext) {
       return Consumer(
-        builder: (context, innerRef, _) {
+        builder: (modalContext, innerRef, _) {
           final state = innerRef.watch(workspaceControllerProvider);
           return SafeArea(
             child: ListView(
@@ -129,8 +130,8 @@ Future<void> showWorkspaceSwitcher(BuildContext context, WidgetRef ref) {
                           .switchTo(workspace.key);
                       if (!sheetContext.mounted) return;
                       Navigator.of(sheetContext).pop();
-                      if (!context.mounted) return;
-                      _openWorkspace(context, workspace);
+                      if (!parentContext.mounted) return;
+                      _openWorkspace(parentContext, workspace);
                     },
                   ),
               ],

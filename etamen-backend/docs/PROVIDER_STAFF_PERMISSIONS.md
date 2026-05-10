@@ -143,3 +143,19 @@ The same permission model now guards limited operational pages for:
 - coach bookings/availability/session types/packages
 
 Writable status actions are intentionally limited to doctor, radiology, gym, and coach flows. Pharmacy and lab stay read-only in the Flutter provider MVP until their full paid patient flows are hardened beyond smoke coverage.
+
+## Sprint 52 QA Completion
+
+Sprint 52 verified the permission model on emulator and through API checks:
+
+- owner accounts could open only their own provider dashboards and operation pages.
+- limited staff could open an allowed read-only doctor appointment list.
+- limited staff did not receive manage quick actions in Flutter.
+- limited staff access to another provider returned `403`.
+- provider operation responses did not expose private document paths, proof paths, result paths, payment config, internal contracts, or other-provider data.
+
+The Sprint 52 evidence is documented in:
+
+```text
+etamen-backend/docs/SPRINT52_PROVIDER_OPERATIONS_QA_COMPLETION.md
+```

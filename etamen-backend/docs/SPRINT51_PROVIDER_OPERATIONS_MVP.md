@@ -4,6 +4,24 @@ Sprint 51 adds a local-only provider operations layer on top of the Sprint 50 wo
 
 This is not a full provider portal and does not replace Filament. It gives the Flutter app real, permission-guarded operational pages for local demo and future pilot preparation.
 
+## Sprint 52 QA Completion
+
+Sprint 52 completed the emulator QA gate that was still open after Sprint 51.
+
+Result:
+
+- doctor, hospital, radiology, pharmacy, lab, gym, coach, and limited staff provider workspaces were tested on the Android emulator.
+- quick action routing was polished for coach packages.
+- workspace switching was fixed in Flutter so provider dashboards open reliably after selection.
+- provider operation API privacy sweep passed with no raw proof/result/prescription paths, payment configs, private provider documents, or cross-provider data leaks.
+- final Sprint 52 decision: `LOCAL_PROVIDER_OPERATIONS_MVP_ACCEPTED`.
+
+Details:
+
+```text
+etamen-backend/docs/SPRINT52_PROVIDER_OPERATIONS_QA_COMPLETION.md
+```
+
 ## Scope
 
 Implemented workspace-scoped backend endpoints under:

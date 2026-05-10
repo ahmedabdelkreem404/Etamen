@@ -187,7 +187,7 @@ class _HospitalContextCard extends StatelessWidget {
                 Text(
                   uxCopy(
                     context,
-                    'Ø§Ù„Ø­Ø¬Ø² Ù…Ù† Ø®Ù„Ø§Ù„ Ù…Ø³ØªØ´ÙÙ‰',
+                    'الحجز من خلال مستشفى',
                     'Booking through a hospital',
                   ),
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -200,7 +200,7 @@ class _HospitalContextCard extends StatelessWidget {
                   label.isEmpty
                       ? uxCopy(
                           context,
-                          'Ø­Ø¬Ø² Ù…Ù† Ø®Ù„Ø§Ù„ Ù…Ø³ØªØ´ÙÙ‰',
+                          'حجز من خلال مستشفى',
                           'Hospital booking',
                         )
                       : label,
@@ -226,7 +226,7 @@ class _HospitalContextCard extends StatelessWidget {
           ? null
           : uxCopy(
               context,
-              'Ù‚Ø³Ù… $departmentName',
+              'قسم $departmentName',
               '$departmentName department',
             ),
     ].whereType<String>().join(' - ');

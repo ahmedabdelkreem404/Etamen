@@ -57,9 +57,11 @@ ProviderOperationSection? operationSectionForQuickAction(
     ('fitness_coach', 'bookings') => 'coach/bookings',
     ('fitness_coach', 'availability') => 'coach/availability',
     ('fitness_coach', 'session_types') => 'coach/session-types',
+    ('fitness_coach', 'packages') => 'coach/packages',
     ('nutrition_coach', 'bookings') => 'coach/bookings',
     ('nutrition_coach', 'availability') => 'coach/availability',
     ('nutrition_coach', 'session_types') => 'coach/session-types',
+    ('nutrition_coach', 'packages') => 'coach/packages',
     _ => null,
   };
 
@@ -241,6 +243,13 @@ ProviderOperationSection providerOperationSection(String section) {
       titleAr: 'أنواع الجلسات',
       titleEn: 'Session types',
       iconKey: 'sessions',
+      detailsEnabled: false,
+    ),
+    'coach/packages' => const ProviderOperationSection(
+      section: 'coach/packages',
+      titleAr: 'باقات الكوتش',
+      titleEn: 'Coach packages',
+      iconKey: 'packages',
       detailsEnabled: false,
     ),
     _ => ProviderOperationSection(
