@@ -76,6 +76,7 @@ class _Details extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final isArabic = AppLocalizations.of(context).isArabic;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -107,10 +108,7 @@ class _Details extends StatelessWidget {
                 ),
                 _InfoLine(
                   label: l10n.get('paymentStatus'),
-                  value: _friendlyPharmacyPaymentStatus(
-                    context,
-                    order.paymentStatus,
-                  ),
+                  value: order.paymentStatusLabel(isArabic: isArabic),
                 ),
                 if (order.paymentStatus == 'pending_payment_review') ...[
                   const SizedBox(height: 8),
@@ -126,6 +124,18 @@ class _Details extends StatelessWidget {
             ),
           ),
         ),
+        const SizedBox(height: 12),
+        if (order.nextActionLabel(isArabic: isArabic) != null) ...[
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.flag_outlined),
+              title: Text(_copy(context, 'الإجراء التالي', 'Next action')),
+              subtitle: Text(order.nextActionLabel(isArabic: isArabic)!),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        _PharmacyTimeline(order: order),
         const SizedBox(height: 12),
         PharmacyPaymentCard(
           order: order,
@@ -208,6 +218,7 @@ class _Details extends StatelessWidget {
     return DateFormat('d MMM yyyy, h:mm a').format(value.toLocal());
   }
 
+  // ignore: unused_element
   String _friendlyPharmacyPaymentStatus(BuildContext context, String? status) {
     final isArabic = AppLocalizations.of(context).isArabic;
     return switch (status) {
@@ -273,6 +284,73 @@ class _Details extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _PharmacyTimeline extends StatelessWidget {
+  const _PharmacyTimeline({required this.order});
+
+  final PharmacyOrder order;
+
+  @override
+  Widget build(BuildContext context) {
+    final isArabic = AppLocalizations.of(context).isArabic;
+    final steps = <(PharmacyOrderStatus, String, String)>[
+      (PharmacyOrderStatus.pharmacyReview, 'مراجعة', 'Review'),
+      (PharmacyOrderStatus.awaitingPayment, 'الدفع', 'Payment'),
+      (PharmacyOrderStatus.preparing, 'تجهيز', 'Preparing'),
+      (PharmacyOrderStatus.readyForPickup, 'جاهز', 'Ready'),
+      (PharmacyOrderStatus.outForDelivery, 'توصيل', 'Delivery'),
+      (PharmacyOrderStatus.delivered, 'مكتمل', 'Done'),
+    ];
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              isArabic ? 'مسار الطلب' : 'Order timeline',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final step in steps)
+                  Chip(
+                    avatar: Icon(
+                      _isReached(order.status, step.$1)
+                          ? Icons.check_circle
+                          : Icons.circle_outlined,
+                      size: 18,
+                    ),
+                    label: Text(isArabic ? step.$2 : step.$3),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  bool _isReached(PharmacyOrderStatus current, PharmacyOrderStatus step) {
+    final flow = [
+      PharmacyOrderStatus.pharmacyReview,
+      PharmacyOrderStatus.accepted,
+      PharmacyOrderStatus.awaitingPayment,
+      PharmacyOrderStatus.paid,
+      PharmacyOrderStatus.preparing,
+      PharmacyOrderStatus.readyForPickup,
+      PharmacyOrderStatus.outForDelivery,
+      PharmacyOrderStatus.delivered,
+    ];
+    final currentIndex = flow.indexOf(current);
+    final stepIndex = flow.indexOf(step);
+    return currentIndex >= 0 && stepIndex >= 0 && currentIndex >= stepIndex;
   }
 }
 

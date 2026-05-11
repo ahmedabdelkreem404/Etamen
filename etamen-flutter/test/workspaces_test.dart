@@ -188,6 +188,7 @@ void main() {
           'id': 7,
           'number': 'APT-7',
           'status': 'pending_payment_review',
+          'status_label_ar': 'مراجعة دفع',
           'total_amount': '300.00',
           'patient': {'id': 2, 'name': 'Demo Patient'},
           'payment': {'id': 9, 'status': 'pending_review'},

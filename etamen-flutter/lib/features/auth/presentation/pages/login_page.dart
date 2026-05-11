@@ -135,6 +135,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               : () => _loginAs('d@b.co'),
                           child: const Text('Provider QA'),
                         ),
+                        OutlinedButton(
+                          onPressed: authState.isLoading
+                              ? null
+                              : () => _loginAs(
+                                  'pilot.provider.staff@example.test',
+                                ),
+                          child: const Text('Staff QA'),
+                        ),
                       ],
                     ),
                   ],

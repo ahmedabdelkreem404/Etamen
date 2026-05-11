@@ -36,5 +36,6 @@ void main() {
     expect(find.text('Admin QA'), findsNothing);
     expect(find.text('Patient QA'), findsNothing);
     expect(find.text('Provider QA'), findsNothing);
+    expect(find.text('Staff QA'), findsNothing);
   });
 }

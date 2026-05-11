@@ -36,3 +36,18 @@ Pharmacy and Labs are no longer smoke-only in the local demo. Sprint 66 adds loc
 ## Sprint 67 Local Update
 
 Pharmacy and Labs now have stronger local provider operation actions on the unified workspace path. Pharmacy providers can accept/reject with reason and move paid orders through preparing, ready, out_for_delivery, and complete. Lab providers can accept/reject with reason and move paid orders through sample_scheduled, sample_collected, processing, result_ready, and complete. Backend permission checks still own all authorization, limited staff is blocked from manage actions, wrong-provider access is blocked, and raw prescription/lab-result paths remain hidden.
+
+## Sprint 68 Local Update
+
+Pharmacy and Labs now have stronger local order-history UX for patient, provider, and admin visibility:
+
+- patient history filters and status chips are accepted locally.
+- provider history filters and action panels remain backend-permission guarded.
+- admin payment review shows pharmacy/lab context labels safely.
+- seed data covers multiple lifecycle states for local demos.
+- lab result display remains metadata-only and does not interpret results medically.
+- raw prescription paths, raw result paths, payment config, and secrets remain hidden.
+
+Decision: `LOCAL_PHARMACY_LAB_HISTORY_POLISH_ACCEPTED`.
+
+This remains local-only and does not approve staging, production, public launch, app-store release, external users, live payments, live refunds, or medical interpretation.

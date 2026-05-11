@@ -376,9 +376,10 @@ enum PharmacyOrderFilter {
   all,
   review,
   awaitingPayment,
-  paid,
   preparing,
-  delivered,
+  ready,
+  outForDelivery,
+  completed,
   rejected,
 }
 
@@ -411,13 +412,27 @@ class PharmacyOrdersState {
                   item.canPay,
             )
             .toList(growable: false),
-      PharmacyOrderFilter.paid =>
-        items
-            .where((item) => item.status == PharmacyOrderStatus.paid)
-            .toList(growable: false),
       PharmacyOrderFilter.preparing =>
-        items.where((item) => item.status.isPreparing).toList(growable: false),
-      PharmacyOrderFilter.delivered =>
+        items
+            .where(
+              (item) =>
+                  item.status == PharmacyOrderStatus.paid ||
+                  item.status == PharmacyOrderStatus.preparing,
+            )
+            .toList(growable: false),
+      PharmacyOrderFilter.ready =>
+        items
+            .where(
+              (item) =>
+                  item.status == PharmacyOrderStatus.ready ||
+                  item.status == PharmacyOrderStatus.readyForPickup,
+            )
+            .toList(growable: false),
+      PharmacyOrderFilter.outForDelivery =>
+        items
+            .where((item) => item.status == PharmacyOrderStatus.outForDelivery)
+            .toList(growable: false),
+      PharmacyOrderFilter.completed =>
         items
             .where((item) => item.status == PharmacyOrderStatus.delivered)
             .toList(growable: false),

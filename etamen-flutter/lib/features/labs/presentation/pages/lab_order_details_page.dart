@@ -82,6 +82,7 @@ class _Details extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final isArabic = AppLocalizations.of(context).isArabic;
     final downloadState = ref.watch(labResultDownloadControllerProvider);
     final downloadController = ref.read(
       labResultDownloadControllerProvider.notifier,
@@ -127,10 +128,7 @@ class _Details extends ConsumerWidget {
                   ),
                 _InfoLine(
                   label: l10n.get('paymentStatus'),
-                  value: _friendlyLabPaymentStatus(
-                    context,
-                    order.paymentStatus,
-                  ),
+                  value: order.paymentStatusLabel(isArabic: isArabic),
                 ),
                 if (order.paymentStatus == 'pending_payment_review') ...[
                   const SizedBox(height: 8),
@@ -146,6 +144,18 @@ class _Details extends ConsumerWidget {
             ),
           ),
         ),
+        const SizedBox(height: 12),
+        if (order.nextActionLabel(isArabic: isArabic) != null) ...[
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.flag_outlined),
+              title: Text(_copy(context, 'الإجراء التالي', 'Next action')),
+              subtitle: Text(order.nextActionLabel(isArabic: isArabic)!),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        _LabTimeline(order: order),
         const SizedBox(height: 12),
         LabPaymentCard(
           order: order,
@@ -196,6 +206,24 @@ class _Details extends ConsumerWidget {
             ),
           ),
         ),
+        if (order.hasResult) ...[
+          const SizedBox(height: 12),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.privacy_tip_outlined),
+              title: Text(
+                _copy(context, 'بيانات النتيجة فقط', 'Result metadata only'),
+              ),
+              subtitle: Text(
+                _copy(
+                  context,
+                  'لا يوجد تفسير طبي داخل التطبيق.',
+                  'No medical interpretation is shown in the app.',
+                ),
+              ),
+            ),
+          ),
+        ],
         if (order.results.isNotEmpty) ...[
           const SizedBox(height: 12),
           ...order.results.map(
@@ -250,6 +278,7 @@ class _Details extends ConsumerWidget {
     };
   }
 
+  // ignore: unused_element
   String _friendlyLabPaymentStatus(BuildContext context, String? status) {
     final isArabic = AppLocalizations.of(context).isArabic;
     return switch (status) {
@@ -321,6 +350,75 @@ class _Details extends ConsumerWidget {
       return AppLocalizations.of(context).get('dateUnavailable');
     }
     return DateFormat('d MMM yyyy, h:mm a').format(value.toLocal());
+  }
+}
+
+class _LabTimeline extends StatelessWidget {
+  const _LabTimeline({required this.order});
+
+  final LabOrder order;
+
+  @override
+  Widget build(BuildContext context) {
+    final isArabic = AppLocalizations.of(context).isArabic;
+    final steps = <(LabOrderStatus, String, String)>[
+      (LabOrderStatus.labReview, 'مراجعة', 'Review'),
+      (LabOrderStatus.awaitingPayment, 'الدفع', 'Payment'),
+      (LabOrderStatus.accepted, 'قبول', 'Accepted'),
+      (LabOrderStatus.sampleCollected, 'العينة', 'Sample'),
+      (LabOrderStatus.processing, 'تحليل', 'Processing'),
+      (LabOrderStatus.resultReady, 'النتيجة', 'Result'),
+      (LabOrderStatus.completed, 'مكتمل', 'Done'),
+    ];
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              isArabic ? 'مسار طلب المعمل' : 'Lab order timeline',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final step in steps)
+                  Chip(
+                    avatar: Icon(
+                      _isReached(order.status, step.$1)
+                          ? Icons.check_circle
+                          : Icons.circle_outlined,
+                      size: 18,
+                    ),
+                    label: Text(isArabic ? step.$2 : step.$3),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  bool _isReached(LabOrderStatus current, LabOrderStatus step) {
+    final flow = [
+      LabOrderStatus.labReview,
+      LabOrderStatus.accepted,
+      LabOrderStatus.awaitingPayment,
+      LabOrderStatus.paid,
+      LabOrderStatus.sampleScheduled,
+      LabOrderStatus.sampleCollected,
+      LabOrderStatus.processing,
+      LabOrderStatus.resultReady,
+      LabOrderStatus.completed,
+    ];
+    final currentIndex = flow.indexOf(current);
+    final stepIndex = flow.indexOf(step);
+    return currentIndex >= 0 && stepIndex >= 0 && currentIndex >= stepIndex;
   }
 }
 

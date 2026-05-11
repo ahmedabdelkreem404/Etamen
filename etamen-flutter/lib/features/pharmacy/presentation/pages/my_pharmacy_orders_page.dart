@@ -83,10 +83,19 @@ class _FilterChips extends StatelessWidget {
       PharmacyOrderFilter.all => l10n.get('all'),
       PharmacyOrderFilter.review => l10n.get('pharmacyReview'),
       PharmacyOrderFilter.awaitingPayment => l10n.get('awaitingPayment'),
-      PharmacyOrderFilter.paid => l10n.get('paid'),
       PharmacyOrderFilter.preparing => l10n.get('preparing'),
-      PharmacyOrderFilter.delivered => l10n.get('delivered'),
+      PharmacyOrderFilter.ready => _copy(context, 'جاهز', 'Ready'),
+      PharmacyOrderFilter.outForDelivery => _copy(
+        context,
+        'في التوصيل',
+        'Out for delivery',
+      ),
+      PharmacyOrderFilter.completed => l10n.get('completed'),
       PharmacyOrderFilter.rejected => l10n.get('rejected'),
     };
+  }
+
+  String _copy(BuildContext context, String ar, String en) {
+    return AppLocalizations.of(context).isArabic ? ar : en;
   }
 }

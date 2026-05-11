@@ -117,10 +117,13 @@ class AdminListItem {
   }
 
   String subtitle(bool isArabic) {
+    final contextLabel = _adminContextLabel(raw, isArabic);
     final parts = <String>[
+      if (contextLabel != null) contextLabel,
       if (status.isNotEmpty) friendlyAdminStatus(status, isArabic),
       if (_string(raw['category']) != null) _string(raw['category'])!,
-      if (_string(raw['provider_type']) != null) _string(raw['provider_type'])!,
+      if (contextLabel == null && _string(raw['provider_type']) != null)
+        _string(raw['provider_type'])!,
       if (_string(raw['created_at']) != null) _string(raw['created_at'])!,
     ];
     final amount = _string(raw['amount']);
@@ -130,6 +133,26 @@ class AdminListItem {
     }
     return parts.join(' - ');
   }
+}
+
+String? _adminContextLabel(Map<String, dynamic> raw, bool isArabic) {
+  final payable = _map(raw['payable']);
+  final source =
+      _string(raw['context_type']) ??
+      _string(raw['payable_type']) ??
+      _string(raw['provider_type']) ??
+      _string(payable['context_type']) ??
+      _string(payable['type']) ??
+      _string(payable['kind']);
+  if (source == null) return null;
+  final normalized = source.toLowerCase();
+  if (normalized.contains('pharmacy')) {
+    return isArabic ? 'طلب صيدلية' : 'Pharmacy order';
+  }
+  if (normalized.contains('lab')) {
+    return isArabic ? 'طلب معمل' : 'Lab order';
+  }
+  return null;
 }
 
 String friendlyAdminStatus(String status, bool isArabic) {

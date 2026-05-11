@@ -74,6 +74,11 @@ use App\Modules\Payments\Domain\Enums\PaymentStatus;
 use App\Modules\Payments\Infrastructure\Models\Payment;
 use App\Modules\Payments\Infrastructure\Models\PaymentMethod;
 use App\Modules\Payments\Infrastructure\Models\PaymentProof;
+use App\Modules\Pharmacies\Domain\Enums\PharmacyDeliveryMethod;
+use App\Modules\Pharmacies\Domain\Enums\PharmacyOrderPaymentStatus;
+use App\Modules\Pharmacies\Domain\Enums\PharmacyOrderStatus;
+use App\Modules\Pharmacies\Infrastructure\Models\PharmacyOrder;
+use App\Modules\Pharmacies\Infrastructure\Models\PharmacyOrderItem;
 use App\Modules\Pharmacies\Infrastructure\Models\PharmacyProduct;
 use App\Modules\Providers\Domain\Enums\ApprovalRequestStatus;
 use App\Modules\Providers\Domain\Enums\CoachType;
@@ -167,6 +172,18 @@ class PilotDemoSeeder extends Seeder
             $this->seedPaymentMethods();
             $pharmacyProvider = $this->seedPharmacy($pharmacyUser, $admin, $city, $area);
             $labProvider = $this->seedLab($labUser, $admin, $city, $area);
+            $this->providerStaff($pharmacyProvider, $limitedStaffUser, ProviderStaffRole::Staff, [
+                ProviderPermission::ViewPharmacyOrders->value,
+                ProviderPermission::ViewPayments->value,
+            ]);
+            $this->providerStaff($labProvider, $limitedStaffUser, ProviderStaffRole::Staff, [
+                ProviderPermission::ViewLabOrders->value,
+                ProviderPermission::ViewPayments->value,
+            ]);
+            if ($qaProviderUser) {
+                $this->providerStaff($pharmacyProvider, $qaProviderUser, ProviderStaffRole::Owner);
+                $this->providerStaff($labProvider, $qaProviderUser, ProviderStaffRole::Owner);
+            }
             $this->seedRadiology($radiologyUser, $admin, $city, $area);
             $this->seedFitness($gymUser, $fitnessCoachUser, $nutritionCoachUser, $admin, $city, $area);
             $this->seedHealthData($patient);
@@ -174,6 +191,10 @@ class PilotDemoSeeder extends Seeder
             $this->seedCarePlan($patient, $admin, $doctorProvider);
             $this->seedNotification($patient);
             $this->seedDemoLabResultOrder($patient, $labUser, $labProvider);
+            $this->seedPharmacyLabHistoryStates($patient, $pharmacyProvider, $labProvider);
+            if ($qaPatient) {
+                $this->seedPharmacyLabHistoryStates($qaPatient, $pharmacyProvider, $labProvider, 'QA-');
+            }
             $this->seedExpandedDemoCatalog($admin, $city, $area);
             $this->seedHospital($hospitalUser, $admin, $city, $area);
             $this->seedAdminOperationsDemo($admin, $patient, $doctorProvider, $pharmacyProvider, $labProvider);
@@ -886,6 +907,156 @@ class PilotDemoSeeder extends Seeder
             'owner_type' => LabResult::class,
             'owner_id' => $result->id,
         ]);
+    }
+
+    private function seedPharmacyLabHistoryStates(User $patient, Provider $pharmacyProvider, Provider $labProvider, string $orderPrefix = ''): void
+    {
+        $product = PharmacyProduct::query()
+            ->where('provider_id', $pharmacyProvider->id)
+            ->orderBy('id')
+            ->first();
+
+        if ($product) {
+            $pharmacyRows = [
+                ['PHARM-HISTORY-REVIEW', PharmacyOrderStatus::PharmacyReview, PharmacyOrderPaymentStatus::Unpaid, 'في انتظار مراجعة الصيدلية', 0],
+                ['PHARM-HISTORY-AWAITING-PAY', PharmacyOrderStatus::AwaitingPayment, PharmacyOrderPaymentStatus::Unpaid, 'في انتظار الدفع', 1],
+                ['PHARM-HISTORY-PREPARING', PharmacyOrderStatus::Preparing, PharmacyOrderPaymentStatus::Paid, 'طلب صيدلية تحت التجهيز', 2],
+                ['PHARM-HISTORY-READY', PharmacyOrderStatus::ReadyForPickup, PharmacyOrderPaymentStatus::Paid, 'طلب صيدلية جاهز', 3],
+                ['PHARM-HISTORY-DELIVERY', PharmacyOrderStatus::OutForDelivery, PharmacyOrderPaymentStatus::Paid, 'طلب صيدلية في التوصيل', 4],
+                ['PHARM-HISTORY-COMPLETE', PharmacyOrderStatus::Delivered, PharmacyOrderPaymentStatus::Paid, 'طلب صيدلية مكتمل', 5],
+                ['PHARM-HISTORY-REJECTED', PharmacyOrderStatus::Rejected, PharmacyOrderPaymentStatus::Rejected, 'طلب صيدلية مرفوض', 6],
+                ['PHARM-HISTORY-CANCELLED', PharmacyOrderStatus::Cancelled, PharmacyOrderPaymentStatus::Unpaid, 'طلب صيدلية ملغي', 7],
+            ];
+
+            foreach ($pharmacyRows as [$number, $status, $paymentStatus, $notes, $age]) {
+                $number = $orderPrefix.$number;
+                $price = (float) $product->price;
+                $order = PharmacyOrder::query()->updateOrCreate(
+                    ['order_number' => $number],
+                    [
+                        'patient_user_id' => $patient->id,
+                        'pharmacy_provider_id' => $pharmacyProvider->id,
+                        'prescription_id' => null,
+                        'payment_id' => null,
+                        'subtotal' => $price,
+                        'discount_total' => 0,
+                        'commission_amount' => 0,
+                        'provider_net_amount' => $price,
+                        'grand_total' => $price,
+                        'currency' => 'EGP',
+                        'payment_status' => $paymentStatus,
+                        'order_status' => $status,
+                        'delivery_method' => PharmacyDeliveryMethod::Delivery,
+                        'delivery_address' => 'Local demo address only',
+                        'notes' => $notes,
+                        'paid_at' => $paymentStatus === PharmacyOrderPaymentStatus::Paid ? now()->subDays($age) : null,
+                        'accepted_at' => in_array($status, [
+                            PharmacyOrderStatus::Accepted,
+                            PharmacyOrderStatus::AwaitingPayment,
+                            PharmacyOrderStatus::Paid,
+                            PharmacyOrderStatus::Preparing,
+                            PharmacyOrderStatus::ReadyForPickup,
+                            PharmacyOrderStatus::OutForDelivery,
+                            PharmacyOrderStatus::Delivered,
+                        ], true) ? now()->subDays($age + 1) : null,
+                        'rejected_at' => $status === PharmacyOrderStatus::Rejected ? now()->subDays($age) : null,
+                        'delivered_at' => $status === PharmacyOrderStatus::Delivered ? now()->subDays($age) : null,
+                        'cancelled_at' => $status === PharmacyOrderStatus::Cancelled ? now()->subDays($age) : null,
+                        'metadata' => ['pilot_demo' => true, 'history_state' => $status->value],
+                        'created_at' => now()->subDays($age + 1),
+                    ],
+                );
+
+                PharmacyOrderItem::query()->updateOrCreate(
+                    ['order_id' => $order->id, 'product_id' => $product->id],
+                    [
+                        'product_name' => $product->name_en,
+                        'unit_price' => $price,
+                        'quantity' => 1,
+                        'line_total' => $price,
+                    ],
+                );
+            }
+        }
+
+        $test = LabTest::query()
+            ->where('provider_id', $labProvider->id)
+            ->orderBy('id')
+            ->first();
+
+        if (! $test) {
+            return;
+        }
+
+        $labRows = [
+            ['LAB-HISTORY-REVIEW', LabOrderStatus::LabReview, LabOrderPaymentStatus::Unpaid, 'طلب معمل تحت المراجعة', 0],
+            ['LAB-HISTORY-AWAITING-PAY', LabOrderStatus::AwaitingPayment, LabOrderPaymentStatus::Unpaid, 'طلب معمل في انتظار الدفع', 1],
+            ['LAB-HISTORY-ACCEPTED', LabOrderStatus::Accepted, LabOrderPaymentStatus::Unpaid, 'طلب معمل مقبول', 2],
+            ['LAB-HISTORY-SAMPLE', LabOrderStatus::SampleCollected, LabOrderPaymentStatus::Paid, 'تم جمع العينة', 3],
+            ['LAB-HISTORY-PROCESSING', LabOrderStatus::Processing, LabOrderPaymentStatus::Paid, 'جاري التحليل', 4],
+            ['LAB-HISTORY-RESULT', LabOrderStatus::ResultReady, LabOrderPaymentStatus::Paid, 'النتيجة جاهزة بدون تفسير طبي', 5],
+            ['LAB-HISTORY-COMPLETE', LabOrderStatus::Completed, LabOrderPaymentStatus::Paid, 'طلب معمل مكتمل', 6],
+            ['LAB-HISTORY-REJECTED', LabOrderStatus::Rejected, LabOrderPaymentStatus::Unpaid, 'طلب معمل مرفوض', 7],
+            ['LAB-HISTORY-CANCELLED', LabOrderStatus::Cancelled, LabOrderPaymentStatus::Unpaid, 'طلب معمل ملغي', 8],
+        ];
+
+        foreach ($labRows as [$number, $status, $paymentStatus, $notes, $age]) {
+            $number = $orderPrefix.$number;
+            $price = (float) $test->price;
+            $order = LabOrder::query()->updateOrCreate(
+                ['order_number' => $number],
+                [
+                    'patient_user_id' => $patient->id,
+                    'lab_provider_id' => $labProvider->id,
+                    'payment_id' => null,
+                    'subtotal' => $price,
+                    'discount_total' => 0,
+                    'commission_amount' => 0,
+                    'provider_net_amount' => $price,
+                    'grand_total' => $price,
+                    'currency' => 'EGP',
+                    'payment_status' => $paymentStatus,
+                    'order_status' => $status,
+                    'sample_collection_method' => $age % 2 === 0 ? LabSampleCollectionMethod::BranchVisit : LabSampleCollectionMethod::HomeCollection,
+                    'collection_address' => $age % 2 === 0 ? null : 'Local demo home collection address',
+                    'scheduled_at' => now()->addDays(max(1, 9 - $age)),
+                    'paid_at' => $paymentStatus === LabOrderPaymentStatus::Paid ? now()->subDays($age) : null,
+                    'accepted_at' => in_array($status, [
+                        LabOrderStatus::Accepted,
+                        LabOrderStatus::Paid,
+                        LabOrderStatus::SampleScheduled,
+                        LabOrderStatus::SampleCollected,
+                        LabOrderStatus::Processing,
+                        LabOrderStatus::ResultReady,
+                        LabOrderStatus::Completed,
+                    ], true) ? now()->subDays($age + 1) : null,
+                    'rejected_at' => $status === LabOrderStatus::Rejected ? now()->subDays($age) : null,
+                    'sample_collected_at' => in_array($status, [
+                        LabOrderStatus::SampleCollected,
+                        LabOrderStatus::Processing,
+                        LabOrderStatus::ResultReady,
+                        LabOrderStatus::Completed,
+                    ], true) ? now()->subDays($age) : null,
+                    'result_ready_at' => in_array($status, [LabOrderStatus::ResultReady, LabOrderStatus::Completed], true) ? now()->subDays($age) : null,
+                    'completed_at' => $status === LabOrderStatus::Completed ? now()->subDays($age) : null,
+                    'cancelled_at' => $status === LabOrderStatus::Cancelled ? now()->subDays($age) : null,
+                    'notes' => $notes,
+                    'metadata' => ['pilot_demo' => true, 'history_state' => $status->value],
+                    'created_at' => now()->subDays($age + 1),
+                ],
+            );
+
+            LabOrderItem::query()->updateOrCreate(
+                ['order_id' => $order->id, 'item_type' => LabOrderItemType::Test->value, 'test_id' => $test->id],
+                [
+                    'package_id' => null,
+                    'item_name' => $test->name_en,
+                    'unit_price' => $price,
+                    'quantity' => 1,
+                    'line_total' => $price,
+                ],
+            );
+        }
     }
 
     private function seedExpandedDemoCatalog(User $admin, City $city, Area $area): void
@@ -1831,6 +2002,8 @@ class PilotDemoSeeder extends Seeder
         if ($gymProvider) {
             $this->seedPendingPaymentReview($patient, $gymProvider, 'gym', 900, 'admin-demo-gym-payment');
         }
+        $this->seedPendingPaymentReview($patient, $pharmacyProvider, 'pharmacy', 160, 'admin-demo-pharmacy-payment');
+        $this->seedPendingPaymentReview($patient, $labProvider, 'lab', 180, 'admin-demo-lab-payment');
 
         foreach ([
             [

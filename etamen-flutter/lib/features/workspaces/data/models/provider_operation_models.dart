@@ -31,7 +31,25 @@ class ProviderOperationItem {
 
   String? get status => _string(raw['status']);
 
-  String? get paymentStatus => _string(_map(raw['payment'])['status']);
+  String? get paymentStatus =>
+      _string(raw['payment_status']) ?? _string(_map(raw['payment'])['status']);
+
+  String? labelForStatus(bool isArabic) {
+    final label = isArabic
+        ? _string(raw['status_label_ar'])
+        : _string(raw['status_label_en']);
+    return label ?? (status == null ? null : friendlyStatus(status!, isArabic));
+  }
+
+  String? labelForPaymentStatus(bool isArabic) {
+    final label = isArabic
+        ? _string(raw['payment_status_label_ar'])
+        : _string(raw['payment_status_label_en']);
+    return label ??
+        (paymentStatus == null
+            ? null
+            : friendlyStatus(paymentStatus!, isArabic));
+  }
 
   String title(bool isArabic) {
     final direct = _localized(raw, isArabic);
@@ -60,11 +78,13 @@ class ProviderOperationItem {
   }
 
   String subtitle(bool isArabic) {
+    final statusLabel = labelForStatus(isArabic);
+    final paymentLabel = labelForPaymentStatus(isArabic);
     final parts = <String>[
       if (number?.trim().isNotEmpty == true) number!,
-      if (status?.trim().isNotEmpty == true) friendlyStatus(status!, isArabic),
-      if (paymentStatus?.trim().isNotEmpty == true)
-        '${isArabic ? 'الدفع' : 'Payment'}: ${friendlyStatus(paymentStatus!, isArabic)}',
+      if (statusLabel?.trim().isNotEmpty == true) statusLabel!,
+      if (paymentLabel?.trim().isNotEmpty == true)
+        '${isArabic ? 'الدفع' : 'Payment'}: $paymentLabel',
     ];
 
     final patient = _map(raw['patient']);

@@ -349,8 +349,9 @@ enum LabOrderFilter {
   all,
   review,
   awaitingPayment,
-  paid,
-  inProgress,
+  accepted,
+  sampleCollected,
+  processing,
   resultReady,
   completed,
   rejected,
@@ -385,12 +386,27 @@ class LabOrdersState {
                   item.canPay,
             )
             .toList(growable: false),
-      LabOrderFilter.paid =>
+      LabOrderFilter.accepted =>
         items
-            .where((item) => item.status == LabOrderStatus.paid)
+            .where(
+              (item) =>
+                  item.status == LabOrderStatus.accepted ||
+                  item.status == LabOrderStatus.paid ||
+                  item.status == LabOrderStatus.sampleScheduled,
+            )
             .toList(growable: false),
-      LabOrderFilter.inProgress =>
-        items.where((item) => item.status.isInProgress).toList(growable: false),
+      LabOrderFilter.sampleCollected =>
+        items
+            .where(
+              (item) =>
+                  item.status == LabOrderStatus.sampleCollected ||
+                  item.status == LabOrderStatus.sampleCollection,
+            )
+            .toList(growable: false),
+      LabOrderFilter.processing =>
+        items
+            .where((item) => item.status == LabOrderStatus.processing)
+            .toList(growable: false),
       LabOrderFilter.resultReady =>
         items
             .where((item) => item.status == LabOrderStatus.resultReady)

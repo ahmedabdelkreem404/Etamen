@@ -61,6 +61,16 @@ class PharmacyOrder {
     this.createdAt,
     this.prescription,
     this.notes,
+    this.statusLabelAr,
+    this.statusLabelEn,
+    this.paymentStatusLabelAr,
+    this.paymentStatusLabelEn,
+    this.serverCanCancel,
+    this.serverCanPay,
+    this.serverCanUploadProof,
+    this.nextActionKey,
+    this.nextActionLabelAr,
+    this.nextActionLabelEn,
   });
 
   final int id;
@@ -77,8 +87,19 @@ class PharmacyOrder {
   final List<PharmacyOrderItem> items;
   final PharmacyPrescription? prescription;
   final String? notes;
+  final String? statusLabelAr;
+  final String? statusLabelEn;
+  final String? paymentStatusLabelAr;
+  final String? paymentStatusLabelEn;
+  final bool? serverCanCancel;
+  final bool? serverCanPay;
+  final bool? serverCanUploadProof;
+  final String? nextActionKey;
+  final String? nextActionLabelAr;
+  final String? nextActionLabelEn;
 
   bool get canPay {
+    if (serverCanPay != null) return serverCanPay!;
     return paymentId != null &&
         (status == PharmacyOrderStatus.accepted ||
             status == PharmacyOrderStatus.awaitingPayment ||
@@ -87,18 +108,43 @@ class PharmacyOrder {
             paymentStatus == 'pending_payment_review');
   }
 
+  bool get canUploadProof {
+    if (serverCanUploadProof != null) return serverCanUploadProof!;
+    return paymentId != null &&
+        (paymentStatus == 'pending_payment' || paymentStatus == 'rejected');
+  }
+
   bool get canCreatePayment {
+    if (serverCanPay != null) return serverCanPay! && paymentId == null;
     return paymentId == null &&
         (status == PharmacyOrderStatus.accepted ||
             status == PharmacyOrderStatus.awaitingPayment);
   }
 
   bool get canCancel {
+    if (serverCanCancel != null) return serverCanCancel!;
     return paymentId == null &&
         (paymentStatus == null || paymentStatus == 'unpaid') &&
         (status == PharmacyOrderStatus.pending ||
             status == PharmacyOrderStatus.pharmacyReview ||
             status == PharmacyOrderStatus.accepted ||
             status == PharmacyOrderStatus.awaitingPayment);
+  }
+
+  String statusLabel({required bool isArabic}) {
+    final fromServer = isArabic ? statusLabelAr : statusLabelEn;
+    if (fromServer?.trim().isNotEmpty == true) return fromServer!.trim();
+    return status.name;
+  }
+
+  String paymentStatusLabel({required bool isArabic}) {
+    final fromServer = isArabic ? paymentStatusLabelAr : paymentStatusLabelEn;
+    if (fromServer?.trim().isNotEmpty == true) return fromServer!.trim();
+    return paymentStatus ?? '-';
+  }
+
+  String? nextActionLabel({required bool isArabic}) {
+    final fromServer = isArabic ? nextActionLabelAr : nextActionLabelEn;
+    return fromServer?.trim().isNotEmpty == true ? fromServer!.trim() : null;
   }
 }

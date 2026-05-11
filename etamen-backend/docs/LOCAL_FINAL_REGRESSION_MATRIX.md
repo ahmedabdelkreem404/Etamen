@@ -97,3 +97,22 @@ Sprint 67 closes the Sprint 66 documentation gap and adds deeper local provider 
 - Legal/privacy/refund policy approval.
 - Load testing.
 - Server backup/restore or disaster recovery.
+
+## Sprint 68 Local Addendum
+
+- patient pharmacy history filters: PASS.
+- patient lab history filters: PASS.
+- provider pharmacy/lab history filters: PASS.
+- order timeline/status clarity: PASS.
+- admin payment review context display for pharmacy/lab: PASS.
+- limited staff friendly blocked state: PASS.
+- seed states across pharmacy/lab lifecycles: PASS.
+- security sweep: PASS.
+- backend tests: `269 passed / 2333 assertions`.
+- Flutter tests: `199 passed`.
+- APK build: PASS.
+- screenshots: `I:/Etamen/.tmp/sprint68-local-pharmacy-lab-history-polish/`.
+
+Decision: `LOCAL_PHARMACY_LAB_HISTORY_POLISH_ACCEPTED`.
+
+Still not approved: staging, production, public launch, app store, external users, live payments, live refunds, or medical interpretation.

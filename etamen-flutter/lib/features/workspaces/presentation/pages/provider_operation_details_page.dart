@@ -61,6 +61,7 @@ class ProviderOperationDetailsPage extends ConsumerWidget {
               const SizedBox(height: 12),
               _Actions(
                 config: config,
+                item: state.item!,
                 permissions: permissions,
                 isSubmitting: state.isSubmitting,
                 onAction: (action, reason) async {
@@ -183,12 +184,14 @@ class _DetailsTable extends StatelessWidget {
 class _Actions extends StatelessWidget {
   const _Actions({
     required this.config,
+    required this.item,
     required this.permissions,
     required this.isSubmitting,
     required this.onAction,
   });
 
   final ProviderOperationSection config;
+  final ProviderOperationItem item;
   final List<String> permissions;
   final bool isSubmitting;
   final Future<void> Function(ProviderOperationAction action, String? reason)
@@ -196,7 +199,8 @@ class _Actions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (config.actions.isEmpty) return const SizedBox.shrink();
+    final actions = _validActionsForItem(config.section, item, config.actions);
+    if (actions.isEmpty) return const SizedBox.shrink();
     final isArabic = AppLocalizations.of(context).isArabic;
     final canManage =
         config.managePermission != null &&
@@ -240,7 +244,7 @@ class _Actions extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                for (final action in config.actions)
+                for (final action in actions)
                   FilledButton.tonalIcon(
                     style: action.destructive
                         ? FilledButton.styleFrom(
@@ -322,6 +326,46 @@ class _Actions extends StatelessWidget {
   }
 }
 
+List<ProviderOperationAction> _validActionsForItem(
+  String section,
+  ProviderOperationItem item,
+  List<ProviderOperationAction> actions,
+) {
+  final status = item.status;
+  if (status == null) return actions;
+
+  final keys = switch (section) {
+    'pharmacy/orders' => switch (status) {
+      'pending' || 'pharmacy_review' => const ['accept', 'reject'],
+      'accepted' || 'awaiting_payment' => const ['reject'],
+      'paid' => const ['preparing', 'ready', 'out-for-delivery', 'complete'],
+      'preparing' => const ['ready', 'out-for-delivery', 'complete'],
+      'ready' || 'ready_for_pickup' => const ['out-for-delivery', 'complete'],
+      'out_for_delivery' => const ['complete'],
+      _ => const <String>[],
+    },
+    'lab/orders' => switch (status) {
+      'lab_review' => const ['accept', 'reject'],
+      'accepted' || 'awaiting_payment' => const ['reject'],
+      'paid' => const [
+        'sample-scheduled',
+        'sample-collected',
+        'processing',
+        'result-ready',
+      ],
+      'sample_scheduled' => const ['sample-collected', 'processing'],
+      'sample_collected' => const ['processing', 'result-ready'],
+      'processing' => const ['result-ready'],
+      'result_ready' => const ['complete'],
+      _ => const <String>[],
+    },
+    _ => null,
+  };
+
+  if (keys == null) return actions;
+  return actions.where((action) => keys.contains(action.key)).toList();
+}
+
 class _InlineError extends StatelessWidget {
   const _InlineError({required this.message});
 
@@ -373,7 +417,16 @@ bool _hiddenKey(String key) {
       lower.contains('config') ||
       lower.contains('secret') ||
       lower.contains('token') ||
-      lower.contains('notes') && lower.contains('admin');
+      lower.contains('notes') && lower.contains('admin') ||
+      lower.startsWith('status_label_') ||
+      lower.startsWith('payment_status_label_') ||
+      lower.startsWith('can_') ||
+      lower.startsWith('next_action_') ||
+      lower.endsWith('_id') ||
+      lower == 'patient.id' ||
+      lower == 'provider.id' ||
+      lower == 'pharmacy.id' ||
+      lower == 'lab.id';
 }
 
 String _label(String key, bool isArabic) {
@@ -381,6 +434,7 @@ String _label(String key, bool isArabic) {
     'id': isArabic ? 'المعرّف' : 'ID',
     'number': isArabic ? 'الرقم' : 'Number',
     'status': isArabic ? 'الحالة' : 'Status',
+    'payment_status': isArabic ? 'حالة الدفع' : 'Payment status',
     'payment.status': isArabic ? 'حالة الدفع' : 'Payment status',
     'patient.name': isArabic ? 'اسم العميل' : 'Patient',
     'total_amount': isArabic ? 'الإجمالي' : 'Total',
@@ -394,8 +448,13 @@ String _label(String key, bool isArabic) {
 
 String _formatValue(Object? value, bool isArabic) {
   if (value == null) return '-';
+  if (value is bool) {
+    if (!isArabic) return value ? 'Yes' : 'No';
+    return value ? 'نعم' : 'لا';
+  }
   final text = value.toString();
   if (text.trim().isEmpty) return '-';
-  if (text.contains('_')) return friendlyStatus(text, isArabic);
+  final friendly = friendlyStatus(text, isArabic);
+  if (friendly != text || text.contains('_')) return friendly;
   return text;
 }

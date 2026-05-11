@@ -80,6 +80,34 @@ void main() {
     expect(order.canPay, true);
   });
 
+  test('PharmacyOrderModel parses backend UX metadata and server flags', () {
+    final order = PharmacyOrderModel.fromJson({
+      'id': 88,
+      'order_number': 'PH-88',
+      'order_status': 'preparing',
+      'payment_status': 'paid',
+      'status_label_ar': 'تحت التجهيز',
+      'status_label_en': 'Preparing',
+      'payment_status_label_ar': 'مدفوع',
+      'payment_status_label_en': 'Paid',
+      'can_cancel': false,
+      'can_pay': false,
+      'can_upload_proof': false,
+      'next_action_key': 'wait_preparing',
+      'next_action_label_ar': 'الطلب تحت التجهيز',
+      'next_action_label_en': 'Order is being prepared',
+      'items': const [],
+    });
+
+    expect(order.status, PharmacyOrderStatus.preparing);
+    expect(order.statusLabel(isArabic: true), 'تحت التجهيز');
+    expect(order.paymentStatusLabel(isArabic: false), 'Paid');
+    expect(order.canCancel, false);
+    expect(order.canPay, false);
+    expect(order.canUploadProof, false);
+    expect(order.nextActionLabel(isArabic: true), 'الطلب تحت التجهيز');
+  });
+
   test('PharmacyOrderStatus enum maps backend statuses safely', () {
     expect(
       PharmacyOrderStatus.fromWire('pharmacy_review'),

@@ -1871,3 +1871,25 @@ LOCAL_PHARMACY_LAB_PROVIDER_ACTIONS_ACCEPTED
 ```
 
 This remains local-only and does not approve production, public launch, app-store release, external users, live payment, or live refunds.
+
+## Sprint 68 Local Pharmacy/Lab History Polish
+
+Result: `LOCAL_PHARMACY_LAB_HISTORY_POLISH_ACCEPTED`.
+
+- Patient pharmacy history filters, status chips, timeline, empty state, and backend-owned next actions passed local QA.
+- Patient lab history filters, timeline, result metadata card, and no-medical-interpretation copy passed local QA.
+- Provider pharmacy/lab history filters and action UX passed local QA with backend permissions still authoritative.
+- Admin payment review now displays pharmacy/lab contexts safely as `طلب صيدلية` and `طلب معمل`.
+- Limited staff receives friendly no-permission UI and backend manage actions remain blocked.
+- Security sweep passed with no raw prescription/result paths, no secrets, no payment config, and no medical interpretation.
+
+Evidence:
+
+- Screenshots: `I:/Etamen/.tmp/sprint68-local-pharmacy-lab-history-polish/`
+- APK: `I:/Etamen/.tmp/etamen-local-pharmacy-lab-history-polish.apk`
+- Backend tests: `269 passed / 2333 assertions`
+- Flutter tests: `199 passed`
+- Flutter analyze: clean
+- APK build: passed
+
+This is still local-only and does not approve staging, production, public launch, app-store release, external users, live payments, or live refunds.

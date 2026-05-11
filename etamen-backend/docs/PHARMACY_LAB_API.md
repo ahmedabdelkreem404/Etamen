@@ -105,3 +105,23 @@ Legacy provider operations:
 - `POST /api/v1/provider/lab/orders/{order}/results`
 
 Provider access is scoped to the active lab provider. Workspace-scoped actions require `manage_lab_orders`, reject requires a reason, result metadata remains safe, and no medical interpretation is returned.
+
+## Sprint 68 Local History Filters
+
+Patient pharmacy history:
+
+- `GET /api/v1/pharmacy/orders`
+- safe filters: `status`, `payment_status`, `date_from`, `date_to`, `provider_id`, `search`, `order_number`, `per_page`.
+
+Patient lab history:
+
+- `GET /api/v1/lab/orders`
+- safe filters: `status`, `payment_status`, `date_from`, `date_to`, `provider_id`, `visit_type`, `home_or_branch`, `search`, `order_number`, `per_page`.
+
+Provider workspace history:
+
+- `GET /api/v1/provider/workspace/{provider}/pharmacy/orders`
+- `GET /api/v1/provider/workspace/{provider}/lab/orders`
+- safe filters: `status`, `payment_status`, `date_from`, `date_to`, `patient_name`, `search`, `order_number`, `per_page`.
+
+All list endpoints keep backend scoping as source of truth, cap pagination, return validation errors for invalid filters, and hide raw prescription/lab-result paths. Sprint 68 resources include safe UX metadata (`status_label_ar`, payment labels, backend action flags, and next-action labels) so Flutter displays status clarity without inventing permissions or payment state.

@@ -105,6 +105,37 @@ void main() {
     expect(order.hasResult, true);
   });
 
+  test('LabOrderModel parses backend UX metadata without interpretation', () {
+    final order = LabOrderModel.fromJson({
+      'id': 88,
+      'order_number': 'LAB-88',
+      'order_status': 'result_ready',
+      'payment_status': 'paid',
+      'status_label_ar': 'النتيجة جاهزة',
+      'status_label_en': 'Result ready',
+      'payment_status_label_ar': 'مدفوع',
+      'payment_status_label_en': 'Paid',
+      'can_cancel': false,
+      'can_pay': false,
+      'can_upload_proof': false,
+      'can_view_result_metadata': true,
+      'next_action_key': 'view_result_metadata',
+      'next_action_label_ar': 'اعرض بيانات النتيجة',
+      'next_action_label_en': 'View result metadata',
+      'items': const [],
+      'results': const [],
+    });
+
+    expect(order.status, LabOrderStatus.resultReady);
+    expect(order.statusLabel(isArabic: true), 'النتيجة جاهزة');
+    expect(order.paymentStatusLabel(isArabic: false), 'Paid');
+    expect(order.hasResult, true);
+    expect(order.canCancel, false);
+    expect(order.canPay, false);
+    expect(order.canUploadProof, false);
+    expect(order.nextActionLabel(isArabic: false), 'View result metadata');
+  });
+
   test('LabOrderStatus enum maps backend statuses safely', () {
     expect(LabOrderStatus.fromWire('lab_review'), LabOrderStatus.labReview);
     expect(LabOrderStatus.fromWire('processing'), LabOrderStatus.processing);

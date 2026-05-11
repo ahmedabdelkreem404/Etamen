@@ -14,6 +14,7 @@ class LabOrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final isArabic = AppLocalizations.of(context).isArabic;
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -45,7 +46,13 @@ class LabOrderCard extends StatelessWidget {
               ),
               if (order.paymentStatus != null) ...[
                 const SizedBox(height: 8),
-                Text('${l10n.get('paymentStatus')}: ${order.paymentStatus}'),
+                Text(
+                  '${l10n.get('paymentStatus')}: ${order.paymentStatusLabel(isArabic: isArabic)}',
+                ),
+              ],
+              if (order.nextActionLabel(isArabic: isArabic) != null) ...[
+                const SizedBox(height: 8),
+                Text(order.nextActionLabel(isArabic: isArabic)!),
               ],
               const SizedBox(height: 12),
               Align(
@@ -54,7 +61,9 @@ class LabOrderCard extends StatelessWidget {
                   onPressed: () =>
                       context.push(RouteNames.labOrderDetails(order.id)),
                   child: Text(
-                    order.canPay || order.canCreatePayment
+                    order.canPay ||
+                            order.canCreatePayment ||
+                            order.canUploadProof
                         ? l10n.get('continuePayment')
                         : l10n.get('viewDetails'),
                   ),

@@ -17,11 +17,14 @@ use App\Modules\Fitness\Infrastructure\Models\GymBooking;
 use App\Modules\Fitness\Infrastructure\Models\GymClassModel;
 use App\Modules\Fitness\Infrastructure\Models\GymMembershipPlan;
 use App\Modules\Labs\Application\Services\LabOrderService;
+use App\Modules\Labs\Domain\Enums\LabOrderPaymentStatus;
 use App\Modules\Labs\Domain\Enums\LabOrderStatus;
+use App\Modules\Labs\Domain\Enums\LabSampleCollectionMethod;
 use App\Modules\Labs\Infrastructure\Models\LabOrder;
 use App\Modules\Labs\Infrastructure\Models\LabPackage;
 use App\Modules\Labs\Infrastructure\Models\LabTest;
 use App\Modules\Pharmacies\Application\Services\PharmacyOrderService;
+use App\Modules\Pharmacies\Domain\Enums\PharmacyOrderPaymentStatus;
 use App\Modules\Pharmacies\Domain\Enums\PharmacyOrderStatus;
 use App\Modules\Pharmacies\Infrastructure\Models\PharmacyOrder;
 use App\Modules\Pharmacies\Infrastructure\Models\PharmacyProduct;
@@ -39,6 +42,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use UnitEnum;
 
@@ -238,10 +242,28 @@ class ProviderWorkspaceOperationsController extends ApiController
     public function pharmacyOrders(Request $request, Provider $provider): JsonResponse
     {
         $this->authorizeWorkspace($request, $provider, ProviderPermission::ViewPharmacyOrders, ProviderType::Pharmacy);
+        $filters = $this->validatedPharmacyOrderFilters($request);
 
         $items = PharmacyOrder::query()
             ->with(['patient', 'payment.paymentMethod', 'items'])
             ->where('pharmacy_provider_id', $provider->id)
+            ->when($filters['status'] ?? null, fn ($query, string $status) => $query->where('order_status', $status))
+            ->when($filters['payment_status'] ?? null, fn ($query, string $status) => $query->where('payment_status', $status))
+            ->when($filters['date_from'] ?? null, fn ($query, string $date) => $query->whereDate('created_at', '>=', $date))
+            ->when($filters['date_to'] ?? null, fn ($query, string $date) => $query->whereDate('created_at', '<=', $date))
+            ->when($filters['order_number'] ?? null, fn ($query, string $number) => $query->where('order_number', 'like', '%'.$number.'%'))
+            ->when($filters['search'] ?? null, function ($query, string $search): void {
+                $query->where(function ($query) use ($search): void {
+                    $query->where('order_number', 'like', '%'.$search.'%')
+                        ->orWhereHas('patient', function ($query) use ($search): void {
+                            $query->where('name', 'like', '%'.$search.'%')
+                                ->orWhere('email', 'like', '%'.$search.'%');
+                        });
+                });
+            })
+            ->when($filters['patient_name'] ?? null, function ($query, string $patientName): void {
+                $query->whereHas('patient', fn ($query) => $query->where('name', 'like', '%'.$patientName.'%'));
+            })
             ->latest()
             ->limit($this->perPage($request))
             ->get()
@@ -310,10 +332,29 @@ class ProviderWorkspaceOperationsController extends ApiController
     public function labOrders(Request $request, Provider $provider): JsonResponse
     {
         $this->authorizeWorkspace($request, $provider, ProviderPermission::ViewLabOrders, ProviderType::Lab);
+        $filters = $this->validatedLabOrderFilters($request);
 
         $items = LabOrder::query()
             ->with(['patient', 'payment.paymentMethod', 'items', 'results'])
             ->where('lab_provider_id', $provider->id)
+            ->when($filters['status'] ?? null, fn ($query, string $status) => $query->where('order_status', $status))
+            ->when($filters['payment_status'] ?? null, fn ($query, string $status) => $query->where('payment_status', $status))
+            ->when($filters['date_from'] ?? null, fn ($query, string $date) => $query->whereDate('created_at', '>=', $date))
+            ->when($filters['date_to'] ?? null, fn ($query, string $date) => $query->whereDate('created_at', '<=', $date))
+            ->when($filters['sample_collection_method'] ?? null, fn ($query, string $method) => $query->where('sample_collection_method', $method))
+            ->when($filters['order_number'] ?? null, fn ($query, string $number) => $query->where('order_number', 'like', '%'.$number.'%'))
+            ->when($filters['search'] ?? null, function ($query, string $search): void {
+                $query->where(function ($query) use ($search): void {
+                    $query->where('order_number', 'like', '%'.$search.'%')
+                        ->orWhereHas('patient', function ($query) use ($search): void {
+                            $query->where('name', 'like', '%'.$search.'%')
+                                ->orWhere('email', 'like', '%'.$search.'%');
+                        });
+                });
+            })
+            ->when($filters['patient_name'] ?? null, function ($query, string $patientName): void {
+                $query->whereHas('patient', fn ($query) => $query->where('name', 'like', '%'.$patientName.'%'));
+            })
             ->latest()
             ->limit($this->perPage($request))
             ->get()
@@ -646,6 +687,45 @@ class ProviderWorkspaceOperationsController extends ApiController
             ->firstOrFail();
     }
 
+    private function validatedPharmacyOrderFilters(Request $request): array
+    {
+        return $request->validate([
+            'status' => ['nullable', Rule::in(PharmacyOrderStatus::values())],
+            'payment_status' => ['nullable', Rule::in(PharmacyOrderPaymentStatus::values())],
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+            'search' => ['nullable', 'string', 'max:100'],
+            'patient_name' => ['nullable', 'string', 'max:100'],
+            'order_number' => ['nullable', 'string', 'max:100'],
+            'per_page' => ['nullable', 'integer', 'min:1'],
+        ]);
+    }
+
+    private function validatedLabOrderFilters(Request $request): array
+    {
+        $filters = $request->validate([
+            'status' => ['nullable', Rule::in(LabOrderStatus::values())],
+            'payment_status' => ['nullable', Rule::in(LabOrderPaymentStatus::values())],
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+            'sample_collection_method' => ['nullable', Rule::in([...LabSampleCollectionMethod::values(), 'home', 'branch'])],
+            'visit_type' => ['nullable', Rule::in([...LabSampleCollectionMethod::values(), 'home', 'branch'])],
+            'search' => ['nullable', 'string', 'max:100'],
+            'patient_name' => ['nullable', 'string', 'max:100'],
+            'order_number' => ['nullable', 'string', 'max:100'],
+            'per_page' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        $method = $filters['sample_collection_method'] ?? $filters['visit_type'] ?? null;
+        $filters['sample_collection_method'] = match ($method) {
+            'home' => LabSampleCollectionMethod::HomeCollection->value,
+            'branch' => LabSampleCollectionMethod::BranchVisit->value,
+            default => $method,
+        };
+
+        return $filters;
+    }
+
     private function transitionGymBooking(Request $request, Provider $provider, GymBooking $booking, GymBookingStatus $to, array $allowedFrom, array $extra = []): JsonResponse
     {
         $this->authorizeWorkspace($request, $provider, ProviderPermission::ManageGymBookings, ProviderType::Gym);
@@ -808,11 +888,26 @@ class ProviderWorkspaceOperationsController extends ApiController
 
     private function pharmacyOrderPayload(PharmacyOrder $order): array
     {
+        $status = $order->order_status;
+        $paymentStatus = $order->payment_status;
+        $nextAction = $this->pharmacyNextAction($status, $paymentStatus);
+
         return [
             'id' => $order->id,
             'number' => $order->order_number,
             'status' => $this->wire($order->order_status),
             'payment_status' => $this->wire($order->payment_status),
+            'status_label_ar' => $this->pharmacyStatusLabelAr($status),
+            'status_label_en' => $this->pharmacyStatusLabelEn($status),
+            'payment_status_label_ar' => $this->pharmacyPaymentStatusLabelAr($paymentStatus),
+            'payment_status_label_en' => $this->pharmacyPaymentStatusLabelEn($paymentStatus),
+            'can_cancel' => $this->pharmacyCanPatientCancel($status, $paymentStatus),
+            'can_pay' => $this->pharmacyCanPay($status, $paymentStatus),
+            'can_upload_proof' => $this->pharmacyCanUploadProof($status, $paymentStatus),
+            'can_view_result_metadata' => false,
+            'next_action_key' => $nextAction['key'],
+            'next_action_label_ar' => $nextAction['label_ar'],
+            'next_action_label_en' => $nextAction['label_en'],
             'grand_total' => $this->decimal($order->grand_total),
             'patient' => $this->patientSummary($order->patient),
             'payment' => $this->paymentSummary($order->payment),
@@ -841,11 +936,26 @@ class ProviderWorkspaceOperationsController extends ApiController
 
     private function labOrderPayload(LabOrder $order): array
     {
+        $status = $order->order_status;
+        $paymentStatus = $order->payment_status;
+        $nextAction = $this->labNextAction($status, $paymentStatus);
+
         return [
             'id' => $order->id,
             'number' => $order->order_number,
             'status' => $this->wire($order->order_status),
             'payment_status' => $this->wire($order->payment_status),
+            'status_label_ar' => $this->labStatusLabelAr($status),
+            'status_label_en' => $this->labStatusLabelEn($status),
+            'payment_status_label_ar' => $this->labPaymentStatusLabelAr($paymentStatus),
+            'payment_status_label_en' => $this->labPaymentStatusLabelEn($paymentStatus),
+            'can_cancel' => $this->labCanPatientCancel($status, $paymentStatus),
+            'can_pay' => $this->labCanPay($status, $paymentStatus),
+            'can_upload_proof' => $this->labCanUploadProof($status, $paymentStatus),
+            'can_view_result_metadata' => $this->labCanViewResultMetadata($order),
+            'next_action_key' => $nextAction['key'],
+            'next_action_label_ar' => $nextAction['label_ar'],
+            'next_action_label_en' => $nextAction['label_en'],
             'grand_total' => $this->decimal($order->grand_total),
             'scheduled_at' => $order->scheduled_at?->toISOString(),
             'patient' => $this->patientSummary($order->patient),
@@ -884,6 +994,260 @@ class ProviderWorkspaceOperationsController extends ApiController
             'price' => $this->decimal($package->price),
             'is_active' => (bool) $package->is_active,
         ];
+    }
+
+    private function pharmacyStatusLabelAr(PharmacyOrderStatus $status): string
+    {
+        return match ($status) {
+            PharmacyOrderStatus::Pending, PharmacyOrderStatus::PharmacyReview => 'في انتظار مراجعة الصيدلية',
+            PharmacyOrderStatus::Accepted => 'تم قبول الطلب',
+            PharmacyOrderStatus::AwaitingPayment => 'في انتظار الدفع',
+            PharmacyOrderStatus::Paid => 'تم الدفع',
+            PharmacyOrderStatus::Preparing => 'تحت التجهيز',
+            PharmacyOrderStatus::ReadyForPickup => 'جاهز للاستلام',
+            PharmacyOrderStatus::OutForDelivery => 'في التوصيل',
+            PharmacyOrderStatus::Delivered => 'مكتمل',
+            PharmacyOrderStatus::Rejected => 'مرفوض',
+            PharmacyOrderStatus::Cancelled => 'ملغي',
+        };
+    }
+
+    private function pharmacyStatusLabelEn(PharmacyOrderStatus $status): string
+    {
+        return match ($status) {
+            PharmacyOrderStatus::Pending, PharmacyOrderStatus::PharmacyReview => 'Waiting for pharmacy review',
+            PharmacyOrderStatus::Accepted => 'Accepted',
+            PharmacyOrderStatus::AwaitingPayment => 'Awaiting payment',
+            PharmacyOrderStatus::Paid => 'Paid',
+            PharmacyOrderStatus::Preparing => 'Preparing',
+            PharmacyOrderStatus::ReadyForPickup => 'Ready',
+            PharmacyOrderStatus::OutForDelivery => 'Out for delivery',
+            PharmacyOrderStatus::Delivered => 'Completed',
+            PharmacyOrderStatus::Rejected => 'Rejected',
+            PharmacyOrderStatus::Cancelled => 'Cancelled',
+        };
+    }
+
+    private function pharmacyPaymentStatusLabelAr(PharmacyOrderPaymentStatus $status): string
+    {
+        return match ($status) {
+            PharmacyOrderPaymentStatus::Unpaid => 'غير مدفوع',
+            PharmacyOrderPaymentStatus::PendingPayment => 'في انتظار إثبات الدفع',
+            PharmacyOrderPaymentStatus::PendingPaymentReview => 'إثبات الدفع تحت مراجعة الأدمن',
+            PharmacyOrderPaymentStatus::Paid => 'مدفوع',
+            PharmacyOrderPaymentStatus::Rejected => 'إثبات الدفع مرفوض',
+            PharmacyOrderPaymentStatus::Failed => 'فشل الدفع',
+            PharmacyOrderPaymentStatus::Refunded => 'تم الاسترداد',
+        };
+    }
+
+    private function pharmacyPaymentStatusLabelEn(PharmacyOrderPaymentStatus $status): string
+    {
+        return match ($status) {
+            PharmacyOrderPaymentStatus::Unpaid => 'Unpaid',
+            PharmacyOrderPaymentStatus::PendingPayment => 'Waiting for payment proof',
+            PharmacyOrderPaymentStatus::PendingPaymentReview => 'Payment proof under admin review',
+            PharmacyOrderPaymentStatus::Paid => 'Paid',
+            PharmacyOrderPaymentStatus::Rejected => 'Payment proof rejected',
+            PharmacyOrderPaymentStatus::Failed => 'Payment failed',
+            PharmacyOrderPaymentStatus::Refunded => 'Refunded',
+        };
+    }
+
+    private function pharmacyCanPatientCancel(PharmacyOrderStatus $status, PharmacyOrderPaymentStatus $paymentStatus): bool
+    {
+        return in_array($status, [
+            PharmacyOrderStatus::Pending,
+            PharmacyOrderStatus::PharmacyReview,
+            PharmacyOrderStatus::Accepted,
+            PharmacyOrderStatus::AwaitingPayment,
+        ], true) && in_array($paymentStatus, [
+            PharmacyOrderPaymentStatus::Unpaid,
+            PharmacyOrderPaymentStatus::PendingPayment,
+            PharmacyOrderPaymentStatus::Rejected,
+            PharmacyOrderPaymentStatus::Failed,
+        ], true);
+    }
+
+    private function pharmacyCanPay(PharmacyOrderStatus $status, PharmacyOrderPaymentStatus $paymentStatus): bool
+    {
+        return in_array($status, [
+            PharmacyOrderStatus::Accepted,
+            PharmacyOrderStatus::AwaitingPayment,
+        ], true) && in_array($paymentStatus, [
+            PharmacyOrderPaymentStatus::Unpaid,
+            PharmacyOrderPaymentStatus::Rejected,
+            PharmacyOrderPaymentStatus::Failed,
+        ], true);
+    }
+
+    private function pharmacyCanUploadProof(PharmacyOrderStatus $status, PharmacyOrderPaymentStatus $paymentStatus): bool
+    {
+        return ! in_array($status, [
+            PharmacyOrderStatus::Rejected,
+            PharmacyOrderStatus::Cancelled,
+            PharmacyOrderStatus::Delivered,
+        ], true) && in_array($paymentStatus, [
+            PharmacyOrderPaymentStatus::PendingPayment,
+            PharmacyOrderPaymentStatus::Rejected,
+        ], true);
+    }
+
+    private function pharmacyNextAction(PharmacyOrderStatus $status, PharmacyOrderPaymentStatus $paymentStatus): array
+    {
+        if (in_array($status, [PharmacyOrderStatus::Rejected, PharmacyOrderStatus::Cancelled], true)) {
+            return ['key' => 'closed', 'label_ar' => 'الطلب مغلق', 'label_en' => 'Order closed'];
+        }
+
+        if ($this->pharmacyCanUploadProof($status, $paymentStatus)) {
+            return ['key' => 'upload_proof', 'label_ar' => 'ارفع إثبات الدفع', 'label_en' => 'Upload payment proof'];
+        }
+
+        if ($this->pharmacyCanPay($status, $paymentStatus)) {
+            return ['key' => 'pay', 'label_ar' => 'اختار طريقة الدفع', 'label_en' => 'Choose payment method'];
+        }
+
+        if ($paymentStatus === PharmacyOrderPaymentStatus::PendingPaymentReview) {
+            return ['key' => 'wait_admin_review', 'label_ar' => 'الدفع في انتظار مراجعة الأدمن', 'label_en' => 'Payment is under admin review'];
+        }
+
+        return match ($status) {
+            PharmacyOrderStatus::Pending, PharmacyOrderStatus::PharmacyReview => ['key' => 'wait_provider_review', 'label_ar' => 'الصيدلية بتراجع الطلب', 'label_en' => 'Pharmacy is reviewing the order'],
+            PharmacyOrderStatus::Paid, PharmacyOrderStatus::Preparing => ['key' => 'wait_preparing', 'label_ar' => 'الطلب تحت التجهيز', 'label_en' => 'Order is being prepared'],
+            PharmacyOrderStatus::ReadyForPickup => ['key' => 'ready', 'label_ar' => 'الطلب جاهز للاستلام', 'label_en' => 'Order is ready'],
+            PharmacyOrderStatus::OutForDelivery => ['key' => 'out_for_delivery', 'label_ar' => 'الطلب في التوصيل', 'label_en' => 'Order is out for delivery'],
+            PharmacyOrderStatus::Delivered => ['key' => 'completed', 'label_ar' => 'الطلب مكتمل', 'label_en' => 'Order completed'],
+            PharmacyOrderStatus::Rejected, PharmacyOrderStatus::Cancelled => ['key' => 'closed', 'label_ar' => 'الطلب مغلق', 'label_en' => 'Order closed'],
+            default => ['key' => 'none', 'label_ar' => 'لا يوجد إجراء مطلوب الآن', 'label_en' => 'No action needed now'],
+        };
+    }
+
+    private function labStatusLabelAr(LabOrderStatus $status): string
+    {
+        return match ($status) {
+            LabOrderStatus::LabReview => 'مراجعة المعمل',
+            LabOrderStatus::Accepted => 'تم قبول الطلب',
+            LabOrderStatus::AwaitingPayment => 'في انتظار الدفع',
+            LabOrderStatus::Paid => 'تم الدفع',
+            LabOrderStatus::SampleScheduled => 'تم جدولة العينة',
+            LabOrderStatus::SampleCollected => 'تم جمع العينة',
+            LabOrderStatus::Processing => 'جاري التحليل',
+            LabOrderStatus::ResultReady => 'النتيجة جاهزة',
+            LabOrderStatus::Completed => 'مكتمل',
+            LabOrderStatus::Rejected => 'مرفوض',
+            LabOrderStatus::Cancelled => 'ملغي',
+        };
+    }
+
+    private function labStatusLabelEn(LabOrderStatus $status): string
+    {
+        return match ($status) {
+            LabOrderStatus::LabReview => 'Lab review',
+            LabOrderStatus::Accepted => 'Accepted',
+            LabOrderStatus::AwaitingPayment => 'Awaiting payment',
+            LabOrderStatus::Paid => 'Paid',
+            LabOrderStatus::SampleScheduled => 'Sample scheduled',
+            LabOrderStatus::SampleCollected => 'Sample collected',
+            LabOrderStatus::Processing => 'Processing',
+            LabOrderStatus::ResultReady => 'Result ready',
+            LabOrderStatus::Completed => 'Completed',
+            LabOrderStatus::Rejected => 'Rejected',
+            LabOrderStatus::Cancelled => 'Cancelled',
+        };
+    }
+
+    private function labPaymentStatusLabelAr(LabOrderPaymentStatus $status): string
+    {
+        return match ($status) {
+            LabOrderPaymentStatus::Unpaid => 'غير مدفوع',
+            LabOrderPaymentStatus::PendingPayment => 'في انتظار إثبات الدفع',
+            LabOrderPaymentStatus::PendingPaymentReview => 'إثبات الدفع تحت مراجعة الأدمن',
+            LabOrderPaymentStatus::Paid => 'مدفوع',
+            LabOrderPaymentStatus::Failed => 'فشل الدفع',
+            LabOrderPaymentStatus::Refunded => 'تم الاسترداد',
+        };
+    }
+
+    private function labPaymentStatusLabelEn(LabOrderPaymentStatus $status): string
+    {
+        return match ($status) {
+            LabOrderPaymentStatus::Unpaid => 'Unpaid',
+            LabOrderPaymentStatus::PendingPayment => 'Waiting for payment proof',
+            LabOrderPaymentStatus::PendingPaymentReview => 'Payment proof under admin review',
+            LabOrderPaymentStatus::Paid => 'Paid',
+            LabOrderPaymentStatus::Failed => 'Payment failed',
+            LabOrderPaymentStatus::Refunded => 'Refunded',
+        };
+    }
+
+    private function labCanPatientCancel(LabOrderStatus $status, LabOrderPaymentStatus $paymentStatus): bool
+    {
+        return in_array($status, [
+            LabOrderStatus::LabReview,
+            LabOrderStatus::Accepted,
+            LabOrderStatus::AwaitingPayment,
+        ], true) && in_array($paymentStatus, [
+            LabOrderPaymentStatus::Unpaid,
+            LabOrderPaymentStatus::PendingPayment,
+            LabOrderPaymentStatus::Failed,
+        ], true);
+    }
+
+    private function labCanPay(LabOrderStatus $status, LabOrderPaymentStatus $paymentStatus): bool
+    {
+        return in_array($status, [
+            LabOrderStatus::Accepted,
+            LabOrderStatus::AwaitingPayment,
+        ], true) && in_array($paymentStatus, [
+            LabOrderPaymentStatus::Unpaid,
+            LabOrderPaymentStatus::Failed,
+        ], true);
+    }
+
+    private function labCanUploadProof(LabOrderStatus $status, LabOrderPaymentStatus $paymentStatus): bool
+    {
+        return ! in_array($status, [
+            LabOrderStatus::Rejected,
+            LabOrderStatus::Cancelled,
+            LabOrderStatus::Completed,
+        ], true) && $paymentStatus === LabOrderPaymentStatus::PendingPayment;
+    }
+
+    private function labCanViewResultMetadata(LabOrder $order): bool
+    {
+        return ($order->relationLoaded('results') && $order->results->isNotEmpty()) || in_array($order->order_status, [
+            LabOrderStatus::ResultReady,
+            LabOrderStatus::Completed,
+        ], true);
+    }
+
+    private function labNextAction(LabOrderStatus $status, LabOrderPaymentStatus $paymentStatus): array
+    {
+        if (in_array($status, [LabOrderStatus::Rejected, LabOrderStatus::Cancelled], true)) {
+            return ['key' => 'closed', 'label_ar' => 'الطلب مغلق', 'label_en' => 'Order closed'];
+        }
+
+        if ($this->labCanUploadProof($status, $paymentStatus)) {
+            return ['key' => 'upload_proof', 'label_ar' => 'ارفع إثبات الدفع', 'label_en' => 'Upload payment proof'];
+        }
+
+        if ($this->labCanPay($status, $paymentStatus)) {
+            return ['key' => 'pay', 'label_ar' => 'اختار طريقة الدفع', 'label_en' => 'Choose payment method'];
+        }
+
+        if ($paymentStatus === LabOrderPaymentStatus::PendingPaymentReview) {
+            return ['key' => 'wait_admin_review', 'label_ar' => 'الدفع في انتظار مراجعة الأدمن', 'label_en' => 'Payment is under admin review'];
+        }
+
+        return match ($status) {
+            LabOrderStatus::LabReview => ['key' => 'wait_provider_review', 'label_ar' => 'المعمل بيراجع الطلب', 'label_en' => 'Lab is reviewing the order'],
+            LabOrderStatus::Paid, LabOrderStatus::SampleScheduled => ['key' => 'wait_sample', 'label_ar' => 'في انتظار جمع العينة', 'label_en' => 'Waiting for sample collection'],
+            LabOrderStatus::SampleCollected, LabOrderStatus::Processing => ['key' => 'wait_processing', 'label_ar' => 'جاري التحليل', 'label_en' => 'Processing'],
+            LabOrderStatus::ResultReady => ['key' => 'view_result_metadata', 'label_ar' => 'اعرض بيانات النتيجة', 'label_en' => 'View result metadata'],
+            LabOrderStatus::Completed => ['key' => 'completed', 'label_ar' => 'الطلب مكتمل', 'label_en' => 'Order completed'],
+            LabOrderStatus::Rejected, LabOrderStatus::Cancelled => ['key' => 'closed', 'label_ar' => 'الطلب مغلق', 'label_en' => 'Order closed'],
+            default => ['key' => 'none', 'label_ar' => 'لا يوجد إجراء مطلوب الآن', 'label_en' => 'No action needed now'],
+        };
     }
 
     private function gymBookingPayload(GymBooking $booking): array

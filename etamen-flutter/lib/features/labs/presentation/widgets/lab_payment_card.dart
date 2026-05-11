@@ -25,6 +25,7 @@ class LabPaymentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final isArabic = AppLocalizations.of(context).isArabic;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -46,7 +47,7 @@ class LabPaymentCard extends StatelessWidget {
                 if (paymentStatus != null)
                   PaymentStatusBadge(status: paymentStatus!.status)
                 else if (order.paymentStatus != null)
-                  Text(order.paymentStatus!),
+                  Text(order.paymentStatusLabel(isArabic: isArabic)),
               ],
             ),
             const SizedBox(height: 12),
@@ -59,7 +60,8 @@ class LabPaymentCard extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                 ),
               )
-            else if (order.paymentId != null)
+            else if (order.paymentId != null &&
+                (order.canPay || order.canUploadProof))
               AppButton(
                 label: l10n.get('continuePayment'),
                 onPressed: () => context.push(
@@ -83,7 +85,8 @@ class LabPaymentCard extends StatelessWidget {
               )
             else
               Text(
-                l10n.get('labWaitingReview'),
+                order.nextActionLabel(isArabic: isArabic) ??
+                    l10n.get('labWaitingReview'),
                 style: const TextStyle(color: AppColors.muted),
               ),
           ],

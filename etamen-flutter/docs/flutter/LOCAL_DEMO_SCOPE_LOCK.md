@@ -496,6 +496,42 @@ Still not approved:
 - external users.
 - live payments or live refunds.
 
+## Sprint 68 Local Pharmacy/Lab History Lock
+
+Sprint 68 is accepted for local demo scope only.
+
+Decision:
+
+```text
+LOCAL_PHARMACY_LAB_HISTORY_POLISH_ACCEPTED
+```
+
+Accepted locally:
+
+- pharmacy/lab patient order-history filters and timeline/status UX.
+- provider pharmacy/lab history filters and safe action panels.
+- admin payment review context labels for pharmacy/lab.
+- limited staff friendly no-permission state.
+- local seed states for order-history demos.
+- no raw prescription/result paths, no secrets, no payment config, and no medical interpretation.
+
+Evidence:
+
+- backend `269 tests / 2333 assertions`.
+- Flutter `199 tests`.
+- screenshots `I:/Etamen/.tmp/sprint68-local-pharmacy-lab-history-polish/`.
+- APK `I:/Etamen/.tmp/etamen-local-pharmacy-lab-history-polish.apk`.
+
+Still not approved:
+
+- staging readiness.
+- production readiness.
+- public launch.
+- app-store release.
+- external users.
+- live payments or live refunds.
+- medical interpretation.
+
 Next local product recommendation:
 
 - continue local patient-flow polish around pharmacy/lab cart ergonomics, order history filters, and demo evidence.

@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class ProviderOperationListPage extends ConsumerWidget {
+class ProviderOperationListPage extends ConsumerStatefulWidget {
   const ProviderOperationListPage({
     required this.providerId,
     required this.section,
@@ -23,17 +23,33 @@ class ProviderOperationListPage extends ConsumerWidget {
   final String section;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final config = providerOperationSection(section);
+  ConsumerState<ProviderOperationListPage> createState() =>
+      _ProviderOperationListPageState();
+}
+
+class _ProviderOperationListPageState
+    extends ConsumerState<ProviderOperationListPage> {
+  String? _selectedStatus;
+
+  @override
+  Widget build(BuildContext context) {
+    final config = providerOperationSection(widget.section);
     final isArabic = AppLocalizations.of(context).isArabic;
     final args = ProviderOperationArgs(
-      providerId: providerId,
+      providerId: widget.providerId,
       section: config.section,
     );
     final state = ref.watch(providerOperationListControllerProvider(args));
     final controller = ref.read(
       providerOperationListControllerProvider(args).notifier,
     );
+    final filterStatuses = _statusesForSection(config.section);
+    final items = _selectedStatus == null
+        ? state.items
+        : state.items
+              .where((item) => item.status == _selectedStatus)
+              .toList(growable: false);
+    final isEmpty = !state.isLoading && state.error == null && items.isEmpty;
 
     return AppScaffold(
       title: config.title(isArabic),
@@ -45,11 +61,21 @@ class ProviderOperationListPage extends ConsumerWidget {
           children: [
             _SectionIntro(config: config),
             const SizedBox(height: 12),
+            if (filterStatuses.isNotEmpty) ...[
+              _ProviderStatusFilterChips(
+                statuses: filterStatuses,
+                selected: _selectedStatus,
+                onSelected: (status) => setState(() {
+                  _selectedStatus = status;
+                }),
+              ),
+              const SizedBox(height: 12),
+            ],
             if (state.isLoading)
               const LoadingView()
             else if (state.error != null)
               ErrorView(message: state.error!.message, onRetry: controller.load)
-            else if (state.isEmpty)
+            else if (isEmpty)
               EmptyView(
                 message: isArabic
                     ? 'لا توجد بيانات متاحة لهذا القسم الآن.'
@@ -57,14 +83,14 @@ class ProviderOperationListPage extends ConsumerWidget {
                 icon: _iconFor(config.iconKey),
               )
             else
-              for (final item in state.items)
+              for (final item in items)
                 _OperationCard(
                   item: item,
                   detailsEnabled: config.detailsEnabled,
                   onTap: config.detailsEnabled
                       ? () => context.push(
                           RouteNames.providerOperationDetails(
-                            providerId,
+                            widget.providerId,
                             config.section,
                             item.id,
                           ),
@@ -103,6 +129,47 @@ class _SectionIntro extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ProviderStatusFilterChips extends StatelessWidget {
+  const _ProviderStatusFilterChips({
+    required this.statuses,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  final List<String> statuses;
+  final String? selected;
+  final ValueChanged<String?> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final isArabic = AppLocalizations.of(context).isArabic;
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: 8),
+            child: FilterChip(
+              selected: selected == null,
+              label: Text(isArabic ? 'الكل' : 'All'),
+              onSelected: (_) => onSelected(null),
+            ),
+          ),
+          for (final status in statuses)
+            Padding(
+              padding: const EdgeInsetsDirectional.only(end: 8),
+              child: FilterChip(
+                selected: selected == status,
+                label: Text(friendlyStatus(status, isArabic)),
+                onSelected: (_) => onSelected(status),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -161,5 +228,33 @@ IconData _iconFor(String key) {
     'availability' => Icons.schedule_outlined,
     'sessions' => Icons.sports_outlined,
     _ => Icons.business_center_outlined,
+  };
+}
+
+List<String> _statusesForSection(String section) {
+  return switch (section) {
+    'pharmacy/orders' => const [
+      'pharmacy_review',
+      'awaiting_payment',
+      'paid',
+      'preparing',
+      'ready_for_pickup',
+      'out_for_delivery',
+      'delivered',
+      'rejected',
+      'cancelled',
+    ],
+    'lab/orders' => const [
+      'lab_review',
+      'awaiting_payment',
+      'accepted',
+      'sample_collected',
+      'processing',
+      'result_ready',
+      'completed',
+      'rejected',
+      'cancelled',
+    ],
+    _ => const [],
   };
 }

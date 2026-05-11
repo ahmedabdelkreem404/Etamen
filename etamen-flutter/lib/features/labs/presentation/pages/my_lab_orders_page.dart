@@ -81,11 +81,20 @@ class _FilterChips extends StatelessWidget {
       LabOrderFilter.all => l10n.get('all'),
       LabOrderFilter.review => l10n.get('labReview'),
       LabOrderFilter.awaitingPayment => l10n.get('awaitingPayment'),
-      LabOrderFilter.paid => l10n.get('paid'),
-      LabOrderFilter.inProgress => l10n.get('labProcessing'),
+      LabOrderFilter.accepted => _copy(context, 'تم القبول', 'Accepted'),
+      LabOrderFilter.sampleCollected => _copy(
+        context,
+        'جمع العينة',
+        'Sample collected',
+      ),
+      LabOrderFilter.processing => l10n.get('labProcessing'),
       LabOrderFilter.resultReady => l10n.get('resultReady'),
       LabOrderFilter.completed => l10n.get('completed'),
       LabOrderFilter.rejected => l10n.get('rejected'),
     };
+  }
+
+  String _copy(BuildContext context, String ar, String en) {
+    return AppLocalizations.of(context).isArabic ? ar : en;
   }
 }

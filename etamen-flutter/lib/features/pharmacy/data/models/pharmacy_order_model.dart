@@ -18,6 +18,16 @@ class PharmacyOrderModel extends PharmacyOrder {
     super.createdAt,
     super.prescription,
     super.notes,
+    super.statusLabelAr,
+    super.statusLabelEn,
+    super.paymentStatusLabelAr,
+    super.paymentStatusLabelEn,
+    super.serverCanCancel,
+    super.serverCanPay,
+    super.serverCanUploadProof,
+    super.nextActionKey,
+    super.nextActionLabelAr,
+    super.nextActionLabelEn,
   });
 
   factory PharmacyOrderModel.fromJson(Map<String, dynamic> json) {
@@ -56,6 +66,16 @@ class PharmacyOrderModel extends PharmacyOrder {
           ? null
           : PharmacyPrescriptionModel.fromJson(prescription),
       notes: json['notes']?.toString(),
+      statusLabelAr: json['status_label_ar']?.toString(),
+      statusLabelEn: json['status_label_en']?.toString(),
+      paymentStatusLabelAr: json['payment_status_label_ar']?.toString(),
+      paymentStatusLabelEn: json['payment_status_label_en']?.toString(),
+      serverCanCancel: _toBool(json['can_cancel']),
+      serverCanPay: _toBool(json['can_pay']),
+      serverCanUploadProof: _toBool(json['can_upload_proof']),
+      nextActionKey: json['next_action_key']?.toString(),
+      nextActionLabelAr: json['next_action_label_ar']?.toString(),
+      nextActionLabelEn: json['next_action_label_en']?.toString(),
     );
   }
 
@@ -71,5 +91,15 @@ class PharmacyOrderModel extends PharmacyOrder {
     if (value == null) return null;
     if (value is num) return value.toInt();
     return int.tryParse(value.toString());
+  }
+
+  static bool? _toBool(Object? value) {
+    if (value == null) return null;
+    if (value is bool) return value;
+    if (value is num) return value != 0;
+    final text = value.toString().toLowerCase();
+    if (text == 'true' || text == '1') return true;
+    if (text == 'false' || text == '0') return false;
+    return null;
   }
 }
