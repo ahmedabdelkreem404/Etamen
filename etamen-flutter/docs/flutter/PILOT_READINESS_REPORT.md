@@ -1646,3 +1646,32 @@ Still blocked:
 - External users.
 - Live payment/refund gateway operation.
 - Legal/privacy/refund/support policy approval.
+
+## Sprint 61 Local Final Demo Package
+
+Sprint 61 locks a final internal local demo package.
+
+Result:
+
+```text
+LOCAL_FINAL_DEMO_PACKAGE_ACCEPTED
+```
+
+Artifacts:
+
+```text
+I:/Etamen/.tmp/etamen-local-final-demo.apk
+C:/Users/Ahmed Abdelkareem/OneDrive/Desktop/Etamen_Android_Website_Ready/etamen-local-final-demo.apk
+I:/Etamen/.tmp/sprint61-local-final-demo/
+```
+
+Added:
+
+- local final regression matrix.
+- local demo accounts docs.
+- Arabic-first local demo walkthrough.
+- internal handoff docs.
+- known limitations before staging.
+- final local security sweep.
+
+This remains internal/local only. Staging, production, public launch, app-store release, live Paymob, live FCM, and external users are still not approved.

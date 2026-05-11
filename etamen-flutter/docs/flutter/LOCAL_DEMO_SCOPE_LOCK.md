@@ -336,3 +336,33 @@ Still not approved:
 - real customer data
 - server backup/restore validation
 - disaster recovery
+
+## Sprint 61 Final Local Demo Lock
+
+Sprint 61 packages the accepted local system for internal demos only.
+
+Accepted local artifacts:
+
+- final regression matrix
+- demo accounts docs
+- local demo walkthrough guide
+- internal handoff docs
+- known limitations before staging
+- final APK
+- final screenshot set
+- final security sweep
+
+Decision:
+
+```text
+LOCAL_FINAL_DEMO_PACKAGE_ACCEPTED
+```
+
+Hard lock:
+
+- no staging claim
+- no production claim
+- no public launch claim
+- no app-store claim
+- no external user invitations
+- no live payment/refund claims

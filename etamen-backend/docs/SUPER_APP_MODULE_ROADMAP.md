@@ -677,3 +677,38 @@ Still not approved:
 Next roadmap gate:
 
 - either restore server access and run a backup-first staging recovery sprint, or continue local-only SOP/QA hardening without external users.
+
+# Sprint 61 Local Final Demo Package
+
+Sprint 61 creates the final local-only demo package and regression lock. No staging, Hostinger, SSH, deployment, new product vertical, or major feature work happened.
+
+Accepted locally:
+
+- final regression matrix
+- local demo account docs
+- internal handoff docs
+- known limitations before staging
+- final APK artifact
+- final screenshot set
+- final local security sweep
+
+Decision:
+
+```text
+LOCAL_FINAL_DEMO_PACKAGE_ACCEPTED
+```
+
+Still blocked:
+
+- Hostinger/staging
+- production/public launch
+- app-store release
+- external users
+- live Paymob/live FCM
+- legal/privacy/refund approvals
+- load testing
+- server backup/restore and disaster recovery
+
+Next roadmap gate:
+
+- server access recovery and staging deployment after backup, or local-only polish without external users.
