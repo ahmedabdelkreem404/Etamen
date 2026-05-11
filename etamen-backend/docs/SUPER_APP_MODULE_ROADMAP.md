@@ -746,3 +746,38 @@ Still blocked:
 Next roadmap gate:
 
 - restore server access and run a backup-first staging deployment/recovery sprint, or keep demos local-only.
+
+# Sprint 63 Local Client/Investor Demo Polish
+
+Sprint 63 prepares a polished local-only client/investor demo pack. No staging, Hostinger, SSH, deployment, product vertical, major feature, or app redesign happened.
+
+Accepted locally:
+
+- client/investor narrative
+- 10-minute demo talk track
+- objection handling guide
+- Arabic product module map
+- demo risk register
+- local demo fallback plan
+- rebuilt local APK artifact
+- local screenshot pack
+
+Decision:
+
+```text
+LOCAL_CLIENT_DEMO_POLISH_ACCEPTED
+```
+
+Scope lock:
+
+- local-only demo pack
+- no staging readiness
+- no production readiness
+- no public launch claim
+- no app-store claim
+- no external users
+- no live payment/refund claim
+
+Next roadmap gate:
+
+- server access plus backup-first staging deployment and readiness/data verification.

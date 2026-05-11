@@ -399,3 +399,38 @@ This still means:
 Next real gate:
 
 - server access plus backup-first staging deploy and readiness/data verification.
+
+## Sprint 63 Client/Investor Demo Polish Lock
+
+Sprint 63 improves how the local demo is presented to clients or investors without changing launch approval.
+
+Accepted local polish artifacts:
+
+- client/investor narrative
+- demo talk track
+- objection handling
+- module map
+- demo risk register
+- fallback plan
+- local client demo APK
+- local client demo screenshot pack
+
+Decision:
+
+```text
+LOCAL_CLIENT_DEMO_POLISH_ACCEPTED
+```
+
+This still means:
+
+- local demo only
+- not staging ready
+- not production ready
+- not public launch ready
+- not app-store ready
+- no external users
+- no live payments or live refunds
+
+Next real gate:
+
+- server access, backup, staging deploy, readiness/data checks, then staging real-phone QA.
