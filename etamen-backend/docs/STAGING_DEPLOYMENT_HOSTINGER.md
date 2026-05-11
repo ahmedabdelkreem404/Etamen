@@ -591,3 +591,56 @@ ssh -i ~/.ssh/etamen_staging_codex -o BatchMode=yes -o ConnectTimeout=10 -o Stri
 ```
 
 If access works, proceed next sprint to backup-first deployment recovery.
+
+---
+
+# Sprint 65 Staging Access Gate
+
+Date: 2026-05-11
+
+Sprint 65 was access verification only. No deployment or server write was performed.
+
+## Access Method Tried
+
+SSH key-based access with the dedicated local key:
+
+```text
+~/.ssh/etamen_staging_codex
+```
+
+Target:
+
+```text
+u797172084@89.116.147.138:65002
+```
+
+## Result
+
+Safe SSH verification failed:
+
+```text
+Permission denied (publickey,password).
+```
+
+No password retry was attempted. No `.env` was read. No migration, seed, composer install, cache clear, storage link, deploy, or server file write occurred.
+
+## Public API Baseline
+
+Current public staging API baseline:
+
+- health: 200, status ok.
+- readiness: 500 JSON error envelope.
+- payment methods: 200 but empty.
+- doctors: 200 with one public item.
+- hospitals: 404.
+- radiology scans: 200 but empty.
+- gyms: 404.
+- coaches: 404.
+
+## Access Gate Decision
+
+```text
+STAGING_ACCESS_STILL_BLOCKED
+```
+
+Next required action remains Hostinger SSH/access repair. Deployment must not resume until safe access and backup feasibility are confirmed.

@@ -466,3 +466,35 @@ This still means:
 Next real gate:
 
 - restore server access safely, back up staging, deploy main, verify readiness/data/security, then run staging real-phone QA.
+
+## Sprint 65 Staging Access Gate Lock
+
+Sprint 65 did not change the local demo scope. It only checked whether staging access was usable.
+
+Decision:
+
+```text
+STAGING_ACCESS_STILL_BLOCKED
+```
+
+Result:
+
+- SSH key access still failed.
+- no server files were touched.
+- no `.env` was read.
+- no deploy, migration, seed, cache clear, Composer install, storage link, or staging APK build happened.
+- public staging API remains incomplete: readiness 500, payment methods empty, hospitals/gyms/coaches 404, radiology scans empty.
+
+This still means:
+
+- local demo only
+- not staging ready
+- not production ready
+- not public launch ready
+- not app-store ready
+- no external users
+- no live payments or live refunds
+
+Next real gate:
+
+- fix Hostinger access, verify backup feasibility, then run backup-first staging recovery.

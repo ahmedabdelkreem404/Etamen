@@ -1789,3 +1789,39 @@ Scope remains:
 - no live payments/refunds.
 
 Next gate remains server access plus backup-first staging deployment, readiness/data recovery, and staging real-phone QA.
+
+## Sprint 65 Staging Access Gate
+
+Sprint 65 tested staging access only.
+
+Result:
+
+```text
+STAGING_ACCESS_STILL_BLOCKED
+```
+
+SSH key-based access using `~/.ssh/etamen_staging_codex` still failed with a safe `Permission denied (publickey,password)` result. No password retry was attempted.
+
+No server files were touched. No `.env` was read. No deploy, migration, seed, Composer install, cache clear, storage link, or staging APK build happened.
+
+Public API baseline remains incomplete:
+
+- `/api/v1/system/health`: 200.
+- `/api/v1/system/readiness`: 500 JSON error envelope.
+- `/api/v1/payment-methods`: 200 but empty.
+- `/api/v1/doctors`: 200 with one item.
+- `/api/v1/hospitals`: 404.
+- `/api/v1/radiology/scans`: 200 but empty.
+- `/api/v1/gyms`: 404.
+- `/api/v1/coaches`: 404.
+
+Scope remains:
+
+- local/internal/client demo only.
+- no staging readiness.
+- no production readiness.
+- no public launch.
+- no app-store release.
+- no external users.
+
+Next sprint must repair Hostinger access first, then run backup-first staging deployment recovery.
