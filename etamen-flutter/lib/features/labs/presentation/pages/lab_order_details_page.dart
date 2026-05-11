@@ -44,7 +44,9 @@ class LabOrderDetailsPage extends ConsumerWidget {
                       order: state.order!,
                       paymentStatus: state.paymentStatus,
                       isCreatingPayment: state.isCreatingPayment,
+                      isCancelling: state.isCancelling,
                       onCreatePayment: controller.createPayment,
+                      onCancel: controller.cancel,
                     ),
                   if (state.error != null) ...[
                     const SizedBox(height: 12),
@@ -65,13 +67,17 @@ class _Details extends ConsumerWidget {
     required this.order,
     required this.paymentStatus,
     required this.isCreatingPayment,
+    required this.isCancelling,
     required this.onCreatePayment,
+    required this.onCancel,
   });
 
   final LabOrder order;
   final PaymentStatusDetails? paymentStatus;
   final bool isCreatingPayment;
+  final bool isCancelling;
   final Future<int?> Function() onCreatePayment;
+  final Future<bool> Function({String? reason}) onCancel;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -121,8 +127,21 @@ class _Details extends ConsumerWidget {
                   ),
                 _InfoLine(
                   label: l10n.get('paymentStatus'),
-                  value: order.paymentStatus ?? '-',
+                  value: _friendlyLabPaymentStatus(
+                    context,
+                    order.paymentStatus,
+                  ),
                 ),
+                if (order.paymentStatus == 'pending_payment_review') ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    _copy(
+                      context,
+                      'الدفع في انتظار مراجعة الأدمن.',
+                      'Payment is waiting for admin review.',
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -134,6 +153,22 @@ class _Details extends ConsumerWidget {
           isCreatingPayment: isCreatingPayment,
           onCreatePayment: onCreatePayment,
         ),
+        if (order.canCancel) ...[
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: isCancelling ? null : () => _confirmCancel(context),
+            icon: const Icon(Icons.cancel_outlined),
+            label: Text(
+              isCancelling
+                  ? _copy(context, 'جاري الإلغاء...', 'Cancelling...')
+                  : _copy(
+                      context,
+                      'إلغاء الطلب قبل الدفع',
+                      'Cancel before payment',
+                    ),
+            ),
+          ),
+        ],
         const SizedBox(height: 12),
         Card(
           child: Padding(
@@ -213,6 +248,72 @@ class _Details extends ConsumerWidget {
       'branch_visit' => l10n.get('branchVisit'),
       _ => value ?? '-',
     };
+  }
+
+  String _friendlyLabPaymentStatus(BuildContext context, String? status) {
+    final isArabic = AppLocalizations.of(context).isArabic;
+    return switch (status) {
+      'unpaid' => isArabic ? 'لم يتم الدفع' : 'Unpaid',
+      'pending_payment' => isArabic ? 'في انتظار الدفع' : 'Awaiting payment',
+      'pending_payment_review' =>
+        isArabic ? 'في انتظار مراجعة الأدمن' : 'Pending admin review',
+      'paid' => isArabic ? 'تم الدفع' : 'Paid',
+      'failed' => isArabic ? 'فشل الدفع' : 'Payment failed',
+      'refunded' => isArabic ? 'تم الاسترداد' : 'Refunded',
+      _ => status ?? '-',
+    };
+  }
+
+  String _copy(BuildContext context, String ar, String en) {
+    return AppLocalizations.of(context).isArabic ? ar : en;
+  }
+
+  Future<void> _confirmCancel(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final reasonController = TextEditingController();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(_copy(context, 'تأكيد إلغاء الطلب', 'Cancel order')),
+          content: TextField(
+            controller: reasonController,
+            minLines: 2,
+            maxLines: 3,
+            decoration: InputDecoration(
+              labelText: _copy(context, 'سبب اختياري', 'Optional reason'),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(l10n.get('cancel')),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(_copy(context, 'إلغاء الطلب', 'Cancel order')),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !context.mounted) return;
+    final success = await onCancel(reason: reasonController.text);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          success
+              ? _copy(
+                  context,
+                  'تم إلغاء الطلب محليا.',
+                  'Order cancelled locally.',
+                )
+              : _copy(context, 'تعذر إلغاء الطلب.', 'Could not cancel order.'),
+        ),
+      ),
+    );
   }
 
   String _formatDate(BuildContext context, DateTime? value) {

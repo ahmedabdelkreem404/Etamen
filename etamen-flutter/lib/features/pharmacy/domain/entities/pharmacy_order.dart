@@ -92,4 +92,13 @@ class PharmacyOrder {
         (status == PharmacyOrderStatus.accepted ||
             status == PharmacyOrderStatus.awaitingPayment);
   }
+
+  bool get canCancel {
+    return paymentId == null &&
+        (paymentStatus == null || paymentStatus == 'unpaid') &&
+        (status == PharmacyOrderStatus.pending ||
+            status == PharmacyOrderStatus.pharmacyReview ||
+            status == PharmacyOrderStatus.accepted ||
+            status == PharmacyOrderStatus.awaitingPayment);
+  }
 }

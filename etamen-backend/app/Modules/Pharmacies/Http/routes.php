@@ -18,6 +18,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/pharmacy/orders', [PatientPharmacyOrderController::class, 'index']);
     Route::get('/pharmacy/orders/{order}', [PatientPharmacyOrderController::class, 'show']);
     Route::post('/pharmacy/orders/{order}/pay', [PatientPharmacyOrderController::class, 'pay'])->middleware('throttle:sensitive-action');
+    Route::post('/pharmacy/orders/{order}/cancel', [PatientPharmacyOrderController::class, 'cancel'])->middleware('throttle:sensitive-action');
 });
 
 Route::prefix('provider/pharmacy')->middleware(['auth:sanctum', 'provider.user'])->group(function (): void {

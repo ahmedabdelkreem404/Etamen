@@ -264,6 +264,27 @@ class _PayableStatusLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (status.pharmacyOrderStatus != null ||
+        status.pharmacyPaymentStatus != null) {
+      return _InfoLine(
+        label: uxCopy(context, 'حالة طلب الصيدلية', 'Pharmacy order status'),
+        value: _friendlyPharmacyStatus(
+          context,
+          status.pharmacyOrderStatus,
+          status.pharmacyPaymentStatus,
+        ),
+      );
+    }
+    if (status.labOrderStatus != null || status.labPaymentStatus != null) {
+      return _InfoLine(
+        label: uxCopy(context, 'حالة طلب المعمل', 'Lab order status'),
+        value: _friendlyLabStatus(
+          context,
+          status.labOrderStatus,
+          status.labPaymentStatus,
+        ),
+      );
+    }
     if (status.radiologyOrderStatus != null) {
       return _InfoLine(
         label: uxCopy(context, 'حالة طلب الأشعة', 'Radiology status'),
@@ -287,6 +308,66 @@ class _PayableStatusLine extends StatelessWidget {
       value: friendlyAppointmentStatus(context, status.appointmentStatus),
     );
   }
+}
+
+String _friendlyPharmacyStatus(
+  BuildContext context,
+  String? orderStatus,
+  String? paymentStatus,
+) {
+  final isArabic = AppLocalizations.of(context).isArabic;
+  if (paymentStatus == 'pending_payment_review') {
+    return isArabic ? 'الدفع في انتظار مراجعة الأدمن' : 'Payment under review';
+  }
+  if (paymentStatus == 'pending_payment') {
+    return isArabic ? 'في انتظار الدفع' : 'Awaiting payment';
+  }
+  if (paymentStatus == 'paid') return isArabic ? 'تم الدفع' : 'Paid';
+
+  return switch (orderStatus) {
+    'pharmacy_review' => isArabic ? 'في مراجعة الصيدلية' : 'Pharmacy review',
+    'accepted' ||
+    'awaiting_payment' => isArabic ? 'في انتظار الدفع' : 'Awaiting payment',
+    'paid' => isArabic ? 'تم الدفع' : 'Paid',
+    'preparing' => isArabic ? 'جاري التحضير' : 'Preparing',
+    'ready_for_pickup' => isArabic ? 'جاهز للاستلام' : 'Ready for pickup',
+    'out_for_delivery' => isArabic ? 'خرج للتوصيل' : 'Out for delivery',
+    'delivered' => isArabic ? 'تم التسليم' : 'Delivered',
+    'cancelled' => isArabic ? 'ملغي' : 'Cancelled',
+    'rejected' => isArabic ? 'مرفوض' : 'Rejected',
+    _ => isArabic ? 'غير متاح' : 'Unavailable',
+  };
+}
+
+String _friendlyLabStatus(
+  BuildContext context,
+  String? orderStatus,
+  String? paymentStatus,
+) {
+  final isArabic = AppLocalizations.of(context).isArabic;
+  if (paymentStatus == 'pending_payment_review') {
+    return isArabic ? 'الدفع في انتظار مراجعة الأدمن' : 'Payment under review';
+  }
+  if (paymentStatus == 'pending_payment') {
+    return isArabic ? 'في انتظار الدفع' : 'Awaiting payment';
+  }
+  if (paymentStatus == 'paid') return isArabic ? 'تم الدفع' : 'Paid';
+
+  return switch (orderStatus) {
+    'lab_review' => isArabic ? 'في مراجعة المعمل' : 'Lab review',
+    'accepted' ||
+    'awaiting_payment' => isArabic ? 'في انتظار الدفع' : 'Awaiting payment',
+    'paid' => isArabic ? 'تم الدفع' : 'Paid',
+    'sample_scheduled' =>
+      isArabic ? 'تم تحديد موعد العينة' : 'Sample scheduled',
+    'sample_collected' => isArabic ? 'تم سحب العينة' : 'Sample collected',
+    'processing' => isArabic ? 'قيد التحليل' : 'Processing',
+    'result_ready' => isArabic ? 'النتيجة جاهزة' : 'Result ready',
+    'completed' => isArabic ? 'مكتمل' : 'Completed',
+    'cancelled' => isArabic ? 'ملغي' : 'Cancelled',
+    'rejected' => isArabic ? 'مرفوض' : 'Rejected',
+    _ => isArabic ? 'غير متاح' : 'Unavailable',
+  };
 }
 
 String _friendlyRadiologyStatus(BuildContext context, String? status) {

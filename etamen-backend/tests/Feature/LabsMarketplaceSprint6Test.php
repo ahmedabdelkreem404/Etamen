@@ -272,6 +272,51 @@ class LabsMarketplaceSprint6Test extends TestCase
         $this->postJson('/api/v1/lab/orders/'.$order->id.'/pay')->assertUnprocessable();
     }
 
+    public function test_patient_can_cancel_own_unpaid_lab_order_before_payment_flow(): void
+    {
+        $patient = $this->patientUser();
+        $otherPatient = $this->patientUser('other-cancel-lab@example.com');
+        ['user' => $labUser, 'provider' => $provider] = $this->createLabProvider();
+        $test = $this->createLabTest($provider);
+        $order = $this->createLabOrder($patient, $provider, [
+            ['item_type' => LabOrderItemType::Test->value, 'test_id' => $test->id, 'quantity' => 1],
+        ]);
+
+        Sanctum::actingAs($labUser);
+        $this->patchJson('/api/v1/provider/lab/orders/'.$order->id.'/status', [
+            'status' => LabOrderStatus::Accepted->value,
+        ])->assertOk();
+
+        Sanctum::actingAs($otherPatient);
+        $this->postJson('/api/v1/lab/orders/'.$order->id.'/cancel', [
+            'reason' => 'Not mine.',
+        ])->assertForbidden();
+
+        Sanctum::actingAs($patient);
+        $this->postJson('/api/v1/lab/orders/'.$order->id.'/cancel', [
+            'reason' => 'Will reschedule.',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.order_status', LabOrderStatus::Cancelled->value)
+            ->assertJsonPath('data.payment_status', LabOrderPaymentStatus::Unpaid->value);
+
+        $this->assertNotNull($order->refresh()->cancelled_at);
+        $this->assertDatabaseHas('audit_logs', ['action' => 'lab_order.cancelled_by_patient']);
+    }
+
+    public function test_patient_cannot_cancel_lab_order_after_payment_flow_started(): void
+    {
+        $context = $this->createAcceptedLabOrderWithPayment(grandTotal: 300);
+
+        Sanctum::actingAs($context['patient']);
+        $this->postJson('/api/v1/lab/orders/'.$context['order']->id.'/cancel', [
+            'reason' => 'Too late.',
+        ])->assertUnprocessable();
+
+        $this->assertSame(LabOrderStatus::AwaitingPayment, $context['order']->refresh()->order_status);
+        $this->assertSame(LabOrderPaymentStatus::PendingPayment, $context['order']->payment_status);
+    }
+
     public function test_paymob_verification_marks_lab_order_paid_and_is_idempotent(): void
     {
         $this->createCommissionRule(percentage: 10);

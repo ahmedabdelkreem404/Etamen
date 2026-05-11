@@ -49,4 +49,22 @@ class PatientPharmacyOrderController extends ApiController
 
         return $this->success(new PharmacyOrderResource($order->load(['items', 'payment.paymentMethod'])), 'Pharmacy order payment created.');
     }
+
+    public function cancel(Request $request, PharmacyOrder $order)
+    {
+        $validated = $request->validate([
+            'reason' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $order = $this->orderService->patientCancel(
+            $request->user(),
+            $order,
+            $validated['reason'] ?? null,
+        );
+
+        return $this->success(
+            new PharmacyOrderResource($order),
+            'Pharmacy order cancelled.',
+        );
+    }
 }

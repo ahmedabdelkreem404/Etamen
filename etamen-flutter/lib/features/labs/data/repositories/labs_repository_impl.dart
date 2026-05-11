@@ -51,6 +51,11 @@ class LabsRepositoryImpl implements LabsRepository {
   }
 
   @override
+  Future<ApiResult<LabOrder>> cancelOrder(int orderId, {String? reason}) {
+    return _remoteDataSource.cancelOrder(orderId, reason: reason);
+  }
+
+  @override
   Future<ApiResult<LabResultDownload>> downloadResult(int resultId) {
     return _remoteDataSource.downloadResult(resultId);
   }

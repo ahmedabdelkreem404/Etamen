@@ -245,10 +245,30 @@ void main() {
   test('lab result download uses authorized backend endpoint only', () {
     expect(ApiEndpoints.labResultDownload(8), '/lab/results/8/download');
   });
+
+  test('lab order cancel endpoint and model stay local order scoped', () async {
+    final remote = FakeLabsRemoteDataSource();
+    final repository = LabsRepositoryImpl(remote);
+
+    final result = await repository.cancelOrder(77, reason: 'Reschedule');
+
+    expect(ApiEndpoints.labOrderCancel(77), '/lab/orders/77/cancel');
+    expect(remote.cancelledOrderId, 77);
+    expect(remote.cancelReason, 'Reschedule');
+    result.when(
+      success: (order) {
+        expect(order.status, LabOrderStatus.cancelled);
+        expect(order.canCancel, false);
+      },
+      failure: (_) => fail('Expected cancel success'),
+    );
+  });
 }
 
 class FakeLabsRemoteDataSource implements LabsRemoteDataSource {
   CreateLabOrderRequest? createdRequest;
+  int? cancelledOrderId;
+  String? cancelReason;
 
   @override
   Future<ApiResult<LabOrderModel>> createOrder(
@@ -276,6 +296,23 @@ class FakeLabsRemoteDataSource implements LabsRemoteDataSource {
           'items': const [],
         }),
       ),
+    );
+  }
+
+  @override
+  Future<ApiResult<LabOrderModel>> cancelOrder(
+    int orderId, {
+    String? reason,
+  }) async {
+    cancelledOrderId = orderId;
+    cancelReason = reason;
+    return ApiSuccess(
+      LabOrderModel.fromJson({
+        'id': orderId,
+        'order_status': 'cancelled',
+        'payment_status': 'unpaid',
+        'items': const [],
+      }),
     );
   }
 
@@ -333,6 +370,13 @@ class FailingLabsRepository implements LabsRepository {
 
   @override
   Future<ApiResult<LabOrderPayment>> createOrderPayment(int orderId) async {
+    return const ApiFailure(
+      ApiError(message: 'Not used', type: ApiErrorType.unknown),
+    );
+  }
+
+  @override
+  Future<ApiResult<LabOrder>> cancelOrder(int orderId, {String? reason}) async {
     return const ApiFailure(
       ApiError(message: 'Not used', type: ApiErrorType.unknown),
     );

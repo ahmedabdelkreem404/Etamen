@@ -97,4 +97,12 @@ class LabOrder {
         (status == LabOrderStatus.accepted ||
             status == LabOrderStatus.awaitingPayment);
   }
+
+  bool get canCancel {
+    return paymentId == null &&
+        (paymentStatus == null || paymentStatus == 'unpaid') &&
+        (status == LabOrderStatus.labReview ||
+            status == LabOrderStatus.accepted ||
+            status == LabOrderStatus.awaitingPayment);
+  }
 }

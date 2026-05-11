@@ -75,6 +75,10 @@ class PaymentStatusDetails {
     this.methodType,
     this.appointmentStatus,
     this.radiologyOrderStatus,
+    this.pharmacyOrderStatus,
+    this.pharmacyPaymentStatus,
+    this.labOrderStatus,
+    this.labPaymentStatus,
     this.gymBookingStatus,
     this.coachBookingStatus,
     this.invoice,
@@ -92,6 +96,10 @@ class PaymentStatusDetails {
   final int? payableId;
   final String? appointmentStatus;
   final String? radiologyOrderStatus;
+  final String? pharmacyOrderStatus;
+  final String? pharmacyPaymentStatus;
+  final String? labOrderStatus;
+  final String? labPaymentStatus;
   final String? gymBookingStatus;
   final String? coachBookingStatus;
   final Map<String, dynamic>? invoice;

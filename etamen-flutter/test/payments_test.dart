@@ -99,6 +99,42 @@ void main() {
     expect(coachStatus.coachBookingStatus, 'confirmed');
   });
 
+  test('PaymentStatus parsing maps pharmacy and lab order statuses', () {
+    final pharmacyStatus = PaymentStatusModel.fromJson({
+      'id': 401,
+      'status': 'pending_review',
+      'amount': '180.00',
+      'currency': 'EGP',
+      'payable': {'type': 'PharmacyOrder', 'id': 81},
+      'pharmacy_order': {
+        'id': 81,
+        'order_number': 'PH-81',
+        'order_status': 'awaiting_payment',
+        'payment_status': 'pending_payment_review',
+      },
+    });
+    final labStatus = PaymentStatusModel.fromJson({
+      'id': 402,
+      'status': 'verified',
+      'amount': '450.00',
+      'currency': 'EGP',
+      'payable': {'type': 'LabOrder', 'id': 82},
+      'lab_order': {
+        'id': 82,
+        'order_number': 'LAB-82',
+        'order_status': 'result_ready',
+        'payment_status': 'paid',
+      },
+    });
+
+    expect(pharmacyStatus.payableId, 81);
+    expect(pharmacyStatus.pharmacyOrderStatus, 'awaiting_payment');
+    expect(pharmacyStatus.pharmacyPaymentStatus, 'pending_payment_review');
+    expect(labStatus.payableId, 82);
+    expect(labStatus.labOrderStatus, 'result_ready');
+    expect(labStatus.labPaymentStatus, 'paid');
+  });
+
   test('Payment enum mapping treats duplicate verified status as terminal', () {
     expect(PaymentStatusEnum.fromWire('verified'), PaymentStatusEnum.verified);
     expect(PaymentStatusEnum.verified.isTerminal, true);

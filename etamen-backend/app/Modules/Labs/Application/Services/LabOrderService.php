@@ -143,6 +143,43 @@ class LabOrderService
         });
     }
 
+    public function patientCancel(User $patient, LabOrder $order, ?string $reason = null): LabOrder
+    {
+        if ((int) $order->patient_user_id !== (int) $patient->id) {
+            throw new AuthorizationException('You cannot cancel this lab order.');
+        }
+
+        return DB::transaction(function () use ($patient, $order, $reason): LabOrder {
+            $order = LabOrder::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
+
+            if ($order->payment_id || $order->payment_status !== LabOrderPaymentStatus::Unpaid) {
+                throw ValidationException::withMessages([
+                    'payment_status' => ['This lab order already entered the payment flow. Please use support or refund flow.'],
+                ]);
+            }
+
+            if (! in_array($order->order_status, [
+                LabOrderStatus::LabReview,
+                LabOrderStatus::Accepted,
+                LabOrderStatus::AwaitingPayment,
+            ], true)) {
+                throw ValidationException::withMessages([
+                    'status' => ['This lab order cannot be cancelled by the patient now.'],
+                ]);
+            }
+
+            $order = $this->statusService->transition(
+                $order,
+                LabOrderStatus::Cancelled,
+                $patient,
+                'lab_order.cancelled_by_patient',
+                $reason ?: 'Patient cancelled before payment.',
+            );
+
+            return $order->refresh()->load(['items', 'lab', 'payment', 'results.file']);
+        });
+    }
+
     public function providerUpdateStatus(User $providerUser, LabOrder $order, LabOrderStatus $to, ?string $reason = null): LabOrder
     {
         return DB::transaction(function () use ($providerUser, $order, $to, $reason): LabOrder {

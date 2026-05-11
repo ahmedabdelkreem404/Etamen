@@ -27,4 +27,6 @@ abstract class PharmacyRepository {
   Future<ApiResult<PharmacyOrder>> getOrderDetails(int orderId);
 
   Future<ApiResult<PharmacyOrderPayment>> createOrderPayment(int orderId);
+
+  Future<ApiResult<PharmacyOrder>> cancelOrder(int orderId, {String? reason});
 }

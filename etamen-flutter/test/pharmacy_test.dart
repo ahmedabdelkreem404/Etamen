@@ -1,5 +1,6 @@
 import 'package:etamen_app/core/network/api_error.dart';
 import 'package:etamen_app/core/network/api_result.dart';
+import 'package:etamen_app/core/config/api_endpoints.dart';
 import 'package:etamen_app/core/routing/route_names.dart';
 import 'package:etamen_app/features/pharmacy/data/datasources/pharmacy_remote_data_source.dart';
 import 'package:etamen_app/features/pharmacy/data/models/create_pharmacy_order_request.dart';
@@ -227,10 +228,36 @@ void main() {
       '/payments/501/status?pharmacyOrderId=77',
     );
   });
+
+  test(
+    'pharmacy order cancel endpoint and model stay local order scoped',
+    () async {
+      final remote = FakePharmacyRemoteDataSource();
+      final repository = PharmacyRepositoryImpl(remote);
+
+      final result = await repository.cancelOrder(77, reason: 'Later');
+
+      expect(
+        ApiEndpoints.pharmacyOrderCancel(77),
+        '/pharmacy/orders/77/cancel',
+      );
+      expect(remote.cancelledOrderId, 77);
+      expect(remote.cancelReason, 'Later');
+      result.when(
+        success: (order) {
+          expect(order.status, PharmacyOrderStatus.cancelled);
+          expect(order.canCancel, false);
+        },
+        failure: (_) => fail('Expected cancel success'),
+      );
+    },
+  );
 }
 
 class FakePharmacyRemoteDataSource implements PharmacyRemoteDataSource {
   CreatePharmacyOrderRequest? createdRequest;
+  int? cancelledOrderId;
+  String? cancelReason;
 
   @override
   Future<ApiResult<PharmacyOrderModel>> createOrder(
@@ -260,6 +287,23 @@ class FakePharmacyRemoteDataSource implements PharmacyRemoteDataSource {
           'items': const [],
         }),
       ),
+    );
+  }
+
+  @override
+  Future<ApiResult<PharmacyOrderModel>> cancelOrder(
+    int orderId, {
+    String? reason,
+  }) async {
+    cancelledOrderId = orderId;
+    cancelReason = reason;
+    return ApiSuccess(
+      PharmacyOrderModel.fromJson({
+        'id': orderId,
+        'order_status': 'cancelled',
+        'payment_status': 'unpaid',
+        'items': const [],
+      }),
     );
   }
 
@@ -323,6 +367,16 @@ class FailingPharmacyRepository implements PharmacyRepository {
   Future<ApiResult<PharmacyOrderPayment>> createOrderPayment(
     int orderId,
   ) async {
+    return const ApiFailure(
+      ApiError(message: 'Not used', type: ApiErrorType.unknown),
+    );
+  }
+
+  @override
+  Future<ApiResult<PharmacyOrder>> cancelOrder(
+    int orderId, {
+    String? reason,
+  }) async {
     return const ApiFailure(
       ApiError(message: 'Not used', type: ApiErrorType.unknown),
     );

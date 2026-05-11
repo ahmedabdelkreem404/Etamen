@@ -52,6 +52,24 @@ class PatientLabOrderController extends ApiController
         return $this->success(new LabOrderResource($order->load(['items', 'payment.paymentMethod'])), 'Lab order payment created.');
     }
 
+    public function cancel(Request $request, LabOrder $order)
+    {
+        $validated = $request->validate([
+            'reason' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $order = $this->orderService->patientCancel(
+            $request->user(),
+            $order,
+            $validated['reason'] ?? null,
+        );
+
+        return $this->success(
+            new LabOrderResource($order),
+            'Lab order cancelled.',
+        );
+    }
+
     public function results(LabOrder $order)
     {
         $this->authorize('view', $order);

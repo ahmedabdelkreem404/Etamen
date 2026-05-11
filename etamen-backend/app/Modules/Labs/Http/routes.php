@@ -18,6 +18,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/lab/orders', [PatientLabOrderController::class, 'index']);
     Route::get('/lab/orders/{order}', [PatientLabOrderController::class, 'show']);
     Route::post('/lab/orders/{order}/pay', [PatientLabOrderController::class, 'pay'])->middleware('throttle:sensitive-action');
+    Route::post('/lab/orders/{order}/cancel', [PatientLabOrderController::class, 'cancel'])->middleware('throttle:sensitive-action');
     Route::get('/lab/orders/{order}/results', [PatientLabOrderController::class, 'results']);
     Route::get('/lab/results/{result}/download', [LabResultDownloadController::class, 'download']);
 });

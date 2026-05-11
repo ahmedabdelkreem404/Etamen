@@ -502,6 +502,28 @@ class PilotDemoSeeder extends Seeder
             ],
         );
 
+        foreach ([
+            ['sku' => 'PILOT-VITAMIN-D-DEMO', 'name' => 'Vitamin D Demo', 'price' => 95, 'rx' => false, 'stock' => 35],
+            ['sku' => 'PILOT-ORS-DEMO', 'name' => 'ORS Sachets Demo', 'price' => 25, 'rx' => false, 'stock' => 80],
+            ['sku' => 'PILOT-THERMOMETER-DEMO', 'name' => 'Digital Thermometer Demo', 'price' => 180, 'rx' => false, 'stock' => 18],
+            ['sku' => 'PILOT-ANTIBIOTIC-RX-DEMO', 'name' => 'Antibiotic RX Demo', 'price' => 160, 'rx' => true, 'stock' => 15],
+        ] as $product) {
+            PharmacyProduct::query()->updateOrCreate(
+                ['provider_id' => $provider->id, 'sku' => $product['sku']],
+                [
+                    'name_ar' => $product['name'],
+                    'name_en' => $product['name'],
+                    'description_ar' => 'Local demo pharmacy product for QA only.',
+                    'description_en' => 'Local demo pharmacy product for QA only.',
+                    'price' => $product['price'],
+                    'requires_prescription' => $product['rx'],
+                    'stock_quantity' => $product['stock'],
+                    'is_active' => true,
+                    'metadata' => ['pilot_demo' => true, 'sprint66' => true],
+                ],
+            );
+        }
+
         return $provider;
     }
 
@@ -576,6 +598,30 @@ class PilotDemoSeeder extends Seeder
                 'metadata' => ['pilot_demo' => true],
             ],
         );
+
+        foreach ([
+            ['code' => 'PILOT-LIVER-DEMO', 'name' => 'Liver Function Demo', 'price' => 210, 'hours' => 24],
+            ['code' => 'PILOT-KIDNEY-DEMO', 'name' => 'Kidney Function Demo', 'price' => 190, 'hours' => 24],
+            ['code' => 'PILOT-LIPID-DEMO', 'name' => 'Lipid Profile Demo', 'price' => 260, 'hours' => 24],
+            ['code' => 'PILOT-THYROID-DEMO', 'name' => 'Thyroid Profile Demo', 'price' => 320, 'hours' => 48],
+        ] as $test) {
+            LabTest::query()->updateOrCreate(
+                ['provider_id' => $provider->id, 'code' => $test['code']],
+                [
+                    'name_ar' => $test['name'],
+                    'name_en' => $test['name'],
+                    'description_ar' => 'Local demo lab test for QA only. No medical interpretation is included.',
+                    'description_en' => 'Local demo lab test for QA only. No medical interpretation is included.',
+                    'price' => $test['price'],
+                    'sample_type' => 'blood',
+                    'preparation_instructions_ar' => 'Demo preparation instructions only.',
+                    'preparation_instructions_en' => 'Demo preparation instructions only.',
+                    'result_time_hours' => $test['hours'],
+                    'is_active' => true,
+                    'metadata' => ['pilot_demo' => true, 'sprint66' => true],
+                ],
+            );
+        }
 
         $package = LabPackage::query()->updateOrCreate(
             ['provider_id' => $provider->id, 'name_en' => 'Basic Checkup Demo'],

@@ -150,6 +150,46 @@ class PharmacyOrderService
         });
     }
 
+    public function patientCancel(User $patient, PharmacyOrder $order, ?string $reason = null): PharmacyOrder
+    {
+        if ((int) $order->patient_user_id !== (int) $patient->id) {
+            throw new AuthorizationException('You cannot cancel this pharmacy order.');
+        }
+
+        return DB::transaction(function () use ($patient, $order, $reason): PharmacyOrder {
+            $order = PharmacyOrder::query()->with('items')->whereKey($order->id)->lockForUpdate()->firstOrFail();
+
+            if ($order->payment_id || $order->payment_status !== PharmacyOrderPaymentStatus::Unpaid) {
+                throw ValidationException::withMessages([
+                    'payment_status' => ['This pharmacy order already entered the payment flow. Please use support or refund flow.'],
+                ]);
+            }
+
+            if (! in_array($order->order_status, [
+                PharmacyOrderStatus::Pending,
+                PharmacyOrderStatus::PharmacyReview,
+                PharmacyOrderStatus::Accepted,
+                PharmacyOrderStatus::AwaitingPayment,
+            ], true)) {
+                throw ValidationException::withMessages([
+                    'status' => ['This pharmacy order cannot be cancelled by the patient now.'],
+                ]);
+            }
+
+            $order = $this->statusService->transition(
+                $order,
+                PharmacyOrderStatus::Cancelled,
+                $patient,
+                'pharmacy_order.cancelled_by_patient',
+                $reason ?: 'Patient cancelled before payment.',
+            );
+
+            $this->releaseReservedStockIfNeeded($order, $patient);
+
+            return $order->refresh()->load(['items', 'pharmacy', 'payment', 'prescription.uploadedFile']);
+        });
+    }
+
     public function providerUpdateStatus(User $providerUser, PharmacyOrder $order, PharmacyOrderStatus $to, ?string $reason = null): PharmacyOrder
     {
         return DB::transaction(function () use ($providerUser, $order, $to, $reason): PharmacyOrder {

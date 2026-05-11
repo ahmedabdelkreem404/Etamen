@@ -467,6 +467,37 @@ Next real gate:
 
 - restore server access safely, back up staging, deploy main, verify readiness/data/security, then run staging real-phone QA.
 
+## Sprint 66 Local Pharmacy/Lab Hardening
+
+Sprint 66 keeps the scope local-only and improves the weakest patient modules.
+
+Accepted locally after Sprint 66, pending final closeout artifacts:
+
+- pharmacy list/details/catalog/order creation.
+- pharmacy prescription metadata and manual payment proof flow.
+- pharmacy order details with friendly payment/admin-review status.
+- pharmacy cancel-before-payment only.
+- lab list/details/catalog/order creation.
+- lab order details with friendly payment/admin-review status.
+- lab result metadata and protected download state.
+- lab cancel-before-payment only.
+- provider pharmacy/lab order views remain scoped to own provider.
+- no raw prescription or lab result paths.
+- no diagnosis or medical interpretation.
+
+Still not approved:
+
+- staging readiness.
+- production readiness.
+- public launch.
+- app-store release.
+- external users.
+- live payments or live refunds.
+
+Next local product recommendation:
+
+- continue local patient-flow polish around pharmacy/lab cart ergonomics, order history filters, and demo evidence.
+
 ## Sprint 65 Staging Access Gate Lock
 
 Sprint 65 did not change the local demo scope. It only checked whether staging access was usable.

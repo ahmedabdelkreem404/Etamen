@@ -57,4 +57,9 @@ class PharmacyRepositoryImpl implements PharmacyRepository {
   Future<ApiResult<PharmacyOrderPayment>> createOrderPayment(int orderId) {
     return _remoteDataSource.createOrderPayment(orderId);
   }
+
+  @override
+  Future<ApiResult<PharmacyOrder>> cancelOrder(int orderId, {String? reason}) {
+    return _remoteDataSource.cancelOrder(orderId, reason: reason);
+  }
 }

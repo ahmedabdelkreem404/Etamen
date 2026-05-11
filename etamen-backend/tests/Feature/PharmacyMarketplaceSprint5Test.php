@@ -459,6 +459,51 @@ class PharmacyMarketplaceSprint5Test extends TestCase
         $this->assertSame(5, $product->refresh()->stock_quantity);
     }
 
+    public function test_patient_can_cancel_own_unpaid_pharmacy_order_before_payment_flow(): void
+    {
+        $patient = $this->patientUser();
+        $otherPatient = $this->patientUser('other-cancel-pharmacy@example.com');
+        ['user' => $pharmacyUser, 'provider' => $provider] = $this->createPharmacyProvider();
+        $product = $this->createProduct($provider, ['stock_quantity' => 5]);
+        $order = $this->createOrder($patient, $provider, [['product_id' => $product->id, 'quantity' => 2]]);
+
+        Sanctum::actingAs($pharmacyUser);
+        $this->patchJson('/api/v1/provider/pharmacy/orders/'.$order->id.'/status', [
+            'status' => PharmacyOrderStatus::Accepted->value,
+        ])->assertOk();
+        $this->assertSame(3, $product->refresh()->stock_quantity);
+
+        Sanctum::actingAs($otherPatient);
+        $this->postJson('/api/v1/pharmacy/orders/'.$order->id.'/cancel', [
+            'reason' => 'Not mine.',
+        ])->assertForbidden();
+
+        Sanctum::actingAs($patient);
+        $this->postJson('/api/v1/pharmacy/orders/'.$order->id.'/cancel', [
+            'reason' => 'Will reorder later.',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.order_status', PharmacyOrderStatus::Cancelled->value)
+            ->assertJsonPath('data.payment_status', PharmacyOrderPaymentStatus::Unpaid->value);
+
+        $this->assertSame(5, $product->refresh()->stock_quantity);
+        $this->assertNotNull($order->refresh()->stock_released_at);
+        $this->assertDatabaseHas('audit_logs', ['action' => 'pharmacy_order.cancelled_by_patient']);
+    }
+
+    public function test_patient_cannot_cancel_pharmacy_order_after_payment_flow_started(): void
+    {
+        $context = $this->createAcceptedOrderWithPayment(grandTotalProductPrice: 200);
+
+        Sanctum::actingAs($context['patient']);
+        $this->postJson('/api/v1/pharmacy/orders/'.$context['order']->id.'/cancel', [
+            'reason' => 'Too late.',
+        ])->assertUnprocessable();
+
+        $this->assertSame(PharmacyOrderStatus::AwaitingPayment, $context['order']->refresh()->order_status);
+        $this->assertSame(PharmacyOrderPaymentStatus::PendingPayment, $context['order']->payment_status);
+    }
+
     public function test_rejecting_pharmacy_review_order_does_not_change_stock(): void
     {
         $patient = $this->patientUser();

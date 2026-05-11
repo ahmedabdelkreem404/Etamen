@@ -10,8 +10,8 @@
 | Doctors | booking/payment proof/admin accept محليا | accepted local | يحتاج real staging payment/admin QA |
 | Hospitals | discovery/context booking محليا | accepted local | onboarding وتشغيل مستشفيات حقيقي غير جاهز |
 | Radiology | catalog/order/proof/result metadata محليا | accepted local | result workflow الحقيقي يحتاج staging/storage QA |
-| Pharmacy | marketplace موجود ومحافظ في الديمو | MVP local | payment/ops ليست محور الديمو الحالي |
-| Labs | catalog/orders/results foundation | MVP local | lab real operations تحتاج hardening |
+| Pharmacy | catalog/order/prescription/manual proof flow local | accepted local | needs broader real operating policy before external use |
+| Labs | catalog/order/manual proof/result metadata local | accepted local | no medical interpretation; needs broader real operating policy before external use |
 | Gym | booking/payment proof محليا | accepted local | يحتاج provider workflow production hardening |
 | Coaches | booking/payment proof محليا | accepted local | nutrition claims يجب ضبطها قانونيا وطبيا |
 | Health/Vitals | health foundation محلي | MVP local | لا يقدم تشخيصا، يحتاج medical review |
@@ -28,3 +28,7 @@
 ## الخلاصة
 
 الديمو المحلي قوي لشرح النموذج وقيمة المنتج، لكنه ليس launch-ready. كل وحدة تحتاج staging validation قبل أي استخدام خارجي.
+
+## Sprint 66 Local Update
+
+Pharmacy and Labs are no longer smoke-only in the local demo. Sprint 66 adds local patient flow hardening, safer payment-status presentation in Flutter, patient cancel-before-payment, and deeper local seed catalogs. No live payment, medical interpretation, or external-user approval is implied.

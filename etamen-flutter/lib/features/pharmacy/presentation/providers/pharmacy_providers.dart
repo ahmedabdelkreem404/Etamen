@@ -534,6 +534,7 @@ class PharmacyOrderDetailsState {
   const PharmacyOrderDetailsState({
     this.isLoading = false,
     this.isCreatingPayment = false,
+    this.isCancelling = false,
     this.order,
     this.paymentStatus,
     this.error,
@@ -541,6 +542,7 @@ class PharmacyOrderDetailsState {
 
   final bool isLoading;
   final bool isCreatingPayment;
+  final bool isCancelling;
   final PharmacyOrder? order;
   final PaymentStatusDetails? paymentStatus;
   final ApiError? error;
@@ -548,6 +550,7 @@ class PharmacyOrderDetailsState {
   PharmacyOrderDetailsState copyWith({
     bool? isLoading,
     bool? isCreatingPayment,
+    bool? isCancelling,
     PharmacyOrder? order,
     PaymentStatusDetails? paymentStatus,
     ApiError? error,
@@ -556,6 +559,7 @@ class PharmacyOrderDetailsState {
     return PharmacyOrderDetailsState(
       isLoading: isLoading ?? this.isLoading,
       isCreatingPayment: isCreatingPayment ?? this.isCreatingPayment,
+      isCancelling: isCancelling ?? this.isCancelling,
       order: order ?? this.order,
       paymentStatus: paymentStatus ?? this.paymentStatus,
       error: clearError ? null : error ?? this.error,
@@ -584,12 +588,14 @@ class PharmacyOrderDetailsController
   ) : _getDetails = GetPharmacyOrderDetails(pharmacyRepository),
       _createPayment = CreatePharmacyOrderPayment(pharmacyRepository),
       _getPaymentStatus = GetPaymentStatus(paymentRepository),
+      _repository = pharmacyRepository,
       super(const PharmacyOrderDetailsState());
 
   final int orderId;
   final GetPharmacyOrderDetails _getDetails;
   final CreatePharmacyOrderPayment _createPayment;
   final GetPaymentStatus _getPaymentStatus;
+  final PharmacyRepository _repository;
 
   Future<void> load() async {
     state = state.copyWith(isLoading: true, clearError: true);
@@ -626,6 +632,26 @@ class PharmacyOrderDetailsController
       failure: (failure) {
         state = state.copyWith(isCreatingPayment: false, error: failure.error);
         return null;
+      },
+    );
+  }
+
+  Future<bool> cancel({String? reason}) async {
+    state = state.copyWith(isCancelling: true, clearError: true);
+    final result = await _repository.cancelOrder(orderId, reason: reason);
+    return result.when(
+      success: (order) {
+        state = state.copyWith(
+          isCancelling: false,
+          order: order,
+          paymentStatus: null,
+          clearError: true,
+        );
+        return true;
+      },
+      failure: (failure) {
+        state = state.copyWith(isCancelling: false, error: failure.error);
+        return false;
       },
     );
   }

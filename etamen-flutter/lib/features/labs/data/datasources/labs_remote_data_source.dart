@@ -96,6 +96,15 @@ class LabsRemoteDataSource {
     );
   }
 
+  Future<ApiResult<LabOrderModel>> cancelOrder(int orderId, {String? reason}) {
+    final trimmedReason = reason?.trim();
+    return _client.post<LabOrderModel>(
+      ApiEndpoints.labOrderCancel(orderId),
+      data: {if (trimmedReason?.isNotEmpty == true) 'reason': trimmedReason},
+      parser: (raw) => LabOrderModel.fromJson(_unwrapMap(raw)),
+    );
+  }
+
   Future<ApiResult<LabResultDownload>> downloadResult(int resultId) async {
     try {
       final response = await _client.rawDio.get<List<int>>(

@@ -11,6 +11,10 @@ class PaymentStatusModel extends PaymentStatusDetails {
     super.methodType,
     super.appointmentStatus,
     super.radiologyOrderStatus,
+    super.pharmacyOrderStatus,
+    super.pharmacyPaymentStatus,
+    super.labOrderStatus,
+    super.labPaymentStatus,
     super.gymBookingStatus,
     super.coachBookingStatus,
     super.invoice,
@@ -22,6 +26,8 @@ class PaymentStatusModel extends PaymentStatusDetails {
   factory PaymentStatusModel.fromJson(Map<String, dynamic> json) {
     final payable = _asMap(json['payable']);
     final appointment = _asMap(json['appointment']);
+    final pharmacyOrder = _asMap(json['pharmacy_order']);
+    final labOrder = _asMap(json['lab_order']);
     final radiologyOrder = _asMap(json['radiology_order']);
     final gymBooking = _asMap(json['gym_booking']);
     final coachBooking = _asMap(json['coach_booking']);
@@ -50,6 +56,28 @@ class PaymentStatusModel extends PaymentStatusDetails {
           (json['radiology_order_status'] ??
                   radiologyOrder?['status'] ??
                   payable?['radiology_order_status'])
+              ?.toString(),
+      pharmacyOrderStatus:
+          (json['pharmacy_order_status'] ??
+                  pharmacyOrder?['order_status'] ??
+                  pharmacyOrder?['status'] ??
+                  payable?['pharmacy_order_status'])
+              ?.toString(),
+      pharmacyPaymentStatus:
+          (json['pharmacy_payment_status'] ??
+                  pharmacyOrder?['payment_status'] ??
+                  payable?['pharmacy_payment_status'])
+              ?.toString(),
+      labOrderStatus:
+          (json['lab_order_status'] ??
+                  labOrder?['order_status'] ??
+                  labOrder?['status'] ??
+                  payable?['lab_order_status'])
+              ?.toString(),
+      labPaymentStatus:
+          (json['lab_payment_status'] ??
+                  labOrder?['payment_status'] ??
+                  payable?['lab_payment_status'])
               ?.toString(),
       gymBookingStatus:
           (json['gym_booking_status'] ??

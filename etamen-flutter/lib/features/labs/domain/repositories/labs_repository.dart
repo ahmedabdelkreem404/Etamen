@@ -24,5 +24,7 @@ abstract class LabsRepository {
 
   Future<ApiResult<LabOrderPayment>> createOrderPayment(int orderId);
 
+  Future<ApiResult<LabOrder>> cancelOrder(int orderId, {String? reason});
+
   Future<ApiResult<LabResultDownload>> downloadResult(int resultId);
 }

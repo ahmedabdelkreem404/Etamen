@@ -507,6 +507,7 @@ class LabOrderDetailsState {
   const LabOrderDetailsState({
     this.isLoading = false,
     this.isCreatingPayment = false,
+    this.isCancelling = false,
     this.order,
     this.paymentStatus,
     this.error,
@@ -514,6 +515,7 @@ class LabOrderDetailsState {
 
   final bool isLoading;
   final bool isCreatingPayment;
+  final bool isCancelling;
   final LabOrder? order;
   final PaymentStatusDetails? paymentStatus;
   final ApiError? error;
@@ -521,6 +523,7 @@ class LabOrderDetailsState {
   LabOrderDetailsState copyWith({
     bool? isLoading,
     bool? isCreatingPayment,
+    bool? isCancelling,
     LabOrder? order,
     PaymentStatusDetails? paymentStatus,
     ApiError? error,
@@ -529,6 +532,7 @@ class LabOrderDetailsState {
     return LabOrderDetailsState(
       isLoading: isLoading ?? this.isLoading,
       isCreatingPayment: isCreatingPayment ?? this.isCreatingPayment,
+      isCancelling: isCancelling ?? this.isCancelling,
       order: order ?? this.order,
       paymentStatus: paymentStatus ?? this.paymentStatus,
       error: clearError ? null : error ?? this.error,
@@ -556,12 +560,14 @@ class LabOrderDetailsController extends StateNotifier<LabOrderDetailsState> {
   ) : _getDetails = GetLabOrderDetails(labsRepository),
       _createPayment = CreateLabOrderPayment(labsRepository),
       _getPaymentStatus = GetPaymentStatus(paymentsRepository),
+      _repository = labsRepository,
       super(const LabOrderDetailsState());
 
   final int orderId;
   final GetLabOrderDetails _getDetails;
   final CreateLabOrderPayment _createPayment;
   final GetPaymentStatus _getPaymentStatus;
+  final LabsRepository _repository;
 
   Future<void> load() async {
     state = state.copyWith(isLoading: true, clearError: true);
@@ -598,6 +604,26 @@ class LabOrderDetailsController extends StateNotifier<LabOrderDetailsState> {
       failure: (failure) {
         state = state.copyWith(isCreatingPayment: false, error: failure.error);
         return null;
+      },
+    );
+  }
+
+  Future<bool> cancel({String? reason}) async {
+    state = state.copyWith(isCancelling: true, clearError: true);
+    final result = await _repository.cancelOrder(orderId, reason: reason);
+    return result.when(
+      success: (order) {
+        state = state.copyWith(
+          isCancelling: false,
+          order: order,
+          paymentStatus: null,
+          clearError: true,
+        );
+        return true;
+      },
+      failure: (failure) {
+        state = state.copyWith(isCancelling: false, error: failure.error);
+        return false;
       },
     );
   }

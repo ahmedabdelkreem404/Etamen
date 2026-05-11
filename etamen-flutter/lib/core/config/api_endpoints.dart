@@ -94,6 +94,8 @@ class ApiEndpoints {
 
   static String pharmacyOrderPay(int id) => '/pharmacy/orders/$id/pay';
 
+  static String pharmacyOrderCancel(int id) => '/pharmacy/orders/$id/cancel';
+
   static String lab(int id) => '/labs/$id';
 
   static String labTests(int labId) => '/labs/$labId/tests';
@@ -103,6 +105,8 @@ class ApiEndpoints {
   static String labOrder(int id) => '/lab/orders/$id';
 
   static String labOrderPay(int id) => '/lab/orders/$id/pay';
+
+  static String labOrderCancel(int id) => '/lab/orders/$id/cancel';
 
   static String labResultDownload(int id) => '/lab/results/$id/download';
 

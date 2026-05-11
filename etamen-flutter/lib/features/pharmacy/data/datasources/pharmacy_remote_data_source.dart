@@ -106,6 +106,18 @@ class PharmacyRemoteDataSource {
     );
   }
 
+  Future<ApiResult<PharmacyOrderModel>> cancelOrder(
+    int orderId, {
+    String? reason,
+  }) {
+    final trimmedReason = reason?.trim();
+    return _client.post<PharmacyOrderModel>(
+      ApiEndpoints.pharmacyOrderCancel(orderId),
+      data: {if (trimmedReason?.isNotEmpty == true) 'reason': trimmedReason},
+      parser: (raw) => PharmacyOrderModel.fromJson(_unwrapMap(raw)),
+    );
+  }
+
   static List<Map<String, dynamic>> _parseList(Object? raw) {
     final value = _unwrapCollection(raw);
     if (value is! List) return const [];

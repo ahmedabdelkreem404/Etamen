@@ -1825,3 +1825,22 @@ Scope remains:
 - no external users.
 
 Next sprint must repair Hostinger access first, then run backup-first staging deployment recovery.
+
+## Sprint 66 Local Pharmacy/Lab Product Hardening
+
+Sprint 66 intentionally returns to local product work only and strengthens the two weakest patient modules.
+
+Local result, pending final Sprint 66 closeout:
+
+- pharmacy catalog/order/prescription/payment-proof path is hardened.
+- lab catalog/order/payment-proof/result metadata path is hardened.
+- Flutter payment status now parses pharmacy/lab backend context.
+- patient cancel is allowed only before payment flow starts.
+- provider pharmacy/lab views remain scoped.
+- security/privacy rules continue to block raw prescription paths, raw lab result paths, payment configs, and secrets.
+
+This does not approve staging, production, public launch, app-store release, external users, live payment, or live refunds.
+
+Next local product recommendation:
+
+- continue small local patient-demo polish for pharmacy/lab order history, empty states, and documentation evidence.
