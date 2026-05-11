@@ -712,3 +712,37 @@ Still blocked:
 Next roadmap gate:
 
 - server access recovery and staging deployment after backup, or local-only polish without external users.
+
+# Sprint 62 Local Internal Demo Rehearsal
+
+Sprint 62 prepares a clean internal demo rehearsal package. No staging, Hostinger, SSH, deployment, new vertical, major feature, or app redesign happened.
+
+Accepted locally:
+
+- Arabic internal demo script
+- demo timeline for 5, 10, and 20 minute versions
+- stakeholder FAQ
+- Arabic product one-pager
+- internal demo QA checklist
+- rebuilt local APK artifact
+- local rehearsal screenshot set
+
+Decision:
+
+```text
+LOCAL_INTERNAL_DEMO_REHEARSAL_ACCEPTED
+```
+
+Still blocked:
+
+- staging readiness
+- production/public launch
+- app-store release
+- external users
+- live Paymob/live refunds
+- legal/privacy/payment approvals
+- server backup/restore and disaster recovery
+
+Next roadmap gate:
+
+- restore server access and run a backup-first staging deployment/recovery sprint, or keep demos local-only.

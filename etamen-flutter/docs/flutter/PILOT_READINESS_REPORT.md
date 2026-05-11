@@ -1675,3 +1675,41 @@ Added:
 - final local security sweep.
 
 This remains internal/local only. Staging, production, public launch, app-store release, live Paymob, live FCM, and external users are still not approved.
+
+## Sprint 62 Local Internal Demo Rehearsal
+
+Sprint 62 prepared the accepted local system for a cleaner internal demo rehearsal.
+
+Result:
+
+```text
+LOCAL_INTERNAL_DEMO_REHEARSAL_ACCEPTED
+```
+
+Added:
+
+- Arabic local demo script.
+- 5/10/20 minute demo timeline.
+- stakeholder FAQ.
+- Arabic product one-pager in backend docs.
+- internal demo QA checklist.
+- local rehearsal APK artifact.
+- local rehearsal screenshots.
+
+Artifacts:
+
+```text
+I:/Etamen/.tmp/etamen-local-internal-demo-rehearsal.apk
+C:/Users/Ahmed Abdelkareem/OneDrive/Desktop/Etamen_Android_Website_Ready/etamen-local-internal-demo-rehearsal.apk
+I:/Etamen/.tmp/sprint62-local-demo-rehearsal/
+```
+
+Scope lock remains:
+
+- internal local demo only.
+- no staging readiness.
+- no production readiness.
+- no public launch.
+- no app-store release.
+- no external users.
+- no live payment/refund operation.

@@ -366,3 +366,36 @@ Hard lock:
 - no app-store claim
 - no external user invitations
 - no live payment/refund claims
+
+## Sprint 62 Internal Demo Rehearsal Lock
+
+Sprint 62 makes the internal local demo easier to present without changing launch scope.
+
+Accepted local rehearsal artifacts:
+
+- Arabic demo script
+- demo timeline
+- stakeholder FAQ
+- product one-pager
+- internal demo QA checklist
+- local rehearsal APK
+- local rehearsal screenshots
+
+Decision:
+
+```text
+LOCAL_INTERNAL_DEMO_REHEARSAL_ACCEPTED
+```
+
+This still means:
+
+- not staging
+- not production
+- not public launch
+- not app-store ready
+- not approved for external users
+- not approved for live payments or live refunds
+
+Next real gate:
+
+- server access plus backup-first staging deploy and readiness/data verification.
