@@ -100,3 +100,21 @@ Dispute statuses:
 ## Local QA Status
 
 Backend and Flutter automated tests passed. Emulator visual QA remains blocked by an app ANR during login automation and must be rerun before Sprint 58 can be accepted.
+# Sprint 59 QA Status
+
+Sprint 59 verified the local support, refund, and dispute foundation through emulator QA.
+
+Verified:
+
+- patient support ticket creation and details
+- provider support ticket form from provider workspace context
+- admin support ticket list/details/internal note flow
+- patient refund request form and admin refund details/actions
+- patient dispute form and admin dispute details/resolve flow
+- admin internal notes are not exposed to patient/provider responses
+
+Evidence:
+
+```text
+I:\Etamen\.tmp\sprint59-local-admin-operations-qa\
+```

@@ -780,6 +780,10 @@ class _AdminActionPanel extends ConsumerWidget {
         ? await _askForNote(context, action.noteLabel)
         : null;
     if (action.requiresNote && (note == null || note.trim().isEmpty)) return;
+    if (!context.mounted) return;
+
+    final confirmed = await _confirmAdminAction(context, action.label);
+    if (confirmed != true) return;
 
     final data = <String, dynamic>{};
     if (note != null) {
@@ -1055,6 +1059,26 @@ Future<String?> _askForNote(BuildContext context, String label) async {
         ),
         FilledButton(
           onPressed: () => Navigator.of(context).pop(controller.text),
+          child: const Text('تأكيد'),
+        ),
+      ],
+    ),
+  );
+}
+
+Future<bool?> _confirmAdminAction(BuildContext context, String label) {
+  return showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('تأكيد الإجراء'),
+      content: Text('هل تريد تنفيذ "$label"؟'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('إلغاء'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(true),
           child: const Text('تأكيد'),
         ),
       ],

@@ -624,3 +624,24 @@ Next roadmap gate:
 - run safe migrations and staging seed.
 - fix readiness.
 - then rerun staging phone proof/provider workspace QA.
+# Sprint 59 Local Admin Operations QA
+
+Sprint 59 accepts the local Admin Operations Center QA gate.
+
+Accepted locally:
+
+- platform admin dashboard
+- payment reviews
+- provider approvals
+- support tickets
+- refunds
+- disputes
+- audit log
+- patient/provider support basics
+- non-admin blocking
+
+Not approved:
+
+- staging readiness
+- production/public launch
+- app-store readiness

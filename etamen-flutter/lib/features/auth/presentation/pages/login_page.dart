@@ -1,4 +1,5 @@
 import 'package:etamen_app/app/localization/app_localizations.dart';
+import 'package:etamen_app/core/config/app_config.dart';
 import 'package:etamen_app/core/routing/route_names.dart';
 import 'package:etamen_app/core/widgets/app_button.dart';
 import 'package:etamen_app/core/widgets/app_text_field.dart';
@@ -102,6 +103,41 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     onPressed: () => context.go(RouteNames.register),
                     child: Text(l10n.get('register')),
                   ),
+                  if (AppConfig.environment == 'local') ...[
+                    const SizedBox(height: 16),
+                    const Divider(),
+                    const SizedBox(height: 8),
+                    Text(
+                      'دخول سريع محلي للـ QA فقط',
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      alignment: WrapAlignment.center,
+                      children: [
+                        OutlinedButton(
+                          onPressed: authState.isLoading
+                              ? null
+                              : () => _loginAs('a@b.co'),
+                          child: const Text('Admin QA'),
+                        ),
+                        OutlinedButton(
+                          onPressed: authState.isLoading
+                              ? null
+                              : () => _loginAs('p@b.co'),
+                          child: const Text('Patient QA'),
+                        ),
+                        OutlinedButton(
+                          onPressed: authState.isLoading
+                              ? null
+                              : () => _loginAs('d@b.co'),
+                          child: const Text('Provider QA'),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -122,5 +158,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             password: _passwordController.text,
           ),
         );
+  }
+
+  Future<void> _loginAs(String email) async {
+    _emailController.text = email;
+    _passwordController.text = 'Password1234';
+    await _submit();
   }
 }
