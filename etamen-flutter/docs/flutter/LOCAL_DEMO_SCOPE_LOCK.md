@@ -434,3 +434,35 @@ This still means:
 Next real gate:
 
 - server access, backup, staging deploy, readiness/data checks, then staging real-phone QA.
+
+## Sprint 64 Local Demo Freeze Lock
+
+Sprint 64 selected Path B because staging/server access was not safely confirmed.
+
+Accepted local freeze artifacts:
+
+- local demo freeze docs
+- no-external-users-until-staging docs
+- local freeze APK
+- final local tests/build verification
+
+Decision:
+
+```text
+LOCAL_DEMO_FREEZE_ACCEPTED
+```
+
+This still means:
+
+- local demo only
+- no staging
+- no production
+- no public launch
+- no app-store
+- no external users
+- no live payments
+- no real medical data
+
+Next real gate:
+
+- restore server access safely, back up staging, deploy main, verify readiness/data/security, then run staging real-phone QA.

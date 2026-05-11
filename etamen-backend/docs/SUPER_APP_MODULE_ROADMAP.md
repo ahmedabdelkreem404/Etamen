@@ -781,3 +781,34 @@ Scope lock:
 Next roadmap gate:
 
 - server access plus backup-first staging deployment and readiness/data verification.
+
+# Sprint 64 Local Demo Freeze
+
+Sprint 64 selected Path B because safe staging/Hostinger/SSH access was not confirmed at the start. No server, hosting, SSH, staging, deployment, migration, or seed work happened.
+
+Accepted locally:
+
+- local demo baseline frozen
+- no-external-users lock documented
+- local freeze APK artifact
+- local tests/build verification
+
+Decision:
+
+```text
+LOCAL_DEMO_FREEZE_ACCEPTED
+```
+
+Hard lock:
+
+- no staging claim
+- no production claim
+- no public launch claim
+- no app-store claim
+- no external users
+- no live Paymob/live refund claim
+- no real medical data
+
+Next roadmap gate:
+
+- server access plus backup-first staging deployment and readiness/data verification.

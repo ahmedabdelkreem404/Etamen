@@ -1754,3 +1754,38 @@ Still blocked:
 - legal/privacy/payment approvals.
 
 Next gate remains server access plus backup-first staging deployment and readiness/data verification.
+
+## Sprint 64 Local Demo Freeze
+
+Sprint 64 selected Path B because safe staging/server access was not confirmed.
+
+Result:
+
+```text
+LOCAL_DEMO_FREEZE_ACCEPTED
+```
+
+Added:
+
+- backend and Flutter local demo freeze docs.
+- backend and Flutter no-external-users-until-staging docs.
+- local freeze APK artifact.
+
+Artifacts:
+
+```text
+I:/Etamen/.tmp/etamen-local-demo-freeze.apk
+C:/Users/Ahmed Abdelkareem/OneDrive/Desktop/Etamen_Android_Website_Ready/etamen-local-demo-freeze.apk
+```
+
+Scope remains:
+
+- local demo only.
+- no staging.
+- no production.
+- no public launch.
+- no app-store release.
+- no external users.
+- no live payments/refunds.
+
+Next gate remains server access plus backup-first staging deployment, readiness/data recovery, and staging real-phone QA.
