@@ -10,6 +10,8 @@ class LabPackage {
     this.labId,
     this.description,
     this.tests = const [],
+    this.sampleTypes = const [],
+    this.resultTimeHours,
   });
 
   final int id;
@@ -19,5 +21,7 @@ class LabPackage {
   final String price;
   final String currency;
   final List<LabTest> tests;
+  final List<String> sampleTypes;
+  final int? resultTimeHours;
   final bool isActive;
 }

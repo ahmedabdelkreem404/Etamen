@@ -11,6 +11,8 @@ class LabPackageModel extends LabPackage {
     super.labId,
     super.description,
     super.tests,
+    super.sampleTypes,
+    super.resultTimeHours,
   });
 
   factory LabPackageModel.fromJson(Map<String, dynamic> json) {
@@ -40,7 +42,17 @@ class LabPackageModel extends LabPackage {
       currency: (json['currency'] ?? 'EGP').toString(),
       isActive: json['is_active'] != false,
       tests: tests,
+      sampleTypes: _stringList(json['sample_types']),
+      resultTimeHours: _toInt(json['result_time_hours']),
     );
+  }
+
+  static List<String> _stringList(Object? value) {
+    if (value is! List) return const [];
+    return value
+        .map((item) => item?.toString().trim() ?? '')
+        .where((item) => item.isNotEmpty)
+        .toList(growable: false);
   }
 
   static int? _toInt(Object? value) {

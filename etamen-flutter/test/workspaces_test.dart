@@ -202,4 +202,39 @@ void main() {
     expect(list.items.single.amountLabel(true), '300 جنيه');
     expect(list.items.single.subtitle(true), contains('جاري مراجعة الدفع'));
   });
+
+  test('provider catalog items parse pharmacy and lab metadata safely', () {
+    final list = ProviderOperationList.fromJson({
+      'items': [
+        {
+          'id': 2,
+          'catalog_type': 'product',
+          'name_en': 'RX Demo',
+          'price': '90.00',
+          'is_active': true,
+          'requires_prescription': true,
+          'stock_quantity': 4,
+          'stock_label_en': 'In stock',
+        },
+        {
+          'id': 3,
+          'catalog_type': 'test',
+          'name_en': 'Fast CBC',
+          'price': '120.00',
+          'is_active': false,
+          'sample_type': 'blood',
+          'result_time_hours': 8,
+        },
+      ],
+      'meta': {'count': 2},
+    });
+
+    expect(list.items, hasLength(2));
+    expect(list.items.first.requiresPrescription, true);
+    expect(list.items.first.stockQuantity, 4);
+    expect(list.items.last.isActive, false);
+    expect(list.items.last.resultTimeHours, 8);
+    expect(list.items.last.subtitle(false), contains('Inactive'));
+    expect(list.items.last.subtitle(false), contains('8h'));
+  });
 }

@@ -11,6 +11,7 @@ class LabTestResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'catalog_type' => 'test',
             'provider_id' => $this->provider_id,
             'name_ar' => $this->name_ar,
             'name_en' => $this->name_en,

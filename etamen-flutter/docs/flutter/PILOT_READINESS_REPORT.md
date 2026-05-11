@@ -1893,3 +1893,39 @@ Evidence:
 - APK build: passed
 
 This is still local-only and does not approve staging, production, public launch, app-store release, external users, live payments, or live refunds.
+
+## Sprint 69 Local Pharmacy/Lab Catalog Polish
+
+Decision:
+
+```text
+LOCAL_PHARMACY_LAB_CATALOG_POLISH_ACCEPTED
+```
+
+Local result:
+
+- pharmacy catalog discovery is stronger: search, filters, sorting, stock labels, prescription badges, and selected-items summary.
+- lab catalog discovery is stronger: search, filters, sorting by price/result time, sample/result-time metadata, preparation instructions, no-interpretation copy, and selected-items summary.
+- provider pharmacy/lab catalog pages now show own catalog with search/filter/sort visibility.
+- backend tests enforce active/private public visibility, wrong-provider blocking, validation errors, pagination caps, and no unsafe catalog payloads.
+- local seed data has broader pharmacy/lab catalog variety for demos.
+- security sweep passed.
+
+Evidence:
+
+- Screenshots: `I:/Etamen/.tmp/sprint69-local-pharmacy-lab-catalog-polish/`
+- APK: `I:/Etamen/.tmp/etamen-local-pharmacy-lab-catalog-polish.apk`
+- Backend tests: `273 passed / 2392 assertions`
+- Flutter tests: `202 passed`
+- Flutter analyze: clean
+- APK build: passed
+
+Still not approved:
+
+- production readiness.
+- public launch.
+- app-store release.
+- external users.
+- live payments.
+- live refunds.
+- medical interpretation.

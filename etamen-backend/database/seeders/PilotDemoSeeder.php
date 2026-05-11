@@ -504,7 +504,7 @@ class PilotDemoSeeder extends Seeder
                 'requires_prescription' => false,
                 'stock_quantity' => 50,
                 'is_active' => true,
-                'metadata' => ['pilot_demo' => true],
+                'metadata' => ['pilot_demo' => true, 'category' => 'pain_relief'],
             ],
         );
 
@@ -519,15 +519,20 @@ class PilotDemoSeeder extends Seeder
                 'requires_prescription' => true,
                 'stock_quantity' => 20,
                 'is_active' => true,
-                'metadata' => ['pilot_demo' => true],
+                'metadata' => ['pilot_demo' => true, 'category' => 'prescription'],
             ],
         );
 
         foreach ([
-            ['sku' => 'PILOT-VITAMIN-D-DEMO', 'name' => 'Vitamin D Demo', 'price' => 95, 'rx' => false, 'stock' => 35],
-            ['sku' => 'PILOT-ORS-DEMO', 'name' => 'ORS Sachets Demo', 'price' => 25, 'rx' => false, 'stock' => 80],
-            ['sku' => 'PILOT-THERMOMETER-DEMO', 'name' => 'Digital Thermometer Demo', 'price' => 180, 'rx' => false, 'stock' => 18],
-            ['sku' => 'PILOT-ANTIBIOTIC-RX-DEMO', 'name' => 'Antibiotic RX Demo', 'price' => 160, 'rx' => true, 'stock' => 15],
+            ['sku' => 'PILOT-VITAMIN-D-DEMO', 'name' => 'Vitamin D Demo', 'price' => 95, 'rx' => false, 'stock' => 35, 'active' => true, 'category' => 'vitamins'],
+            ['sku' => 'PILOT-MULTIVITAMIN-DEMO', 'name' => 'Multivitamin Demo', 'price' => 135, 'rx' => false, 'stock' => 22, 'active' => true, 'category' => 'vitamins'],
+            ['sku' => 'PILOT-ORS-DEMO', 'name' => 'ORS Sachets Demo', 'price' => 25, 'rx' => false, 'stock' => 80, 'active' => true, 'category' => 'first_aid'],
+            ['sku' => 'PILOT-FIRST-AID-DEMO', 'name' => 'First Aid Kit Demo', 'price' => 210, 'rx' => false, 'stock' => 7, 'active' => true, 'category' => 'first_aid'],
+            ['sku' => 'PILOT-THERMOMETER-DEMO', 'name' => 'Digital Thermometer Demo', 'price' => 180, 'rx' => false, 'stock' => 18, 'active' => true, 'category' => 'devices'],
+            ['sku' => 'PILOT-LOW-STOCK-DEMO', 'name' => 'Low Stock Demo Item', 'price' => 55, 'rx' => false, 'stock' => 2, 'active' => true, 'category' => 'first_aid'],
+            ['sku' => 'PILOT-OUT-OF-STOCK-DEMO', 'name' => 'Out Of Stock Demo Item', 'price' => 75, 'rx' => false, 'stock' => 0, 'active' => true, 'category' => 'devices'],
+            ['sku' => 'PILOT-ANTIBIOTIC-RX-DEMO', 'name' => 'Antibiotic RX Demo', 'price' => 160, 'rx' => true, 'stock' => 15, 'active' => true, 'category' => 'prescription'],
+            ['sku' => 'PILOT-INACTIVE-DEMO', 'name' => 'Inactive Private Demo Item', 'price' => 35, 'rx' => false, 'stock' => 12, 'active' => false, 'category' => 'private'],
         ] as $product) {
             PharmacyProduct::query()->updateOrCreate(
                 ['provider_id' => $provider->id, 'sku' => $product['sku']],
@@ -539,8 +544,8 @@ class PilotDemoSeeder extends Seeder
                     'price' => $product['price'],
                     'requires_prescription' => $product['rx'],
                     'stock_quantity' => $product['stock'],
-                    'is_active' => true,
-                    'metadata' => ['pilot_demo' => true, 'sprint66' => true],
+                    'is_active' => $product['active'],
+                    'metadata' => ['pilot_demo' => true, 'sprint66' => true, 'sprint69' => true, 'category' => $product['category']],
                 ],
             );
         }
@@ -621,25 +626,29 @@ class PilotDemoSeeder extends Seeder
         );
 
         foreach ([
-            ['code' => 'PILOT-LIVER-DEMO', 'name' => 'Liver Function Demo', 'price' => 210, 'hours' => 24],
-            ['code' => 'PILOT-KIDNEY-DEMO', 'name' => 'Kidney Function Demo', 'price' => 190, 'hours' => 24],
-            ['code' => 'PILOT-LIPID-DEMO', 'name' => 'Lipid Profile Demo', 'price' => 260, 'hours' => 24],
-            ['code' => 'PILOT-THYROID-DEMO', 'name' => 'Thyroid Profile Demo', 'price' => 320, 'hours' => 48],
+            ['code' => 'PILOT-LIVER-DEMO', 'name' => 'Liver Function Demo', 'price' => 210, 'hours' => 24, 'sample' => 'blood', 'active' => true],
+            ['code' => 'PILOT-KIDNEY-DEMO', 'name' => 'Kidney Function Demo', 'price' => 190, 'hours' => 24, 'sample' => 'blood', 'active' => true],
+            ['code' => 'PILOT-LIPID-DEMO', 'name' => 'Lipid Profile Demo', 'price' => 260, 'hours' => 24, 'sample' => 'blood', 'active' => true],
+            ['code' => 'PILOT-THYROID-DEMO', 'name' => 'Thyroid Profile Demo', 'price' => 320, 'hours' => 48, 'sample' => 'blood', 'active' => true],
+            ['code' => 'PILOT-GLUCOSE-DEMO', 'name' => 'Glucose Demo', 'price' => 85, 'hours' => 6, 'sample' => 'blood', 'active' => true],
+            ['code' => 'PILOT-VITAMIN-D-LAB-DEMO', 'name' => 'Vitamin D Lab Demo', 'price' => 420, 'hours' => 72, 'sample' => 'blood', 'active' => true],
+            ['code' => 'PILOT-URINE-DEMO', 'name' => 'Urine Analysis Demo', 'price' => 110, 'hours' => 12, 'sample' => 'urine', 'active' => true],
+            ['code' => 'PILOT-INACTIVE-LAB-DEMO', 'name' => 'Inactive Lab Demo', 'price' => 75, 'hours' => 24, 'sample' => 'blood', 'active' => false],
         ] as $test) {
             LabTest::query()->updateOrCreate(
                 ['provider_id' => $provider->id, 'code' => $test['code']],
                 [
                     'name_ar' => $test['name'],
                     'name_en' => $test['name'],
-                    'description_ar' => 'Local demo lab test for QA only. No medical interpretation is included.',
-                    'description_en' => 'Local demo lab test for QA only. No medical interpretation is included.',
+                    'description_ar' => 'Local demo lab test for QA only. Metadata only; consult a clinician for meaning.',
+                    'description_en' => 'Local demo lab test for QA only. Metadata only; consult a clinician for meaning.',
                     'price' => $test['price'],
-                    'sample_type' => 'blood',
+                    'sample_type' => $test['sample'],
                     'preparation_instructions_ar' => 'Demo preparation instructions only.',
                     'preparation_instructions_en' => 'Demo preparation instructions only.',
                     'result_time_hours' => $test['hours'],
-                    'is_active' => true,
-                    'metadata' => ['pilot_demo' => true, 'sprint66' => true],
+                    'is_active' => $test['active'],
+                    'metadata' => ['pilot_demo' => true, 'sprint66' => true, 'sprint69' => true],
                 ],
             );
         }
@@ -656,6 +665,21 @@ class PilotDemoSeeder extends Seeder
             ],
         );
         $package->tests()->syncWithoutDetaching([$cbc->id, $sugar->id]);
+
+        $fastPackage = LabPackage::query()->updateOrCreate(
+            ['provider_id' => $provider->id, 'name_en' => 'Fast Essentials Demo'],
+            [
+                'name_ar' => 'Fast Essentials Demo',
+                'description_ar' => 'Fast local demo lab package. Metadata only; no result meaning is provided.',
+                'description_en' => 'Fast local demo lab package. Metadata only; no result meaning is provided.',
+                'price' => 310,
+                'is_active' => true,
+                'metadata' => ['pilot_demo' => true, 'sprint69' => true],
+            ],
+        );
+        $glucose = LabTest::query()->where('provider_id', $provider->id)->where('code', 'PILOT-GLUCOSE-DEMO')->first();
+        $urine = LabTest::query()->where('provider_id', $provider->id)->where('code', 'PILOT-URINE-DEMO')->first();
+        $fastPackage->tests()->syncWithoutDetaching(array_filter([$glucose?->id, $urine?->id]));
 
         return $provider;
     }

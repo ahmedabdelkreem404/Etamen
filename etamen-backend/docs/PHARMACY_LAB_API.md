@@ -125,3 +125,33 @@ Provider workspace history:
 - safe filters: `status`, `payment_status`, `date_from`, `date_to`, `patient_name`, `search`, `order_number`, `per_page`.
 
 All list endpoints keep backend scoping as source of truth, cap pagination, return validation errors for invalid filters, and hide raw prescription/lab-result paths. Sprint 68 resources include safe UX metadata (`status_label_ar`, payment labels, backend action flags, and next-action labels) so Flutter displays status clarity without inventing permissions or payment state.
+
+## Sprint 69 Local Catalog Discovery Filters
+
+Patient pharmacy catalog:
+
+- `GET /api/v1/pharmacies/{pharmacy}/products`
+- safe filters: `search`, `category`, `requires_prescription`, `min_price`, `max_price`, `in_stock`, `sort`, `per_page`.
+- supported sort keys: `newest`, `price_asc`, `price_desc`, `name`.
+- patient responses return active products only and include safe UX metadata such as stock labels, category, and prescription-required flags.
+
+Patient lab catalog:
+
+- `GET /api/v1/labs/{lab}/tests`
+- `GET /api/v1/labs/{lab}/packages`
+- safe filters: `search`, `sample_type`, `result_time_max_hours`, `min_price`, `max_price`, `sort`, `per_page`.
+- supported sort keys: `newest`, `price_asc`, `price_desc`, `name`, `result_time`.
+- patient responses return active tests/packages only and never include diagnosis or medical interpretation.
+
+Provider workspace catalog:
+
+- `GET /api/v1/provider/workspace/{provider}/pharmacy/products`
+- `GET /api/v1/provider/workspace/{provider}/lab/catalog`
+- provider filters include search, active/inactive, price range, prescription-required for pharmacy, sample type/result time for lab, sort, and safe pagination caps.
+
+Security rules:
+
+- backend owns price, stock, active/private visibility, and authorization.
+- patient cannot see inactive/private provider catalog items.
+- provider cannot see another provider's catalog.
+- responses do not expose raw prescription paths, raw lab result paths, private provider docs, payment config, or secrets.

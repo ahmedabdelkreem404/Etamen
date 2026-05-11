@@ -77,7 +77,7 @@ class PilotDemoDataTest extends TestCase
 
         $this->assertGreaterThanOrEqual(6, PharmacyProduct::query()->where('provider_id', $pharmacy->id)->count());
         $this->assertGreaterThanOrEqual(6, LabTest::query()->where('provider_id', $lab->id)->count());
-        $this->assertSame(1, LabPackage::query()->where('provider_id', $lab->id)->count());
+        $this->assertGreaterThanOrEqual(2, LabPackage::query()->where('provider_id', $lab->id)->count());
         $this->assertGreaterThanOrEqual(1, LabResult::query()->count());
         Storage::disk('medical_private')->assertExists('pilot-demo/lab-result-demo.txt');
 

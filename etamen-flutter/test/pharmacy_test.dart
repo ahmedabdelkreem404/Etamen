@@ -45,6 +45,10 @@ void main() {
       'price': '42.50',
       'currency': 'EGP',
       'requires_prescription': true,
+      'stock_quantity': 4,
+      'in_stock': true,
+      'stock_label_en': 'In stock',
+      'category': 'prescription',
       'is_active': true,
     });
 
@@ -52,6 +56,10 @@ void main() {
     expect(product.pharmacyId, 9);
     expect(product.requiresPrescription, true);
     expect(product.price, '42.50');
+    expect(product.inStock, true);
+    expect(product.stockQuantity, 4);
+    expect(product.stockLabel(false), 'In stock');
+    expect(product.category, 'prescription');
   });
 
   test('PharmacyOrderModel parses status, payment id and items safely', () {
@@ -244,6 +252,47 @@ void main() {
 
     expect(state.filteredItems, hasLength(1));
     expect(state.filteredItems.first.id, 1);
+  });
+
+  test('pharmacy catalog state filters and sorts products safely', () {
+    const state = PharmacyProductsState(
+      selectedFilter: PharmacyCatalogFilter.prescription,
+      selectedSort: PharmacyCatalogSort.priceDesc,
+      items: [
+        PharmacyProduct(
+          id: 1,
+          name: 'Vitamin',
+          price: '40',
+          currency: 'EGP',
+          requiresPrescription: false,
+          isActive: true,
+          stockQuantity: 8,
+          category: 'vitamins',
+        ),
+        PharmacyProduct(
+          id: 2,
+          name: 'RX B',
+          price: '90',
+          currency: 'EGP',
+          requiresPrescription: true,
+          isActive: true,
+          stockQuantity: 2,
+          category: 'prescription',
+        ),
+        PharmacyProduct(
+          id: 3,
+          name: 'RX A',
+          price: '120',
+          currency: 'EGP',
+          requiresPrescription: true,
+          isActive: true,
+          stockQuantity: 1,
+          category: 'prescription',
+        ),
+      ],
+    );
+
+    expect(state.filteredItems.map((item) => item.id), [3, 2]);
   });
 
   test('payment route context supports pharmacy order id', () {

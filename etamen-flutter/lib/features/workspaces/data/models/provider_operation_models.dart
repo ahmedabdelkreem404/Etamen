@@ -34,6 +34,21 @@ class ProviderOperationItem {
   String? get paymentStatus =>
       _string(raw['payment_status']) ?? _string(_map(raw['payment'])['status']);
 
+  bool? get isActive {
+    final value = raw['is_active'];
+    return value is bool ? value : null;
+  }
+
+  bool get requiresPrescription => raw['requires_prescription'] == true;
+
+  int? get stockQuantity => _int(raw['stock_quantity']);
+
+  int? get resultTimeHours => _int(raw['result_time_hours']);
+
+  String? get sampleType => _string(raw['sample_type']);
+
+  String? get catalogType => _string(raw['catalog_type']);
+
   String? labelForStatus(bool isArabic) {
     final label = isArabic
         ? _string(raw['status_label_ar'])
@@ -91,6 +106,32 @@ class ProviderOperationItem {
     final patientName = _string(patient['name']);
     if (patientName?.trim().isNotEmpty == true) {
       parts.add(patientName!);
+    }
+
+    final active = isActive;
+    if (active != null) {
+      parts.add(
+        active
+            ? (isArabic ? 'نشط' : 'Active')
+            : (isArabic ? 'غير نشط' : 'Inactive'),
+      );
+    }
+    if (requiresPrescription) {
+      parts.add(isArabic ? 'يحتاج روشتة' : 'Prescription required');
+    }
+    final stockLabel = isArabic
+        ? _string(raw['stock_label_ar'])
+        : _string(raw['stock_label_en']);
+    if (stockLabel?.trim().isNotEmpty == true) {
+      parts.add(stockLabel!);
+    } else if (stockQuantity != null) {
+      parts.add('${isArabic ? 'المخزون' : 'Stock'}: $stockQuantity');
+    }
+    if (sampleType?.trim().isNotEmpty == true) {
+      parts.add(sampleType!);
+    }
+    if (resultTimeHours != null) {
+      parts.add('${resultTimeHours}h');
     }
 
     return parts.join(' - ');

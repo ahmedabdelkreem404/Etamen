@@ -315,11 +315,39 @@ class ProviderWorkspaceOperationsController extends ApiController
     public function pharmacyProducts(Request $request, Provider $provider): JsonResponse
     {
         $this->authorizeWorkspace($request, $provider, ProviderPermission::ManagePharmacyProducts, ProviderType::Pharmacy);
+        $filters = $this->validatedPharmacyCatalogFilters($request);
 
-        $items = PharmacyProduct::query()
+        $query = PharmacyProduct::query()
             ->where('provider_id', $provider->id)
-            ->orderByDesc('is_active')
-            ->orderBy('name_ar')
+            ->when($filters['search'] ?? null, function ($query, string $search): void {
+                $query->where(function ($query) use ($search): void {
+                    $query->where('name_ar', 'like', '%'.$search.'%')
+                        ->orWhere('name_en', 'like', '%'.$search.'%')
+                        ->orWhere('description_ar', 'like', '%'.$search.'%')
+                        ->orWhere('description_en', 'like', '%'.$search.'%')
+                        ->orWhere('sku', 'like', '%'.$search.'%');
+                });
+            })
+            ->when($filters['category'] ?? null, function ($query, string $category): void {
+                $query->where(function ($query) use ($category): void {
+                    $query->where('metadata->category', $category)
+                        ->orWhere('metadata->category_ar', $category)
+                        ->orWhere('metadata->category_en', $category);
+                });
+            })
+            ->when(array_key_exists('requires_prescription', $filters), fn ($query) => $query->where('requires_prescription', filter_var($filters['requires_prescription'], FILTER_VALIDATE_BOOL)))
+            ->when(array_key_exists('is_active', $filters), fn ($query) => $query->where('is_active', filter_var($filters['is_active'], FILTER_VALIDATE_BOOL)))
+            ->when(array_key_exists('in_stock', $filters), function ($query) use ($filters): void {
+                filter_var($filters['in_stock'], FILTER_VALIDATE_BOOL)
+                    ? $query->where('stock_quantity', '>', 0)
+                    : $query->where('stock_quantity', '<=', 0);
+            })
+            ->when($filters['min_price'] ?? null, fn ($query, string|int|float $price) => $query->where('price', '>=', $price))
+            ->when($filters['max_price'] ?? null, fn ($query, string|int|float $price) => $query->where('price', '<=', $price));
+
+        $this->sortPharmacyCatalog($query, $filters['sort'] ?? 'name');
+
+        $items = $query
             ->limit($this->perPage($request, 50))
             ->get()
             ->map(fn (PharmacyProduct $product): array => $this->pharmacyProductPayload($product))
@@ -411,31 +439,76 @@ class ProviderWorkspaceOperationsController extends ApiController
     public function labCatalog(Request $request, Provider $provider): JsonResponse
     {
         $this->authorizeWorkspace($request, $provider, ProviderPermission::ManageLabCatalog, ProviderType::Lab);
+        $filters = $this->validatedLabCatalogFilters($request);
 
-        $tests = LabTest::query()
+        $testQuery = LabTest::query()
             ->where('provider_id', $provider->id)
-            ->orderByDesc('is_active')
-            ->orderBy('name_ar')
+            ->when(array_key_exists('is_active', $filters), fn ($query) => $query->where('is_active', filter_var($filters['is_active'], FILTER_VALIDATE_BOOL)))
+            ->when($filters['search'] ?? null, function ($query, string $search): void {
+                $query->where(function ($query) use ($search): void {
+                    $query->where('name_ar', 'like', '%'.$search.'%')
+                        ->orWhere('name_en', 'like', '%'.$search.'%')
+                        ->orWhere('description_ar', 'like', '%'.$search.'%')
+                        ->orWhere('description_en', 'like', '%'.$search.'%')
+                        ->orWhere('code', 'like', '%'.$search.'%');
+                });
+            })
+            ->when($filters['sample_type'] ?? null, fn ($query, string $sampleType) => $query->where('sample_type', $sampleType))
+            ->when($filters['result_time_max_hours'] ?? null, fn ($query, int|string $hours) => $query->where('result_time_hours', '<=', $hours))
+            ->when($filters['min_price'] ?? null, fn ($query, string|int|float $price) => $query->where('price', '>=', $price))
+            ->when($filters['max_price'] ?? null, fn ($query, string|int|float $price) => $query->where('price', '<=', $price));
+
+        $this->sortLabTests($testQuery, $filters['sort'] ?? 'name');
+
+        $tests = ($filters['type'] ?? 'all') === 'package'
+            ? []
+            : $testQuery
             ->limit($this->perPage($request, 50))
             ->get()
             ->map(fn (LabTest $test): array => $this->labTestPayload($test))
             ->values()
             ->all();
 
-        $packages = LabPackage::query()
+        $packageQuery = LabPackage::query()
             ->where('provider_id', $provider->id)
-            ->orderByDesc('is_active')
-            ->orderBy('name_ar')
+            ->with('tests')
+            ->when(array_key_exists('is_active', $filters), fn ($query) => $query->where('is_active', filter_var($filters['is_active'], FILTER_VALIDATE_BOOL)))
+            ->when($filters['search'] ?? null, function ($query, string $search): void {
+                $query->where(function ($query) use ($search): void {
+                    $query->where('name_ar', 'like', '%'.$search.'%')
+                        ->orWhere('name_en', 'like', '%'.$search.'%')
+                        ->orWhere('description_ar', 'like', '%'.$search.'%')
+                        ->orWhere('description_en', 'like', '%'.$search.'%')
+                        ->orWhereHas('tests', function ($query) use ($search): void {
+                            $query->where('name_ar', 'like', '%'.$search.'%')
+                                ->orWhere('name_en', 'like', '%'.$search.'%')
+                                ->orWhere('code', 'like', '%'.$search.'%');
+                        });
+                });
+            })
+            ->when($filters['sample_type'] ?? null, fn ($query, string $sampleType) => $query->whereHas('tests', fn ($query) => $query->where('sample_type', $sampleType)))
+            ->when($filters['result_time_max_hours'] ?? null, fn ($query, int|string $hours) => $query->whereHas('tests', fn ($query) => $query->where('result_time_hours', '<=', $hours)))
+            ->when($filters['min_price'] ?? null, fn ($query, string|int|float $price) => $query->where('price', '>=', $price))
+            ->when($filters['max_price'] ?? null, fn ($query, string|int|float $price) => $query->where('price', '<=', $price));
+
+        $this->sortLabPackages($packageQuery, $filters['sort'] ?? 'name');
+
+        $packages = ($filters['type'] ?? 'all') === 'test'
+            ? []
+            : $packageQuery
             ->limit($this->perPage($request, 50))
             ->get()
             ->map(fn (LabPackage $package): array => $this->labPackagePayload($package))
             ->values()
             ->all();
+        $items = array_values(array_merge($tests, $packages));
 
         return $this->success([
+            'items' => $items,
             'tests' => $tests,
             'packages' => $packages,
             'meta' => [
+                'count' => count($items),
                 'tests_count' => count($tests),
                 'packages_count' => count($packages),
             ],
@@ -726,6 +799,82 @@ class ProviderWorkspaceOperationsController extends ApiController
         return $filters;
     }
 
+    private function validatedPharmacyCatalogFilters(Request $request): array
+    {
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'category' => ['nullable', 'string', 'max:80'],
+            'requires_prescription' => ['nullable', 'boolean'],
+            'active' => ['nullable', 'boolean'],
+            'is_active' => ['nullable', 'boolean'],
+            'in_stock' => ['nullable', 'boolean'],
+            'min_price' => ['nullable', 'numeric', 'min:0'],
+            'max_price' => ['nullable', 'numeric', 'min:0'],
+            'sort' => ['nullable', Rule::in(['newest', 'price_asc', 'price_desc', 'name'])],
+            'per_page' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        if (array_key_exists('active', $filters) && ! array_key_exists('is_active', $filters)) {
+            $filters['is_active'] = $filters['active'];
+        }
+
+        return $filters;
+    }
+
+    private function validatedLabCatalogFilters(Request $request): array
+    {
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'type' => ['nullable', Rule::in(['all', 'test', 'package'])],
+            'sample_type' => ['nullable', 'string', 'max:80'],
+            'result_time_max_hours' => ['nullable', 'integer', 'min:1'],
+            'active' => ['nullable', 'boolean'],
+            'is_active' => ['nullable', 'boolean'],
+            'min_price' => ['nullable', 'numeric', 'min:0'],
+            'max_price' => ['nullable', 'numeric', 'min:0'],
+            'sort' => ['nullable', Rule::in(['newest', 'price_asc', 'price_desc', 'name', 'result_time'])],
+            'per_page' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        if (array_key_exists('active', $filters) && ! array_key_exists('is_active', $filters)) {
+            $filters['is_active'] = $filters['active'];
+        }
+
+        return $filters;
+    }
+
+    private function sortPharmacyCatalog($query, string $sort): void
+    {
+        match ($sort) {
+            'newest' => $query->latest(),
+            'price_asc' => $query->orderBy('price')->orderBy('name_en'),
+            'price_desc' => $query->orderByDesc('price')->orderBy('name_en'),
+            default => $query->orderByDesc('is_active')->orderBy('name_ar')->orderBy('id'),
+        };
+    }
+
+    private function sortLabTests($query, string $sort): void
+    {
+        match ($sort) {
+            'newest' => $query->latest(),
+            'price_asc' => $query->orderBy('price')->orderBy('name_en'),
+            'price_desc' => $query->orderByDesc('price')->orderBy('name_en'),
+            'result_time' => $query->orderBy('result_time_hours')->orderBy('name_en'),
+            default => $query->orderByDesc('is_active')->orderBy('name_ar')->orderBy('id'),
+        };
+    }
+
+    private function sortLabPackages($query, string $sort): void
+    {
+        match ($sort) {
+            'newest' => $query->latest(),
+            'price_asc' => $query->orderBy('price')->orderBy('name_en'),
+            'price_desc' => $query->orderByDesc('price')->orderBy('name_en'),
+            'result_time' => $query->withMin('tests', 'result_time_hours')->orderBy('tests_min_result_time_hours')->orderBy('name_en'),
+            default => $query->orderByDesc('is_active')->orderBy('name_ar')->orderBy('id'),
+        };
+    }
+
     private function transitionGymBooking(Request $request, Provider $provider, GymBooking $booking, GymBookingStatus $to, array $allowedFrom, array $extra = []): JsonResponse
     {
         $this->authorizeWorkspace($request, $provider, ProviderPermission::ManageGymBookings, ProviderType::Gym);
@@ -923,13 +1072,24 @@ class ProviderWorkspaceOperationsController extends ApiController
 
     private function pharmacyProductPayload(PharmacyProduct $product): array
     {
+        $metadata = is_array($product->metadata) ? $product->metadata : [];
+        $stockQuantity = (int) $product->stock_quantity;
+
         return [
             'id' => $product->id,
+            'catalog_type' => 'product',
             'name_ar' => $product->name_ar,
             'name_en' => $product->name_en,
+            'description_ar' => $product->description_ar,
+            'description_en' => $product->description_en,
+            'sku' => $product->sku,
             'price' => $this->decimal($product->price),
             'requires_prescription' => (bool) $product->requires_prescription,
-            'stock_quantity' => (int) $product->stock_quantity,
+            'stock_quantity' => $stockQuantity,
+            'in_stock' => $stockQuantity > 0,
+            'stock_label_ar' => $stockQuantity > 0 ? 'Ù…ØªØ§Ø­' : 'ØºÙŠØ± Ù…ØªØ§Ø­',
+            'stock_label_en' => $stockQuantity > 0 ? 'In stock' : 'Out of stock',
+            'category' => $metadata['category'] ?? $metadata['category_ar'] ?? $metadata['category_en'] ?? null,
             'is_active' => (bool) $product->is_active,
         ];
     }
@@ -975,11 +1135,16 @@ class ProviderWorkspaceOperationsController extends ApiController
     {
         return [
             'id' => $test->id,
+            'catalog_type' => 'test',
             'name_ar' => $test->name_ar,
             'name_en' => $test->name_en,
+            'description_ar' => $test->description_ar,
+            'description_en' => $test->description_en,
             'code' => $test->code,
             'price' => $this->decimal($test->price),
             'sample_type' => $test->sample_type,
+            'preparation_instructions_ar' => $test->preparation_instructions_ar,
+            'preparation_instructions_en' => $test->preparation_instructions_en,
             'result_time_hours' => $test->result_time_hours,
             'is_active' => (bool) $test->is_active,
         ];
@@ -987,12 +1152,20 @@ class ProviderWorkspaceOperationsController extends ApiController
 
     private function labPackagePayload(LabPackage $package): array
     {
+        $tests = $package->relationLoaded('tests') ? $package->tests : collect();
+
         return [
             'id' => $package->id,
+            'catalog_type' => 'package',
             'name_ar' => $package->name_ar,
             'name_en' => $package->name_en,
+            'description_ar' => $package->description_ar,
+            'description_en' => $package->description_en,
             'price' => $this->decimal($package->price),
+            'sample_types' => $tests->pluck('sample_type')->filter()->unique()->values()->all(),
+            'result_time_hours' => $tests->pluck('result_time_hours')->filter()->min(),
             'is_active' => (bool) $package->is_active,
+            'tests_count' => $tests->count(),
         ];
     }
 

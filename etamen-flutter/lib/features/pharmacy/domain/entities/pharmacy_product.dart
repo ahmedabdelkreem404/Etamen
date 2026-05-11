@@ -12,6 +12,10 @@ class PharmacyProduct {
     this.description,
     this.imageUrl,
     this.stockStatus,
+    this.stockQuantity,
+    this.serverInStock,
+    this.stockLabelAr,
+    this.stockLabelEn,
     this.category,
   });
 
@@ -27,5 +31,24 @@ class PharmacyProduct {
   final bool isActive;
   final String? imageUrl;
   final String? stockStatus;
+  final int? stockQuantity;
+  final bool? serverInStock;
+  final String? stockLabelAr;
+  final String? stockLabelEn;
   final String? category;
+
+  bool get inStock => serverInStock ?? ((stockQuantity ?? 1) > 0 && isActive);
+
+  String stockLabel(bool isArabic) {
+    final serverLabel = isArabic ? stockLabelAr : stockLabelEn;
+    if (serverLabel?.trim().isNotEmpty == true) return serverLabel!;
+    if (stockQuantity != null) {
+      return inStock
+          ? (isArabic ? 'متاح: $stockQuantity' : 'In stock: $stockQuantity')
+          : (isArabic ? 'غير متاح' : 'Out of stock');
+    }
+    return inStock
+        ? (isArabic ? 'متاح' : 'In stock')
+        : (isArabic ? 'غير متاح' : 'Out of stock');
+  }
 }

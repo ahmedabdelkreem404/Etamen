@@ -41,12 +41,40 @@ class LabTestsPage extends ConsumerWidget {
           children: [
             Padding(
               padding: const EdgeInsets.all(16),
-              child: TextField(
-                onChanged: controller.search,
-                decoration: InputDecoration(
-                  hintText: l10n.get('searchLabTest'),
-                  prefixIcon: const Icon(Icons.search),
-                ),
+              child: Column(
+                children: [
+                  TextField(
+                    onChanged: controller.search,
+                    decoration: InputDecoration(
+                      hintText: l10n.get('searchLabTest'),
+                      prefixIcon: const Icon(Icons.search),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _LabCatalogControls(
+                    filter: state.selectedFilter,
+                    sort: state.selectedSort,
+                    onFilter: controller.selectFilter,
+                    onSort: controller.selectSort,
+                  ),
+                  if (cart.itemCount > 0) ...[
+                    const SizedBox(height: 12),
+                    _LabSelectedItemsSummary(
+                      itemCount: cart.itemCount,
+                      total: cart.localSubtotal,
+                    ),
+                  ],
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      l10n.isArabic
+                          ? 'النتائج لا يتم تفسيرها طبيًا داخل التطبيق.'
+                          : 'Results are not medically interpreted in the app.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                ],
               ),
             ),
             TabBar(
@@ -78,6 +106,115 @@ class LabTestsPage extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _LabCatalogControls extends StatelessWidget {
+  const _LabCatalogControls({
+    required this.filter,
+    required this.sort,
+    required this.onFilter,
+    required this.onSort,
+  });
+
+  final LabCatalogFilter filter;
+  final LabCatalogSort sort;
+  final ValueChanged<LabCatalogFilter> onFilter;
+  final ValueChanged<LabCatalogSort> onSort;
+
+  @override
+  Widget build(BuildContext context) {
+    final isArabic = AppLocalizations.of(context).isArabic;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: LabCatalogFilter.values
+                .map(
+                  (value) => Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 8),
+                    child: FilterChip(
+                      selected: filter == value,
+                      label: Text(_filterLabel(value, isArabic)),
+                      onSelected: (_) => onFilter(value),
+                    ),
+                  ),
+                )
+                .toList(growable: false),
+          ),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<LabCatalogSort>(
+          value: sort,
+          decoration: InputDecoration(
+            labelText: isArabic ? 'ترتيب النتائج' : 'Sort results',
+          ),
+          items: LabCatalogSort.values
+              .map(
+                (value) => DropdownMenuItem(
+                  value: value,
+                  child: Text(_sortLabel(value, isArabic)),
+                ),
+              )
+              .toList(growable: false),
+          onChanged: (value) {
+            if (value != null) onSort(value);
+          },
+        ),
+      ],
+    );
+  }
+
+  String _filterLabel(LabCatalogFilter value, bool isArabic) {
+    return switch (value) {
+      LabCatalogFilter.all => isArabic ? 'الكل' : 'All',
+      LabCatalogFilter.tests => isArabic ? 'تحاليل' : 'Tests',
+      LabCatalogFilter.packages => isArabic ? 'باقات' : 'Packages',
+      LabCatalogFilter.quick => isArabic ? 'نتيجة سريعة' : 'Fast result',
+    };
+  }
+
+  String _sortLabel(LabCatalogSort value, bool isArabic) {
+    return switch (value) {
+      LabCatalogSort.newest => isArabic ? 'الأحدث' : 'Newest',
+      LabCatalogSort.priceAsc => isArabic ? 'السعر الأقل' : 'Lowest price',
+      LabCatalogSort.priceDesc => isArabic ? 'السعر الأعلى' : 'Highest price',
+      LabCatalogSort.name => isArabic ? 'الاسم' : 'Name',
+      LabCatalogSort.resultTime => isArabic ? 'وقت النتيجة' : 'Result time',
+    };
+  }
+}
+
+class _LabSelectedItemsSummary extends StatelessWidget {
+  const _LabSelectedItemsSummary({
+    required this.itemCount,
+    required this.total,
+  });
+
+  final int itemCount;
+  final double total;
+
+  @override
+  Widget build(BuildContext context) {
+    final isArabic = AppLocalizations.of(context).isArabic;
+    return Card(
+      child: ListTile(
+        leading: const Icon(Icons.science_outlined),
+        title: Text(
+          isArabic
+              ? 'العناصر المختارة: $itemCount'
+              : 'Selected items: $itemCount',
+        ),
+        subtitle: Text(
+          isArabic
+              ? 'الإجمالي النهائي يتم حسابه من السيرفر.'
+              : 'Final total is calculated by the server.',
+        ),
+        trailing: Text('${total.toStringAsFixed(0)} EGP'),
       ),
     );
   }

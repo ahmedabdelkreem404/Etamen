@@ -30,6 +30,8 @@ class ProviderOperationListPage extends ConsumerStatefulWidget {
 class _ProviderOperationListPageState
     extends ConsumerState<ProviderOperationListPage> {
   String? _selectedStatus;
+  String _query = '';
+  _CatalogSort _catalogSort = _CatalogSort.newest;
 
   @override
   Widget build(BuildContext context) {
@@ -44,11 +46,8 @@ class _ProviderOperationListPageState
       providerOperationListControllerProvider(args).notifier,
     );
     final filterStatuses = _statusesForSection(config.section);
-    final items = _selectedStatus == null
-        ? state.items
-        : state.items
-              .where((item) => item.status == _selectedStatus)
-              .toList(growable: false);
+    final isCatalog = _isCatalogSection(config.section);
+    final items = _filteredItems(state.items, isCatalog);
     final isEmpty = !state.isLoading && state.error == null && items.isEmpty;
 
     return AppScaffold(
@@ -61,6 +60,24 @@ class _ProviderOperationListPageState
           children: [
             _SectionIntro(config: config),
             const SizedBox(height: 12),
+            if (isCatalog) ...[
+              TextField(
+                onChanged: (value) => setState(() => _query = value),
+                decoration: InputDecoration(
+                  hintText: isArabic ? 'ابحث في الكتالوج' : 'Search catalog',
+                  prefixIcon: const Icon(Icons.search),
+                ),
+              ),
+              const SizedBox(height: 12),
+              _ProviderCatalogControls(
+                section: config.section,
+                selectedStatus: _selectedStatus,
+                selectedSort: _catalogSort,
+                onStatus: (status) => setState(() => _selectedStatus = status),
+                onSort: (sort) => setState(() => _catalogSort = sort),
+              ),
+              const SizedBox(height: 12),
+            ],
             if (filterStatuses.isNotEmpty) ...[
               _ProviderStatusFilterChips(
                 statuses: filterStatuses,
@@ -101,6 +118,46 @@ class _ProviderOperationListPageState
         ),
       ),
     );
+  }
+
+  List<ProviderOperationItem> _filteredItems(
+    List<ProviderOperationItem> source,
+    bool isCatalog,
+  ) {
+    Iterable<ProviderOperationItem> items = source;
+    if (_selectedStatus != null) {
+      if (isCatalog) {
+        final active = _selectedStatus == 'active';
+        items = items.where((item) => item.isActive == active);
+      } else {
+        items = items.where((item) => item.status == _selectedStatus);
+      }
+    }
+    if (isCatalog && _query.trim().isNotEmpty) {
+      final needle = _query.trim().toLowerCase();
+      items = items.where(
+        (item) =>
+            item.title(false).toLowerCase().contains(needle) ||
+            item.title(true).toLowerCase().contains(needle) ||
+            item.subtitle(false).toLowerCase().contains(needle) ||
+            item.subtitle(true).toLowerCase().contains(needle),
+      );
+    }
+    final sorted = items.toList(growable: false);
+    if (isCatalog) {
+      sorted.sort((a, b) {
+        return switch (_catalogSort) {
+          _CatalogSort.priceAsc => _amount(a).compareTo(_amount(b)),
+          _CatalogSort.priceDesc => _amount(b).compareTo(_amount(a)),
+          _CatalogSort.name => a.title(false).compareTo(b.title(false)),
+          _CatalogSort.resultTime => (a.resultTimeHours ?? 9999).compareTo(
+            b.resultTimeHours ?? 9999,
+          ),
+          _CatalogSort.newest => b.id.compareTo(a.id),
+        };
+      });
+    }
+    return sorted;
   }
 }
 
@@ -172,6 +229,98 @@ class _ProviderStatusFilterChips extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+enum _CatalogSort { newest, priceAsc, priceDesc, name, resultTime }
+
+class _ProviderCatalogControls extends StatelessWidget {
+  const _ProviderCatalogControls({
+    required this.section,
+    required this.selectedStatus,
+    required this.selectedSort,
+    required this.onStatus,
+    required this.onSort,
+  });
+
+  final String section;
+  final String? selectedStatus;
+  final _CatalogSort selectedSort;
+  final ValueChanged<String?> onStatus;
+  final ValueChanged<_CatalogSort> onSort;
+
+  @override
+  Widget build(BuildContext context) {
+    final isArabic = AppLocalizations.of(context).isArabic;
+    final sorts = section == 'lab/catalog'
+        ? _CatalogSort.values
+        : const [
+            _CatalogSort.newest,
+            _CatalogSort.priceAsc,
+            _CatalogSort.priceDesc,
+            _CatalogSort.name,
+          ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: 8),
+                child: FilterChip(
+                  selected: selectedStatus == null,
+                  label: Text(isArabic ? 'الكل' : 'All'),
+                  onSelected: (_) => onStatus(null),
+                ),
+              ),
+              for (final status in const ['active', 'inactive'])
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 8),
+                  child: FilterChip(
+                    selected: selectedStatus == status,
+                    label: Text(
+                      status == 'active'
+                          ? (isArabic ? 'نشط' : 'Active')
+                          : (isArabic ? 'غير نشط' : 'Inactive'),
+                    ),
+                    onSelected: (_) => onStatus(status),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<_CatalogSort>(
+          value: selectedSort,
+          decoration: InputDecoration(
+            labelText: isArabic ? 'ترتيب النتائج' : 'Sort results',
+          ),
+          items: sorts
+              .map(
+                (sort) => DropdownMenuItem(
+                  value: sort,
+                  child: Text(_sortLabel(sort, isArabic)),
+                ),
+              )
+              .toList(growable: false),
+          onChanged: (value) {
+            if (value != null) onSort(value);
+          },
+        ),
+      ],
+    );
+  }
+
+  String _sortLabel(_CatalogSort sort, bool isArabic) {
+    return switch (sort) {
+      _CatalogSort.newest => isArabic ? 'الأحدث' : 'Newest',
+      _CatalogSort.priceAsc => isArabic ? 'السعر الأقل' : 'Lowest price',
+      _CatalogSort.priceDesc => isArabic ? 'السعر الأعلى' : 'Highest price',
+      _CatalogSort.name => isArabic ? 'الاسم' : 'Name',
+      _CatalogSort.resultTime => isArabic ? 'وقت النتيجة' : 'Result time',
+    };
   }
 }
 
@@ -257,4 +406,19 @@ List<String> _statusesForSection(String section) {
     ],
     _ => const [],
   };
+}
+
+bool _isCatalogSection(String section) {
+  return section == 'pharmacy/products' || section == 'lab/catalog';
+}
+
+num _amount(ProviderOperationItem item) {
+  final raw = item.raw;
+  final value =
+      raw['total_amount'] ??
+      raw['grand_total'] ??
+      raw['price'] ??
+      raw['consultation_fee'];
+  if (value is num) return value;
+  return num.tryParse(value?.toString() ?? '') ?? 0;
 }

@@ -42,6 +42,17 @@ class LabPackageCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text('${package.tests.length} ${l10n.get('tests')}'),
             ],
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                for (final sample in package.sampleTypes)
+                  Chip(label: Text(sample)),
+                if (package.resultTimeHours != null)
+                  Chip(label: Text('${package.resultTimeHours}h')),
+              ],
+            ),
             const SizedBox(height: 12),
             Row(
               children: [

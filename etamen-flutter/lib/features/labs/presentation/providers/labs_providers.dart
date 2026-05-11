@@ -103,6 +103,10 @@ class LabsController extends StateNotifier<LabsState> {
   void search(String value) => state = state.copyWith(query: value);
 }
 
+enum LabCatalogFilter { all, tests, packages, quick }
+
+enum LabCatalogSort { newest, priceAsc, priceDesc, name, resultTime }
+
 class LabTestsState {
   const LabTestsState({
     this.tests = const [],
@@ -110,6 +114,8 @@ class LabTestsState {
     this.isLoading = false,
     this.error,
     this.query = '',
+    this.selectedFilter = LabCatalogFilter.all,
+    this.selectedSort = LabCatalogSort.newest,
   });
 
   final List<LabTest> tests;
@@ -117,29 +123,65 @@ class LabTestsState {
   final bool isLoading;
   final ApiError? error;
   final String query;
+  final LabCatalogFilter selectedFilter;
+  final LabCatalogSort selectedSort;
 
   List<LabTest> get filteredTests {
     final needle = query.trim().toLowerCase();
-    if (needle.isEmpty) return tests;
-    return tests
+    if (selectedFilter == LabCatalogFilter.packages) return const [];
+    final filtered = tests
         .where(
           (item) =>
-              item.name.toLowerCase().contains(needle) ||
-              (item.description?.toLowerCase().contains(needle) ?? false),
+              (needle.isEmpty ||
+                  item.name.toLowerCase().contains(needle) ||
+                  (item.description?.toLowerCase().contains(needle) ?? false) ||
+                  (item.sampleType?.toLowerCase().contains(needle) ?? false)) &&
+              (selectedFilter != LabCatalogFilter.quick ||
+                  (item.resultTimeHours ?? 9999) <= 12),
         )
         .toList(growable: false);
+    filtered.sort(
+      (a, b) => _compareCatalog(
+        a.name,
+        b.name,
+        a.price,
+        b.price,
+        a.resultTimeHours,
+        b.resultTimeHours,
+        selectedSort,
+      ),
+    );
+    return filtered;
   }
 
   List<LabPackage> get filteredPackages {
     final needle = query.trim().toLowerCase();
-    if (needle.isEmpty) return packages;
-    return packages
+    if (selectedFilter == LabCatalogFilter.tests) return const [];
+    final filtered = packages
         .where(
           (item) =>
-              item.name.toLowerCase().contains(needle) ||
-              (item.description?.toLowerCase().contains(needle) ?? false),
+              (needle.isEmpty ||
+                  item.name.toLowerCase().contains(needle) ||
+                  (item.description?.toLowerCase().contains(needle) ?? false) ||
+                  item.sampleTypes.any(
+                    (sample) => sample.toLowerCase().contains(needle),
+                  )) &&
+              (selectedFilter != LabCatalogFilter.quick ||
+                  (item.resultTimeHours ?? 9999) <= 12),
         )
         .toList(growable: false);
+    filtered.sort(
+      (a, b) => _compareCatalog(
+        a.name,
+        b.name,
+        a.price,
+        b.price,
+        a.resultTimeHours,
+        b.resultTimeHours,
+        selectedSort,
+      ),
+    );
+    return filtered;
   }
 
   bool get isEmpty =>
@@ -154,6 +196,8 @@ class LabTestsState {
     bool? isLoading,
     ApiError? error,
     String? query,
+    LabCatalogFilter? selectedFilter,
+    LabCatalogSort? selectedSort,
     bool clearError = false,
   }) {
     return LabTestsState(
@@ -162,6 +206,8 @@ class LabTestsState {
       isLoading: isLoading ?? this.isLoading,
       error: clearError ? null : error ?? this.error,
       query: query ?? this.query,
+      selectedFilter: selectedFilter ?? this.selectedFilter,
+      selectedSort: selectedSort ?? this.selectedSort,
     );
   }
 }
@@ -207,7 +253,39 @@ class LabTestsController extends StateNotifier<LabTestsState> {
   }
 
   void search(String value) => state = state.copyWith(query: value);
+
+  void selectFilter(LabCatalogFilter filter) {
+    state = state.copyWith(selectedFilter: filter);
+  }
+
+  void selectSort(LabCatalogSort sort) {
+    state = state.copyWith(selectedSort: sort);
+  }
 }
+
+int _compareCatalog(
+  String aName,
+  String bName,
+  String aPrice,
+  String bPrice,
+  int? aHours,
+  int? bHours,
+  LabCatalogSort sort,
+) {
+  return switch (sort) {
+    LabCatalogSort.priceAsc => _priceValue(
+      aPrice,
+    ).compareTo(_priceValue(bPrice)),
+    LabCatalogSort.priceDesc => _priceValue(
+      bPrice,
+    ).compareTo(_priceValue(aPrice)),
+    LabCatalogSort.name => aName.compareTo(bName),
+    LabCatalogSort.resultTime => (aHours ?? 9999).compareTo(bHours ?? 9999),
+    LabCatalogSort.newest => bName.compareTo(aName),
+  };
+}
+
+double _priceValue(String value) => double.tryParse(value) ?? 0;
 
 class LabCartState {
   const LabCartState({

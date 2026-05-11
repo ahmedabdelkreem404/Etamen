@@ -108,30 +108,60 @@ class PharmaciesController extends StateNotifier<PharmaciesState> {
   }
 }
 
+enum PharmacyCatalogFilter { all, inStock, prescription, nonPrescription }
+
+enum PharmacyCatalogSort { newest, priceAsc, priceDesc, name }
+
 class PharmacyProductsState {
   const PharmacyProductsState({
     this.items = const [],
     this.isLoading = false,
     this.error,
     this.query = '',
+    this.selectedFilter = PharmacyCatalogFilter.all,
+    this.selectedSort = PharmacyCatalogSort.newest,
   });
 
   final List<PharmacyProduct> items;
   final bool isLoading;
   final ApiError? error;
   final String query;
+  final PharmacyCatalogFilter selectedFilter;
+  final PharmacyCatalogSort selectedSort;
 
   List<PharmacyProduct> get filteredItems {
     final needle = query.trim().toLowerCase();
-    if (needle.isEmpty) return items;
-    return items
+    final filtered = items
         .where(
           (item) =>
-              item.name.toLowerCase().contains(needle) ||
-              (item.description?.toLowerCase().contains(needle) ?? false) ||
-              (item.category?.toLowerCase().contains(needle) ?? false),
+              (needle.isEmpty ||
+                  item.name.toLowerCase().contains(needle) ||
+                  (item.description?.toLowerCase().contains(needle) ?? false) ||
+                  (item.category?.toLowerCase().contains(needle) ?? false)) &&
+              (switch (selectedFilter) {
+                PharmacyCatalogFilter.all => true,
+                PharmacyCatalogFilter.inStock => item.inStock,
+                PharmacyCatalogFilter.prescription => item.requiresPrescription,
+                PharmacyCatalogFilter.nonPrescription =>
+                  !item.requiresPrescription,
+              }),
         )
         .toList(growable: false);
+
+    filtered.sort((a, b) {
+      return switch (selectedSort) {
+        PharmacyCatalogSort.priceAsc => _priceValue(
+          a.price,
+        ).compareTo(_priceValue(b.price)),
+        PharmacyCatalogSort.priceDesc => _priceValue(
+          b.price,
+        ).compareTo(_priceValue(a.price)),
+        PharmacyCatalogSort.name => a.name.compareTo(b.name),
+        PharmacyCatalogSort.newest => b.id.compareTo(a.id),
+      };
+    });
+
+    return filtered;
   }
 
   bool get isEmpty => !isLoading && error == null && filteredItems.isEmpty;
@@ -141,6 +171,8 @@ class PharmacyProductsState {
     bool? isLoading,
     ApiError? error,
     String? query,
+    PharmacyCatalogFilter? selectedFilter,
+    PharmacyCatalogSort? selectedSort,
     bool clearError = false,
   }) {
     return PharmacyProductsState(
@@ -148,6 +180,8 @@ class PharmacyProductsState {
       isLoading: isLoading ?? this.isLoading,
       error: clearError ? null : error ?? this.error,
       query: query ?? this.query,
+      selectedFilter: selectedFilter ?? this.selectedFilter,
+      selectedSort: selectedSort ?? this.selectedSort,
     );
   }
 }
@@ -185,7 +219,17 @@ class PharmacyProductsController extends StateNotifier<PharmacyProductsState> {
   void search(String value) {
     state = state.copyWith(query: value);
   }
+
+  void selectFilter(PharmacyCatalogFilter filter) {
+    state = state.copyWith(selectedFilter: filter);
+  }
+
+  void selectSort(PharmacyCatalogSort sort) {
+    state = state.copyWith(selectedSort: sort);
+  }
 }
+
+double _priceValue(String value) => double.tryParse(value) ?? 0;
 
 class PharmacyCartState {
   const PharmacyCartState({

@@ -116,3 +116,22 @@ Sprint 67 closes the Sprint 66 documentation gap and adds deeper local provider 
 Decision: `LOCAL_PHARMACY_LAB_HISTORY_POLISH_ACCEPTED`.
 
 Still not approved: staging, production, public launch, app store, external users, live payments, live refunds, or medical interpretation.
+
+## Sprint 69 Local Addendum
+
+- pharmacy product search/filter/sort: PASS.
+- lab tests/packages search/filter/sort: PASS.
+- provider pharmacy catalog filters: PASS.
+- provider lab catalog filters: PASS.
+- selected-items summaries: PASS, with backend-owned final total copy.
+- inactive/private catalog visibility rules: PASS.
+- seed variety for pharmacy/lab catalogs: PASS.
+- security sweep: PASS.
+- backend tests: `273 passed / 2392 assertions`.
+- Flutter tests: `202 passed`.
+- APK build: PASS.
+- screenshots: `I:/Etamen/.tmp/sprint69-local-pharmacy-lab-catalog-polish/`.
+
+Decision: `LOCAL_PHARMACY_LAB_CATALOG_POLISH_ACCEPTED`.
+
+Still not approved: production readiness, public launch, app-store release, external users, live payments, live refunds, or medical interpretation.

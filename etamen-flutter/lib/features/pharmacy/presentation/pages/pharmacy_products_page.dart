@@ -49,6 +49,20 @@ class PharmacyProductsPage extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 12),
+            _PharmacyCatalogControls(
+              filter: state.selectedFilter,
+              sort: state.selectedSort,
+              onFilter: controller.selectFilter,
+              onSort: controller.selectSort,
+            ),
+            if (cart.itemCount > 0) ...[
+              const SizedBox(height: 12),
+              _SelectedItemsSummary(
+                itemCount: cart.itemCount,
+                total: cart.localSubtotal,
+              ),
+            ],
+            const SizedBox(height: 12),
             if (state.isLoading)
               const LoadingView()
             else if (state.error != null)
@@ -117,5 +131,113 @@ class PharmacyProductsPage extends ConsumerWidget {
     if (shouldClear == true) {
       cart.addProduct(product, pharmacyId: pharmacyId, clearExisting: true);
     }
+  }
+}
+
+class _PharmacyCatalogControls extends StatelessWidget {
+  const _PharmacyCatalogControls({
+    required this.filter,
+    required this.sort,
+    required this.onFilter,
+    required this.onSort,
+  });
+
+  final PharmacyCatalogFilter filter;
+  final PharmacyCatalogSort sort;
+  final ValueChanged<PharmacyCatalogFilter> onFilter;
+  final ValueChanged<PharmacyCatalogSort> onSort;
+
+  @override
+  Widget build(BuildContext context) {
+    final isArabic = AppLocalizations.of(context).isArabic;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: PharmacyCatalogFilter.values
+                .map(
+                  (value) => Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 8),
+                    child: FilterChip(
+                      selected: filter == value,
+                      label: Text(_filterLabel(value, isArabic)),
+                      onSelected: (_) => onFilter(value),
+                    ),
+                  ),
+                )
+                .toList(growable: false),
+          ),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<PharmacyCatalogSort>(
+          value: sort,
+          decoration: InputDecoration(
+            labelText: isArabic ? 'ترتيب النتائج' : 'Sort results',
+          ),
+          items: PharmacyCatalogSort.values
+              .map(
+                (value) => DropdownMenuItem(
+                  value: value,
+                  child: Text(_sortLabel(value, isArabic)),
+                ),
+              )
+              .toList(growable: false),
+          onChanged: (value) {
+            if (value != null) onSort(value);
+          },
+        ),
+      ],
+    );
+  }
+
+  String _filterLabel(PharmacyCatalogFilter value, bool isArabic) {
+    return switch (value) {
+      PharmacyCatalogFilter.all => isArabic ? 'الكل' : 'All',
+      PharmacyCatalogFilter.inStock => isArabic ? 'متاح' : 'In stock',
+      PharmacyCatalogFilter.prescription =>
+        isArabic ? 'يحتاج روشتة' : 'Prescription',
+      PharmacyCatalogFilter.nonPrescription =>
+        isArabic ? 'لا يحتاج روشتة' : 'No prescription',
+    };
+  }
+
+  String _sortLabel(PharmacyCatalogSort value, bool isArabic) {
+    return switch (value) {
+      PharmacyCatalogSort.newest => isArabic ? 'الأحدث' : 'Newest',
+      PharmacyCatalogSort.priceAsc => isArabic ? 'السعر الأقل' : 'Lowest price',
+      PharmacyCatalogSort.priceDesc =>
+        isArabic ? 'السعر الأعلى' : 'Highest price',
+      PharmacyCatalogSort.name => isArabic ? 'الاسم' : 'Name',
+    };
+  }
+}
+
+class _SelectedItemsSummary extends StatelessWidget {
+  const _SelectedItemsSummary({required this.itemCount, required this.total});
+
+  final int itemCount;
+  final double total;
+
+  @override
+  Widget build(BuildContext context) {
+    final isArabic = AppLocalizations.of(context).isArabic;
+    return Card(
+      child: ListTile(
+        leading: const Icon(Icons.shopping_basket_outlined),
+        title: Text(
+          isArabic
+              ? 'العناصر المختارة: $itemCount'
+              : 'Selected items: $itemCount',
+        ),
+        subtitle: Text(
+          isArabic
+              ? 'الإجمالي النهائي يتم حسابه من السيرفر.'
+              : 'Final total is calculated by the server.',
+        ),
+        trailing: Text('${total.toStringAsFixed(0)} EGP'),
+      ),
+    );
   }
 }

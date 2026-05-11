@@ -22,6 +22,7 @@ class PharmacyProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final isArabic = l10n.isArabic;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -64,14 +65,30 @@ class PharmacyProductCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(
-                    '${product.price} ${product.currency}',
-                    style: const TextStyle(fontWeight: FontWeight.w800),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        '${product.price} ${product.currency}',
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                      Chip(
+                        label: Text(product.stockLabel(isArabic)),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      if (product.category?.trim().isNotEmpty == true)
+                        Chip(
+                          label: Text(product.category!),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                    ],
                   ),
                 ),
                 if (quantity == 0)
                   FilledButton.icon(
-                    onPressed: onAdd,
+                    onPressed: product.inStock ? onAdd : null,
                     icon: const Icon(Icons.add_shopping_cart),
                     label: Text(l10n.get('addToCart')),
                   )

@@ -49,6 +49,23 @@ class LabTestCard extends StatelessWidget {
                   Chip(label: Text('${test.resultTimeHours}h')),
               ],
             ),
+            if (test.preparationInstructions?.trim().isNotEmpty == true) ...[
+              const SizedBox(height: 4),
+              ExpansionTile(
+                tilePadding: EdgeInsets.zero,
+                childrenPadding: EdgeInsets.zero,
+                title: Text(l10n.isArabic ? 'تعليمات التحضير' : 'Preparation'),
+                children: [
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      test.preparationInstructions!,
+                      style: const TextStyle(color: AppColors.muted),
+                    ),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 12),
             Row(
               children: [

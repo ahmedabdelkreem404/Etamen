@@ -59,6 +59,8 @@ void main() {
       'provider_id': 9,
       'name_en': 'Checkup',
       'price': '300.00',
+      'sample_types': ['blood', 'urine'],
+      'result_time_hours': 8,
       'tests': [
         {'id': 15, 'name_en': 'CBC', 'price': '120.00'},
       ],
@@ -66,6 +68,8 @@ void main() {
 
     expect(package.id, 3);
     expect(package.tests, hasLength(1));
+    expect(package.sampleTypes, ['blood', 'urine']);
+    expect(package.resultTimeHours, 8);
   });
 
   test('LabOrderModel parses status, payment id, items and results safely', () {
@@ -260,6 +264,44 @@ void main() {
 
     expect(state.filteredItems, hasLength(1));
     expect(state.filteredItems.first.id, 1);
+  });
+
+  test('lab catalog state filters fast results and sorts by result time', () {
+    const state = LabTestsState(
+      selectedFilter: LabCatalogFilter.quick,
+      selectedSort: LabCatalogSort.resultTime,
+      tests: [
+        LabTest(
+          id: 1,
+          name: 'Slow',
+          price: '200',
+          currency: 'EGP',
+          isActive: true,
+          resultTimeHours: 48,
+        ),
+        LabTest(
+          id: 2,
+          name: 'Fast B',
+          price: '150',
+          currency: 'EGP',
+          isActive: true,
+          resultTimeHours: 8,
+        ),
+      ],
+      packages: [
+        LabPackage(
+          id: 3,
+          name: 'Fast A Package',
+          price: '300',
+          currency: 'EGP',
+          isActive: true,
+          resultTimeHours: 6,
+        ),
+      ],
+    );
+
+    expect(state.filteredTests.map((item) => item.id), [2]);
+    expect(state.filteredPackages.map((item) => item.id), [3]);
   });
 
   test('payment route context supports lab order id', () {

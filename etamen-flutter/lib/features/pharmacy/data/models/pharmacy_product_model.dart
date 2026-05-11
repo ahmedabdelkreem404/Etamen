@@ -14,6 +14,10 @@ class PharmacyProductModel extends PharmacyProduct {
     super.description,
     super.imageUrl,
     super.stockStatus,
+    super.stockQuantity,
+    super.serverInStock,
+    super.stockLabelAr,
+    super.stockLabelEn,
     super.category,
   });
 
@@ -42,6 +46,10 @@ class PharmacyProductModel extends PharmacyProduct {
       isActive: json['is_active'] != false,
       imageUrl: (json['image_url'] ?? json['image'])?.toString(),
       stockStatus: (json['stock_status'] ?? json['stock_quantity'])?.toString(),
+      stockQuantity: _toInt(json['stock_quantity']),
+      serverInStock: json['in_stock'] is bool ? json['in_stock'] as bool : null,
+      stockLabelAr: json['stock_label_ar']?.toString(),
+      stockLabelEn: json['stock_label_en']?.toString(),
       category:
           (category?['name_ar'] ?? category?['name_en'] ?? json['category'])
               ?.toString(),

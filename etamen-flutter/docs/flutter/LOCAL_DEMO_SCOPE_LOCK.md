@@ -496,6 +496,42 @@ Still not approved:
 - external users.
 - live payments or live refunds.
 
+## Sprint 69 Local Pharmacy/Lab Catalog Polish Lock
+
+Sprint 69 is accepted for local demo scope only.
+
+Decision:
+
+```text
+LOCAL_PHARMACY_LAB_CATALOG_POLISH_ACCEPTED
+```
+
+Accepted locally:
+
+- pharmacy product catalog search/filter/sort.
+- lab tests/packages catalog search/filter/sort.
+- provider pharmacy/lab catalog search/filter/sort for own-provider catalog only.
+- selected-items summaries with backend-owned final total copy.
+- broader pharmacy/lab catalog seed variety.
+- inactive/private public catalog visibility rules.
+- no raw prescription/result paths, no secrets, no payment config, no private provider docs, and no medical interpretation.
+
+Evidence:
+
+- backend `273 tests / 2392 assertions`.
+- Flutter `202 tests`.
+- screenshots `I:/Etamen/.tmp/sprint69-local-pharmacy-lab-catalog-polish/`.
+- APK `I:/Etamen/.tmp/etamen-local-pharmacy-lab-catalog-polish.apk`.
+
+Still not approved:
+
+- production readiness.
+- public launch.
+- app-store release.
+- external users.
+- live payments or live refunds.
+- medical interpretation.
+
 ## Sprint 68 Local Pharmacy/Lab History Lock
 
 Sprint 68 is accepted for local demo scope only.

@@ -51,3 +51,18 @@ Pharmacy and Labs now have stronger local order-history UX for patient, provider
 Decision: `LOCAL_PHARMACY_LAB_HISTORY_POLISH_ACCEPTED`.
 
 This remains local-only and does not approve staging, production, public launch, app-store release, external users, live payments, live refunds, or medical interpretation.
+
+## Sprint 69 Local Update
+
+Pharmacy and Labs now have stronger local catalog discovery UX:
+
+- pharmacy catalog search, filters, sorting, stock labels, prescription badges, and selected-items summary are accepted locally.
+- lab test/package search, filters, sorting by price/result time, sample/result-time metadata, collapsed preparation instructions, and selected-items summary are accepted locally.
+- provider pharmacy/lab catalog lists have search/filter/sort visibility for own catalog only.
+- seed data includes broader pharmacy product and lab test/package variety.
+- inactive/private patient visibility rules are enforced by backend tests.
+- no raw prescription paths, raw lab result paths, payment config, secrets, private provider docs, or medical interpretation are exposed.
+
+Decision: `LOCAL_PHARMACY_LAB_CATALOG_POLISH_ACCEPTED`.
+
+This remains local-only and does not approve production readiness, public launch, app-store release, external users, live payments, live refunds, or medical interpretation.
