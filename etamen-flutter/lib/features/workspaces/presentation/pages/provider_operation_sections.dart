@@ -25,11 +25,15 @@ class ProviderOperationAction {
     required this.key,
     required this.labelAr,
     required this.labelEn,
+    this.requiresReason = false,
+    this.destructive = false,
   });
 
   final String key;
   final String labelAr;
   final String labelEn;
+  final bool requiresReason;
+  final bool destructive;
 
   String label(bool isArabic) => isArabic ? labelAr : labelEn;
 }
@@ -91,6 +95,8 @@ ProviderOperationSection providerOperationSection(String section) {
           key: 'cancel',
           labelAr: 'إلغاء الحجز',
           labelEn: 'Cancel',
+          requiresReason: true,
+          destructive: true,
         ),
       ],
     ),
@@ -148,6 +154,41 @@ ProviderOperationSection providerOperationSection(String section) {
       titleAr: 'طلبات الصيدلية',
       titleEn: 'Pharmacy orders',
       iconKey: 'orders',
+      managePermission: 'manage_pharmacy_orders',
+      actions: [
+        ProviderOperationAction(
+          key: 'accept',
+          labelAr: 'قبول الطلب',
+          labelEn: 'Accept',
+        ),
+        ProviderOperationAction(
+          key: 'preparing',
+          labelAr: 'بدء التجهيز',
+          labelEn: 'Preparing',
+        ),
+        ProviderOperationAction(
+          key: 'ready',
+          labelAr: 'جاهز للاستلام',
+          labelEn: 'Ready',
+        ),
+        ProviderOperationAction(
+          key: 'out-for-delivery',
+          labelAr: 'خارج للتوصيل',
+          labelEn: 'Out for delivery',
+        ),
+        ProviderOperationAction(
+          key: 'complete',
+          labelAr: 'إكمال الطلب',
+          labelEn: 'Complete',
+        ),
+        ProviderOperationAction(
+          key: 'reject',
+          labelAr: 'رفض الطلب',
+          labelEn: 'Reject',
+          requiresReason: true,
+          destructive: true,
+        ),
+      ],
     ),
     'pharmacy/products' => const ProviderOperationSection(
       section: 'pharmacy/products',
@@ -161,6 +202,46 @@ ProviderOperationSection providerOperationSection(String section) {
       titleAr: 'طلبات المعمل',
       titleEn: 'Lab orders',
       iconKey: 'orders',
+      managePermission: 'manage_lab_orders',
+      actions: [
+        ProviderOperationAction(
+          key: 'accept',
+          labelAr: 'قبول الطلب',
+          labelEn: 'Accept',
+        ),
+        ProviderOperationAction(
+          key: 'sample-scheduled',
+          labelAr: 'تحديد موعد العينة',
+          labelEn: 'Schedule sample',
+        ),
+        ProviderOperationAction(
+          key: 'sample-collected',
+          labelAr: 'تم جمع العينة',
+          labelEn: 'Sample collected',
+        ),
+        ProviderOperationAction(
+          key: 'processing',
+          labelAr: 'قيد التحليل',
+          labelEn: 'Processing',
+        ),
+        ProviderOperationAction(
+          key: 'result-ready',
+          labelAr: 'النتيجة جاهزة',
+          labelEn: 'Result ready',
+        ),
+        ProviderOperationAction(
+          key: 'complete',
+          labelAr: 'إكمال الطلب',
+          labelEn: 'Complete',
+        ),
+        ProviderOperationAction(
+          key: 'reject',
+          labelAr: 'رفض الطلب',
+          labelEn: 'Reject',
+          requiresReason: true,
+          destructive: true,
+        ),
+      ],
     ),
     'lab/catalog' => const ProviderOperationSection(
       section: 'lab/catalog',

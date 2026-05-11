@@ -111,6 +111,24 @@ void main() {
       '/provider/workspace/12/doctor/appointments/5/confirm',
     );
     expect(
+      ApiEndpoints.providerWorkspaceOperationAction(
+        12,
+        'pharmacy/orders',
+        9,
+        'ready',
+      ),
+      '/provider/workspace/12/pharmacy/orders/9/ready',
+    );
+    expect(
+      ApiEndpoints.providerWorkspaceOperationAction(
+        13,
+        'lab/orders',
+        10,
+        'result-ready',
+      ),
+      '/provider/workspace/13/lab/orders/10/result-ready',
+    );
+    expect(
       RouteNames.providerOperation(12, 'radiology/orders'),
       '/workspace/provider/12/operations?section=radiology__orders',
     );
@@ -130,6 +148,38 @@ void main() {
     );
     expect(operationSectionForQuickAction('doctor', 'schedule'), isNull);
   });
+
+  test(
+    'pharmacy and lab provider action sections expose managed lifecycles',
+    () {
+      final pharmacy = providerOperationSection('pharmacy/orders');
+      expect(pharmacy.managePermission, 'manage_pharmacy_orders');
+      expect(pharmacy.actions.map((action) => action.key), [
+        'accept',
+        'preparing',
+        'ready',
+        'out-for-delivery',
+        'complete',
+        'reject',
+      ]);
+      expect(pharmacy.actions.last.requiresReason, true);
+      expect(pharmacy.actions.last.destructive, true);
+
+      final lab = providerOperationSection('lab/orders');
+      expect(lab.managePermission, 'manage_lab_orders');
+      expect(lab.actions.map((action) => action.key), [
+        'accept',
+        'sample-scheduled',
+        'sample-collected',
+        'processing',
+        'result-ready',
+        'complete',
+        'reject',
+      ]);
+      expect(lab.actions.last.requiresReason, true);
+      expect(lab.actions.last.destructive, true);
+    },
+  );
 
   test('provider operation list and friendly statuses parse safely', () {
     final list = ProviderOperationList.fromJson({

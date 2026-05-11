@@ -63,8 +63,11 @@ class ProviderOperationDetailsPage extends ConsumerWidget {
                 config: config,
                 permissions: permissions,
                 isSubmitting: state.isSubmitting,
-                onAction: (action) async {
-                  final ok = await controller.runAction(action.key);
+                onAction: (action, reason) async {
+                  final ok = await controller.runAction(
+                    action.key,
+                    reason: reason,
+                  );
                   if (!context.mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -188,7 +191,8 @@ class _Actions extends StatelessWidget {
   final ProviderOperationSection config;
   final List<String> permissions;
   final bool isSubmitting;
-  final ValueChanged<ProviderOperationAction> onAction;
+  final Future<void> Function(ProviderOperationAction action, String? reason)
+  onAction;
 
   @override
   Widget build(BuildContext context) {
@@ -238,14 +242,36 @@ class _Actions extends StatelessWidget {
               children: [
                 for (final action in config.actions)
                   FilledButton.tonalIcon(
-                    onPressed: isSubmitting ? null : () => onAction(action),
+                    style: action.destructive
+                        ? FilledButton.styleFrom(
+                            foregroundColor: Theme.of(
+                              context,
+                            ).colorScheme.error,
+                          )
+                        : null,
+                    onPressed: isSubmitting
+                        ? null
+                        : () async {
+                            String? reason;
+                            if (action.requiresReason) {
+                              reason = await _askReason(context, action);
+                              if (reason == null || reason.trim().isEmpty) {
+                                return;
+                              }
+                            }
+                            await onAction(action, reason);
+                          },
                     icon: isSubmitting
                         ? const SizedBox(
                             width: 16,
                             height: 16,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Icon(Icons.check_circle_outline),
+                        : Icon(
+                            action.destructive
+                                ? Icons.cancel_outlined
+                                : Icons.check_circle_outline,
+                          ),
                     label: Text(action.label(isArabic)),
                   ),
               ],
@@ -254,6 +280,45 @@ class _Actions extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<String?> _askReason(
+    BuildContext context,
+    ProviderOperationAction action,
+  ) async {
+    final isArabic = AppLocalizations.of(context).isArabic;
+    final controller = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(action.label(isArabic)),
+          content: TextField(
+            controller: controller,
+            maxLines: 3,
+            decoration: InputDecoration(
+              labelText: isArabic ? 'سبب الإجراء' : 'Reason',
+              hintText: isArabic
+                  ? 'اكتب سببًا واضحًا قبل التنفيذ'
+                  : 'Add a clear reason before continuing',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(isArabic ? 'إلغاء' : 'Cancel'),
+            ),
+            FilledButton(
+              onPressed: () =>
+                  Navigator.of(context).pop(controller.text.trim()),
+              child: Text(isArabic ? 'تنفيذ' : 'Continue'),
+            ),
+          ],
+        );
+      },
+    );
+    controller.dispose();
+    return result;
   }
 }
 

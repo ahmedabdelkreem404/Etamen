@@ -1830,7 +1830,7 @@ Next sprint must repair Hostinger access first, then run backup-first staging de
 
 Sprint 66 intentionally returns to local product work only and strengthens the two weakest patient modules.
 
-Local result, pending final Sprint 66 closeout:
+Local result:
 
 - pharmacy catalog/order/prescription/payment-proof path is hardened.
 - lab catalog/order/payment-proof/result metadata path is hardened.
@@ -1838,9 +1838,36 @@ Local result, pending final Sprint 66 closeout:
 - patient cancel is allowed only before payment flow starts.
 - provider pharmacy/lab views remain scoped.
 - security/privacy rules continue to block raw prescription paths, raw lab result paths, payment configs, and secrets.
+- Sprint 66 closeout decision: `LOCAL_PHARMACY_LAB_PATIENT_FLOWS_ACCEPTED`.
+- Sprint 66 evidence: backend `265 tests / 2168 assertions`, Flutter `196 tests`, APK `I:/Etamen/.tmp/etamen-local-pharmacy-lab-hardening.apk`, screenshots `I:/Etamen/.tmp/sprint66-local-pharmacy-lab-hardening/`.
 
 This does not approve staging, production, public launch, app-store release, external users, live payment, or live refunds.
 
 Next local product recommendation:
 
 - continue small local patient-demo polish for pharmacy/lab order history, empty states, and documentation evidence.
+
+## Sprint 67 Local Pharmacy/Lab Provider Actions Closeout
+
+Sprint 67 closes the Sprint 66 documentation gap and verifies pharmacy/lab provider-side operations locally.
+
+Local result:
+
+- Sprint 66 closeout docs now consistently show `LOCAL_PHARMACY_LAB_PATIENT_FLOWS_ACCEPTED`.
+- provider pharmacy actions work locally: accept, reject with reason, preparing, ready, out_for_delivery, complete.
+- provider lab actions work locally: accept, reject with reason, sample_scheduled, sample_collected, processing, result_ready, complete.
+- admin payment review regression works for pharmacy/lab payment contexts with proof metadata only.
+- limited staff manage actions return `403`.
+- wrong-provider pharmacy/lab access returns `403`.
+- security sweep result: `PASS`.
+- screenshots: `I:/Etamen/.tmp/sprint67-local-pharmacy-lab-provider-actions/`.
+- APK: `I:/Etamen/.tmp/etamen-local-pharmacy-lab-provider-actions.apk`.
+- tests/build: backend `267 tests / 2269 assertions`, Flutter `197 tests`, Flutter analyze clean, APK build passed.
+
+Decision:
+
+```text
+LOCAL_PHARMACY_LAB_PROVIDER_ACTIONS_ACCEPTED
+```
+
+This remains local-only and does not approve production, public launch, app-store release, external users, live payment, or live refunds.

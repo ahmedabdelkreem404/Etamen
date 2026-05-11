@@ -48,8 +48,10 @@ class WorkspaceRemoteDataSource {
     int providerId,
     String section,
     int itemId,
-    String action,
-  ) {
+    String action, {
+    String? reason,
+  }) {
+    final trimmedReason = reason?.trim();
     return _client.post<ProviderOperationItem>(
       ApiEndpoints.providerWorkspaceOperationAction(
         providerId,
@@ -57,6 +59,9 @@ class WorkspaceRemoteDataSource {
         itemId,
         action,
       ),
+      data: trimmedReason == null || trimmedReason.isEmpty
+          ? null
+          : {'reason': trimmedReason},
       parser: (raw) => ProviderOperationItem(raw: _asMap(raw)),
     );
   }

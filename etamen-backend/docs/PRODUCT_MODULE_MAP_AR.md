@@ -32,3 +32,7 @@
 ## Sprint 66 Local Update
 
 Pharmacy and Labs are no longer smoke-only in the local demo. Sprint 66 adds local patient flow hardening, safer payment-status presentation in Flutter, patient cancel-before-payment, and deeper local seed catalogs. No live payment, medical interpretation, or external-user approval is implied.
+
+## Sprint 67 Local Update
+
+Pharmacy and Labs now have stronger local provider operation actions on the unified workspace path. Pharmacy providers can accept/reject with reason and move paid orders through preparing, ready, out_for_delivery, and complete. Lab providers can accept/reject with reason and move paid orders through sample_scheduled, sample_collected, processing, result_ready, and complete. Backend permission checks still own all authorization, limited staff is blocked from manage actions, wrong-provider access is blocked, and raw prescription/lab-result paths remain hidden.

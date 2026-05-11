@@ -17,12 +17,19 @@ use App\Modules\Fitness\Infrastructure\Models\GymBooking;
 use App\Modules\Fitness\Infrastructure\Models\GymClassModel;
 use App\Modules\Fitness\Infrastructure\Models\GymMembershipPlan;
 use App\Modules\Identity\Database\Seeders\RoleSeeder;
+use App\Modules\Identity\Domain\Enums\UserRole;
+use App\Modules\Labs\Domain\Enums\LabOrderItemType;
 use App\Modules\Labs\Domain\Enums\LabOrderPaymentStatus;
 use App\Modules\Labs\Domain\Enums\LabOrderStatus;
 use App\Modules\Labs\Domain\Enums\LabSampleCollectionMethod;
 use App\Modules\Labs\Infrastructure\Models\LabOrder;
 use App\Modules\Labs\Infrastructure\Models\LabPackage;
 use App\Modules\Labs\Infrastructure\Models\LabTest;
+use App\Modules\Payments\Database\Seeders\PaymentMethodSeeder;
+use App\Modules\Payments\Domain\Enums\PaymentMethodType;
+use App\Modules\Payments\Domain\Enums\PaymentStatus;
+use App\Modules\Payments\Infrastructure\Models\Payment;
+use App\Modules\Payments\Infrastructure\Models\PaymentMethod;
 use App\Modules\Pharmacies\Domain\Enums\PharmacyDeliveryMethod;
 use App\Modules\Pharmacies\Domain\Enums\PharmacyOrderPaymentStatus;
 use App\Modules\Pharmacies\Domain\Enums\PharmacyOrderStatus;
@@ -40,6 +47,8 @@ use App\Modules\Providers\Infrastructure\Models\ProviderStaff;
 use App\Modules\Radiology\Domain\Enums\RadiologyOrderStatus;
 use App\Modules\Radiology\Infrastructure\Models\RadiologyOrder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -53,6 +62,7 @@ class ProviderOperationsMvpSprint51Test extends TestCase
         parent::setUp();
 
         $this->seed(RoleSeeder::class);
+        $this->seed(PaymentMethodSeeder::class);
     }
 
     public function test_doctor_owner_can_list_and_confirm_own_appointments(): void
@@ -142,6 +152,166 @@ class ProviderOperationsMvpSprint51Test extends TestCase
         Sanctum::actingAs($limited);
         $this->getJson('/api/v1/provider/workspace/'.$radiology->id.'/radiology/orders')->assertOk();
         $this->postJson('/api/v1/provider/workspace/'.$radiology->id.'/radiology/orders/'.$order->id.'/accept')->assertForbidden();
+    }
+
+    public function test_provider_workspace_pharmacy_actions_cover_lifecycle_guards_and_payment_regression(): void
+    {
+        Storage::fake('medical_private');
+
+        $patient = $this->patientUser();
+        [$owner, $provider] = $this->providerWithOwner(ProviderType::Pharmacy);
+        $product = PharmacyProduct::query()->create([
+            'provider_id' => $provider->id,
+            'name_ar' => 'دواء محلي',
+            'name_en' => 'Local medicine',
+            'price' => 150,
+            'stock_quantity' => 10,
+            'requires_prescription' => true,
+            'is_active' => true,
+        ]);
+        $order = $this->createPharmacyOrderThroughApi($patient, $provider, $product, withPrescription: true);
+
+        Sanctum::actingAs($owner);
+        $acceptContent = $this->postJson('/api/v1/provider/workspace/'.$provider->id.'/pharmacy/orders/'.$order->id.'/accept')
+            ->assertOk()
+            ->assertJsonPath('data.status', PharmacyOrderStatus::Accepted->value)
+            ->content();
+        $this->assertSafeProviderResponse($acceptContent);
+        $this->assertStringNotContainsString('prescription.pdf', $acceptContent);
+
+        $rejectedOrder = $this->createPharmacyOrderThroughApi($patient, $provider, $product, withPrescription: true);
+        Sanctum::actingAs($owner);
+        $this->postJson('/api/v1/provider/workspace/'.$provider->id.'/pharmacy/orders/'.$rejectedOrder->id.'/reject')
+            ->assertUnprocessable();
+        $this->postJson('/api/v1/provider/workspace/'.$provider->id.'/pharmacy/orders/'.$rejectedOrder->id.'/reject', [
+            'reason' => 'Local QA rejection reason.',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.status', PharmacyOrderStatus::Rejected->value);
+
+        [$wrongOwner, $wrongProvider] = $this->providerWithOwner(ProviderType::Pharmacy);
+        Sanctum::actingAs($wrongOwner);
+        $this->getJson('/api/v1/provider/workspace/'.$wrongProvider->id.'/pharmacy/orders/'.$order->id)->assertNotFound();
+        $this->postJson('/api/v1/provider/workspace/'.$wrongProvider->id.'/pharmacy/orders/'.$order->id.'/reject', [
+            'reason' => 'Wrong provider attempt.',
+        ])->assertNotFound();
+
+        $limited = $this->addStaff($provider, [ProviderPermission::ViewPharmacyOrders->value]);
+        Sanctum::actingAs($limited);
+        $this->getJson('/api/v1/provider/workspace/'.$provider->id.'/pharmacy/orders')->assertOk();
+        $this->postJson('/api/v1/provider/workspace/'.$provider->id.'/pharmacy/orders/'.$order->id.'/reject', [
+            'reason' => 'Limited staff attempt.',
+        ])->assertForbidden();
+
+        $payment = $this->preparePaymentProofForPharmacyOrder($patient, $order);
+        Sanctum::actingAs($this->adminUser());
+        $detailsContent = $this->getJson('/api/v1/admin/operations/payments/'.$payment->id)
+            ->assertOk()
+            ->assertJsonPath('data.proof.exists', true)
+            ->content();
+        $this->assertSafeProviderResponse($detailsContent);
+
+        $this->postJson('/api/v1/admin/operations/payments/'.$payment->id.'/accept')
+            ->assertOk()
+            ->assertJsonPath('data.status', PaymentStatus::Verified->value)
+            ->assertJsonPath('data.payable.status', PharmacyOrderStatus::Paid->value);
+        $this->assertSame(PharmacyOrderPaymentStatus::Paid, $order->refresh()->payment_status);
+
+        Sanctum::actingAs($owner);
+        $this->postJson('/api/v1/provider/workspace/'.$provider->id.'/pharmacy/orders/'.$order->id.'/preparing')
+            ->assertOk()
+            ->assertJsonPath('data.status', PharmacyOrderStatus::Preparing->value);
+        $this->postJson('/api/v1/provider/workspace/'.$provider->id.'/pharmacy/orders/'.$order->id.'/ready')
+            ->assertOk()
+            ->assertJsonPath('data.status', PharmacyOrderStatus::ReadyForPickup->value);
+        $this->postJson('/api/v1/provider/workspace/'.$provider->id.'/pharmacy/orders/'.$order->id.'/out-for-delivery')
+            ->assertOk()
+            ->assertJsonPath('data.status', PharmacyOrderStatus::OutForDelivery->value);
+        $this->postJson('/api/v1/provider/workspace/'.$provider->id.'/pharmacy/orders/'.$order->id.'/complete')
+            ->assertOk()
+            ->assertJsonPath('data.status', PharmacyOrderStatus::Delivered->value);
+    }
+
+    public function test_provider_workspace_lab_actions_cover_lifecycle_guards_and_payment_regression(): void
+    {
+        Storage::fake('medical_private');
+
+        $patient = $this->patientUser('lab-patient-'.Str::random(6).'@example.com');
+        [$owner, $provider] = $this->providerWithOwner(ProviderType::Lab);
+        $test = LabTest::query()->create([
+            'provider_id' => $provider->id,
+            'name_ar' => 'صورة دم',
+            'name_en' => 'CBC',
+            'code' => 'CBC-'.Str::upper(Str::random(4)),
+            'price' => 180,
+            'sample_type' => 'blood',
+            'is_active' => true,
+        ]);
+        $order = $this->createLabOrderThroughApi($patient, $provider, $test);
+
+        Sanctum::actingAs($owner);
+        $acceptContent = $this->postJson('/api/v1/provider/workspace/'.$provider->id.'/lab/orders/'.$order->id.'/accept')
+            ->assertOk()
+            ->assertJsonPath('data.status', LabOrderStatus::Accepted->value)
+            ->content();
+        $this->assertSafeProviderResponse($acceptContent);
+        $this->assertStringNotContainsString('diagnosis', $acceptContent);
+        $this->assertStringNotContainsString('interpretation', $acceptContent);
+
+        $rejectedOrder = $this->createLabOrderThroughApi($patient, $provider, $test);
+        Sanctum::actingAs($owner);
+        $this->postJson('/api/v1/provider/workspace/'.$provider->id.'/lab/orders/'.$rejectedOrder->id.'/reject')
+            ->assertUnprocessable();
+        $this->postJson('/api/v1/provider/workspace/'.$provider->id.'/lab/orders/'.$rejectedOrder->id.'/reject', [
+            'reason' => 'Local QA rejection reason.',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.status', LabOrderStatus::Rejected->value);
+
+        [$wrongOwner, $wrongProvider] = $this->providerWithOwner(ProviderType::Lab);
+        Sanctum::actingAs($wrongOwner);
+        $this->getJson('/api/v1/provider/workspace/'.$wrongProvider->id.'/lab/orders/'.$order->id)->assertNotFound();
+        $this->postJson('/api/v1/provider/workspace/'.$wrongProvider->id.'/lab/orders/'.$order->id.'/reject', [
+            'reason' => 'Wrong provider attempt.',
+        ])->assertNotFound();
+
+        $limited = $this->addStaff($provider, [ProviderPermission::ViewLabOrders->value]);
+        Sanctum::actingAs($limited);
+        $this->getJson('/api/v1/provider/workspace/'.$provider->id.'/lab/orders')->assertOk();
+        $this->postJson('/api/v1/provider/workspace/'.$provider->id.'/lab/orders/'.$order->id.'/reject', [
+            'reason' => 'Limited staff attempt.',
+        ])->assertForbidden();
+
+        $payment = $this->preparePaymentProofForLabOrder($patient, $order);
+        Sanctum::actingAs($this->adminUser());
+        $detailsContent = $this->getJson('/api/v1/admin/operations/payments/'.$payment->id)
+            ->assertOk()
+            ->assertJsonPath('data.proof.exists', true)
+            ->content();
+        $this->assertSafeProviderResponse($detailsContent);
+
+        $this->postJson('/api/v1/admin/operations/payments/'.$payment->id.'/accept')
+            ->assertOk()
+            ->assertJsonPath('data.status', PaymentStatus::Verified->value)
+            ->assertJsonPath('data.payable.status', LabOrderStatus::Paid->value);
+        $this->assertSame(LabOrderPaymentStatus::Paid, $order->refresh()->payment_status);
+
+        Sanctum::actingAs($owner);
+        $this->postJson('/api/v1/provider/workspace/'.$provider->id.'/lab/orders/'.$order->id.'/sample-scheduled')
+            ->assertOk()
+            ->assertJsonPath('data.status', LabOrderStatus::SampleScheduled->value);
+        $this->postJson('/api/v1/provider/workspace/'.$provider->id.'/lab/orders/'.$order->id.'/sample-collected')
+            ->assertOk()
+            ->assertJsonPath('data.status', LabOrderStatus::SampleCollected->value);
+        $this->postJson('/api/v1/provider/workspace/'.$provider->id.'/lab/orders/'.$order->id.'/processing')
+            ->assertOk()
+            ->assertJsonPath('data.status', LabOrderStatus::Processing->value);
+        $this->postJson('/api/v1/provider/workspace/'.$provider->id.'/lab/orders/'.$order->id.'/result-ready')
+            ->assertOk()
+            ->assertJsonPath('data.status', LabOrderStatus::ResultReady->value);
+        $this->postJson('/api/v1/provider/workspace/'.$provider->id.'/lab/orders/'.$order->id.'/complete')
+            ->assertOk()
+            ->assertJsonPath('data.status', LabOrderStatus::Completed->value);
     }
 
     private function exerciseRadiologyOperations(User $patient): string
@@ -358,6 +528,126 @@ class ProviderOperationsMvpSprint51Test extends TestCase
             ->assertJsonPath('data.status', CoachBookingStatus::Confirmed->value);
 
         return $bookings;
+    }
+
+    private function createPharmacyOrderThroughApi(User $patient, Provider $provider, PharmacyProduct $product, bool $withPrescription = false): PharmacyOrder
+    {
+        Sanctum::actingAs($patient);
+        $prescriptionId = null;
+
+        if ($withPrescription) {
+            $prescriptionId = $this->post('/api/v1/pharmacy/prescriptions', [
+                'pharmacy_provider_id' => $provider->id,
+                'file' => UploadedFile::fake()->create('prescription.pdf', 60, 'application/pdf'),
+                'notes' => 'Local QA prescription metadata only.',
+            ])
+                ->assertCreated()
+                ->assertJsonMissingPath('data.file.path')
+                ->assertJsonMissingPath('data.file.url')
+                ->json('data.id');
+        }
+
+        $orderId = $this->postJson('/api/v1/pharmacy/orders', [
+            'pharmacy_provider_id' => $provider->id,
+            'prescription_id' => $prescriptionId,
+            'delivery_method' => PharmacyDeliveryMethod::Pickup->value,
+            'items' => [
+                ['product_id' => $product->id, 'quantity' => 1],
+            ],
+        ])
+            ->assertCreated()
+            ->assertJsonPath('data.grand_total', '150.00')
+            ->json('data.id');
+
+        return PharmacyOrder::query()->with(['items', 'payment'])->findOrFail($orderId);
+    }
+
+    private function createLabOrderThroughApi(User $patient, Provider $provider, LabTest $test): LabOrder
+    {
+        Sanctum::actingAs($patient);
+
+        $orderId = $this->postJson('/api/v1/lab/orders', [
+            'lab_provider_id' => $provider->id,
+            'sample_collection_method' => LabSampleCollectionMethod::BranchVisit->value,
+            'scheduled_at' => now()->addDay()->toISOString(),
+            'items' => [
+                [
+                    'item_type' => LabOrderItemType::Test->value,
+                    'test_id' => $test->id,
+                    'quantity' => 1,
+                ],
+            ],
+        ])
+            ->assertCreated()
+            ->assertJsonPath('data.grand_total', '180.00')
+            ->json('data.id');
+
+        return LabOrder::query()->with(['items', 'payment'])->findOrFail($orderId);
+    }
+
+    private function preparePaymentProofForPharmacyOrder(User $patient, PharmacyOrder $order): Payment
+    {
+        Sanctum::actingAs($patient);
+        $this->postJson('/api/v1/pharmacy/orders/'.$order->id.'/pay')
+            ->assertOk()
+            ->assertJsonPath('data.payment_status', PharmacyOrderPaymentStatus::PendingPayment->value);
+
+        return $this->uploadManualProof($patient, $order->refresh()->payment);
+    }
+
+    private function preparePaymentProofForLabOrder(User $patient, LabOrder $order): Payment
+    {
+        Sanctum::actingAs($patient);
+        $this->postJson('/api/v1/lab/orders/'.$order->id.'/pay')
+            ->assertOk()
+            ->assertJsonPath('data.payment_status', LabOrderPaymentStatus::PendingPayment->value);
+
+        return $this->uploadManualProof($patient, $order->refresh()->payment);
+    }
+
+    private function uploadManualProof(User $patient, Payment $payment): Payment
+    {
+        $method = $this->paymentMethod(PaymentMethodType::ManualVodafoneCash);
+
+        Sanctum::actingAs($patient);
+        $this->postJson('/api/v1/payments/'.$payment->id.'/manual/select', [
+            'payment_method_id' => $method->id,
+        ])->assertOk();
+
+        $this->post('/api/v1/payments/'.$payment->id.'/proofs', [
+            'file' => UploadedFile::fake()->create('proof.jpg', 30, 'image/jpeg'),
+            'reference_number' => 'VC-'.Str::upper(Str::random(6)),
+            'sender_phone' => '01012345678',
+        ])
+            ->assertCreated()
+            ->assertJsonMissingPath('data.file.path')
+            ->assertJsonMissingPath('data.file.url');
+
+        return $payment->refresh();
+    }
+
+    private function paymentMethod(PaymentMethodType $type): PaymentMethod
+    {
+        $method = PaymentMethod::query()->where('type', $type)->firstOrFail();
+        $method->update(['is_active' => true]);
+
+        return $method->refresh();
+    }
+
+    private function patientUser(string $email = 'patient-qa@example.com'): User
+    {
+        $user = User::factory()->create(['email' => $email]);
+        $user->assignRole(UserRole::Patient->value);
+
+        return $user;
+    }
+
+    private function adminUser(): User
+    {
+        $user = User::factory()->create(['email' => 'admin-'.Str::random(8).'@example.com']);
+        $user->assignRole(UserRole::SuperAdmin->value);
+
+        return $user;
     }
 
     private function providerWithOwner(ProviderType $type): array

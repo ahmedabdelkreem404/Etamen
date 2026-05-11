@@ -201,6 +201,18 @@ class PharmacyOrderService
         });
     }
 
+    public function providerWorkspaceUpdateStatus(User $providerUser, Provider $provider, PharmacyOrder $order, PharmacyOrderStatus $to, ?string $reason = null): PharmacyOrder
+    {
+        return DB::transaction(function () use ($providerUser, $provider, $order, $to, $reason): PharmacyOrder {
+            abort_if($provider->type !== ProviderType::Pharmacy, 403);
+
+            $order = PharmacyOrder::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
+            abort_if((int) $order->pharmacy_provider_id !== (int) $provider->id, 403);
+
+            return $this->transitionProviderOrder($providerUser, $order, $to, $reason);
+        });
+    }
+
     public function adminUpdateStatus(User $admin, PharmacyOrder $order, PharmacyOrderStatus $to, ?string $reason = null): PharmacyOrder
     {
         return DB::transaction(function () use ($admin, $order, $to, $reason): PharmacyOrder {

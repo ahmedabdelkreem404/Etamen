@@ -16,9 +16,13 @@ use App\Modules\Fitness\Infrastructure\Models\CoachSessionType;
 use App\Modules\Fitness\Infrastructure\Models\GymBooking;
 use App\Modules\Fitness\Infrastructure\Models\GymClassModel;
 use App\Modules\Fitness\Infrastructure\Models\GymMembershipPlan;
+use App\Modules\Labs\Application\Services\LabOrderService;
+use App\Modules\Labs\Domain\Enums\LabOrderStatus;
 use App\Modules\Labs\Infrastructure\Models\LabOrder;
 use App\Modules\Labs\Infrastructure\Models\LabPackage;
 use App\Modules\Labs\Infrastructure\Models\LabTest;
+use App\Modules\Pharmacies\Application\Services\PharmacyOrderService;
+use App\Modules\Pharmacies\Domain\Enums\PharmacyOrderStatus;
 use App\Modules\Pharmacies\Infrastructure\Models\PharmacyOrder;
 use App\Modules\Pharmacies\Infrastructure\Models\PharmacyProduct;
 use App\Modules\Providers\Application\Services\ProviderWorkspaceService;
@@ -46,6 +50,8 @@ class ProviderWorkspaceOperationsController extends ApiController
         private readonly RadiologyOrderService $radiologyOrders,
         private readonly GymBookingStatusService $gymBookingStatus,
         private readonly CoachBookingStatusService $coachBookingStatus,
+        private readonly PharmacyOrderService $pharmacyOrdersService,
+        private readonly LabOrderService $labOrdersService,
     ) {}
 
     public function doctorAppointments(Request $request, Provider $provider): JsonResponse
@@ -254,6 +260,36 @@ class ProviderWorkspaceOperationsController extends ApiController
         return $this->success($this->pharmacyOrderPayload($order));
     }
 
+    public function acceptPharmacyOrder(Request $request, Provider $provider, PharmacyOrder $order): JsonResponse
+    {
+        return $this->transitionPharmacyOrder($request, $provider, $order, PharmacyOrderStatus::Accepted);
+    }
+
+    public function rejectPharmacyOrder(Request $request, Provider $provider, PharmacyOrder $order): JsonResponse
+    {
+        return $this->transitionPharmacyOrder($request, $provider, $order, PharmacyOrderStatus::Rejected, true);
+    }
+
+    public function markPharmacyPreparing(Request $request, Provider $provider, PharmacyOrder $order): JsonResponse
+    {
+        return $this->transitionPharmacyOrder($request, $provider, $order, PharmacyOrderStatus::Preparing);
+    }
+
+    public function markPharmacyReady(Request $request, Provider $provider, PharmacyOrder $order): JsonResponse
+    {
+        return $this->transitionPharmacyOrder($request, $provider, $order, PharmacyOrderStatus::ReadyForPickup);
+    }
+
+    public function markPharmacyOutForDelivery(Request $request, Provider $provider, PharmacyOrder $order): JsonResponse
+    {
+        return $this->transitionPharmacyOrder($request, $provider, $order, PharmacyOrderStatus::OutForDelivery);
+    }
+
+    public function completePharmacyOrder(Request $request, Provider $provider, PharmacyOrder $order): JsonResponse
+    {
+        return $this->transitionPharmacyOrder($request, $provider, $order, PharmacyOrderStatus::Delivered);
+    }
+
     public function pharmacyProducts(Request $request, Provider $provider): JsonResponse
     {
         $this->authorizeWorkspace($request, $provider, ProviderPermission::ManagePharmacyProducts, ProviderType::Pharmacy);
@@ -294,6 +330,41 @@ class ProviderWorkspaceOperationsController extends ApiController
         $order = $this->labOrderForProvider($provider, $order);
 
         return $this->success($this->labOrderPayload($order));
+    }
+
+    public function acceptLabOrder(Request $request, Provider $provider, LabOrder $order): JsonResponse
+    {
+        return $this->transitionLabOrder($request, $provider, $order, LabOrderStatus::Accepted);
+    }
+
+    public function rejectLabOrder(Request $request, Provider $provider, LabOrder $order): JsonResponse
+    {
+        return $this->transitionLabOrder($request, $provider, $order, LabOrderStatus::Rejected, true);
+    }
+
+    public function scheduleLabSample(Request $request, Provider $provider, LabOrder $order): JsonResponse
+    {
+        return $this->transitionLabOrder($request, $provider, $order, LabOrderStatus::SampleScheduled);
+    }
+
+    public function markLabSampleCollected(Request $request, Provider $provider, LabOrder $order): JsonResponse
+    {
+        return $this->transitionLabOrder($request, $provider, $order, LabOrderStatus::SampleCollected);
+    }
+
+    public function markLabProcessing(Request $request, Provider $provider, LabOrder $order): JsonResponse
+    {
+        return $this->transitionLabOrder($request, $provider, $order, LabOrderStatus::Processing);
+    }
+
+    public function markLabResultReady(Request $request, Provider $provider, LabOrder $order): JsonResponse
+    {
+        return $this->transitionLabOrder($request, $provider, $order, LabOrderStatus::ResultReady);
+    }
+
+    public function completeLabOrder(Request $request, Provider $provider, LabOrder $order): JsonResponse
+    {
+        return $this->transitionLabOrder($request, $provider, $order, LabOrderStatus::Completed);
     }
 
     public function labCatalog(Request $request, Provider $provider): JsonResponse
@@ -611,6 +682,40 @@ class ProviderWorkspaceOperationsController extends ApiController
         )->load(['patient', 'sessionType', 'availabilitySlot', 'payment.paymentMethod']));
 
         return $this->success($this->coachBookingPayload($updated));
+    }
+
+    private function transitionPharmacyOrder(Request $request, Provider $provider, PharmacyOrder $order, PharmacyOrderStatus $to, bool $requiresReason = false): JsonResponse
+    {
+        $this->authorizeWorkspace($request, $provider, ProviderPermission::ManagePharmacyOrders, ProviderType::Pharmacy);
+        $order = $this->pharmacyOrderForProvider($provider, $order);
+        $reason = $request->string('reason')->trim()->toString() ?: null;
+
+        if ($requiresReason && ! $reason) {
+            throw ValidationException::withMessages(['reason' => ['A reason is required for this pharmacy action.']]);
+        }
+
+        $updated = $this->pharmacyOrdersService
+            ->providerWorkspaceUpdateStatus($request->user(), $provider, $order, $to, $reason)
+            ->load(['patient', 'payment.paymentMethod', 'items']);
+
+        return $this->success($this->pharmacyOrderPayload($updated));
+    }
+
+    private function transitionLabOrder(Request $request, Provider $provider, LabOrder $order, LabOrderStatus $to, bool $requiresReason = false): JsonResponse
+    {
+        $this->authorizeWorkspace($request, $provider, ProviderPermission::ManageLabOrders, ProviderType::Lab);
+        $order = $this->labOrderForProvider($provider, $order);
+        $reason = $request->string('reason')->trim()->toString() ?: null;
+
+        if ($requiresReason && ! $reason) {
+            throw ValidationException::withMessages(['reason' => ['A reason is required for this lab action.']]);
+        }
+
+        $updated = $this->labOrdersService
+            ->providerWorkspaceUpdateStatus($request->user(), $provider, $order, $to, $reason)
+            ->load(['patient', 'payment.paymentMethod', 'items', 'results']);
+
+        return $this->success($this->labOrderPayload($updated));
     }
 
     private function assertCurrentStatus(UnitEnum|string|null $current, array $allowed, string $message): void

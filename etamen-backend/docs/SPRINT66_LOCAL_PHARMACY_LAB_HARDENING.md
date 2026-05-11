@@ -50,7 +50,12 @@ No live gateway was added.
 - Screenshots root: `I:/Etamen/.tmp/sprint66-local-pharmacy-lab-hardening/`
 - APK: `I:/Etamen/.tmp/etamen-local-pharmacy-lab-hardening.apk`
 - Desktop APK: `C:/Users/Ahmed Abdelkareem/OneDrive/Desktop/Etamen_Android_Website_Ready/etamen-local-pharmacy-lab-hardening.apk`
+- Backend tests: `265 tests / 2168 assertions`.
+- Flutter tests: `196 tests`.
+- Security sweep: no raw prescription paths, no raw lab result paths, no secrets/payment config, and no medical interpretation.
 
 ## Decision
 
-Pending final full test/build/screenshot gate in Sprint 66 closeout.
+`LOCAL_PHARMACY_LAB_PATIENT_FLOWS_ACCEPTED`
+
+Sprint 66 is closed out as a local-only patient flow hardening sprint. Sprint 67 adds deeper provider-side action QA on top of this accepted baseline.

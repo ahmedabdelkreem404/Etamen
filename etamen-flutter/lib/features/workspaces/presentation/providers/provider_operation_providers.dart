@@ -173,13 +173,14 @@ class ProviderOperationDetailsController
     );
   }
 
-  Future<bool> runAction(String action) async {
+  Future<bool> runAction(String action, {String? reason}) async {
     state = state.copyWith(isSubmitting: true, clearError: true);
     final result = await _repository.runProviderOperationAction(
       args.providerId,
       args.section,
       args.itemId,
       action,
+      reason: reason,
     );
     return result.when(
       success: (item) {

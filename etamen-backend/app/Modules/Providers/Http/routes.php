@@ -76,10 +76,23 @@ Route::prefix('provider/workspace/{provider}')->middleware(['auth:sanctum'])->gr
 
     Route::get('/pharmacy/orders', [ProviderWorkspaceOperationsController::class, 'pharmacyOrders']);
     Route::get('/pharmacy/orders/{order}', [ProviderWorkspaceOperationsController::class, 'pharmacyOrder']);
+    Route::post('/pharmacy/orders/{order}/accept', [ProviderWorkspaceOperationsController::class, 'acceptPharmacyOrder'])->middleware('throttle:sensitive-action');
+    Route::post('/pharmacy/orders/{order}/reject', [ProviderWorkspaceOperationsController::class, 'rejectPharmacyOrder'])->middleware('throttle:sensitive-action');
+    Route::post('/pharmacy/orders/{order}/preparing', [ProviderWorkspaceOperationsController::class, 'markPharmacyPreparing'])->middleware('throttle:sensitive-action');
+    Route::post('/pharmacy/orders/{order}/ready', [ProviderWorkspaceOperationsController::class, 'markPharmacyReady'])->middleware('throttle:sensitive-action');
+    Route::post('/pharmacy/orders/{order}/out-for-delivery', [ProviderWorkspaceOperationsController::class, 'markPharmacyOutForDelivery'])->middleware('throttle:sensitive-action');
+    Route::post('/pharmacy/orders/{order}/complete', [ProviderWorkspaceOperationsController::class, 'completePharmacyOrder'])->middleware('throttle:sensitive-action');
     Route::get('/pharmacy/products', [ProviderWorkspaceOperationsController::class, 'pharmacyProducts']);
 
     Route::get('/lab/orders', [ProviderWorkspaceOperationsController::class, 'labOrders']);
     Route::get('/lab/orders/{order}', [ProviderWorkspaceOperationsController::class, 'labOrder']);
+    Route::post('/lab/orders/{order}/accept', [ProviderWorkspaceOperationsController::class, 'acceptLabOrder'])->middleware('throttle:sensitive-action');
+    Route::post('/lab/orders/{order}/reject', [ProviderWorkspaceOperationsController::class, 'rejectLabOrder'])->middleware('throttle:sensitive-action');
+    Route::post('/lab/orders/{order}/sample-scheduled', [ProviderWorkspaceOperationsController::class, 'scheduleLabSample'])->middleware('throttle:sensitive-action');
+    Route::post('/lab/orders/{order}/sample-collected', [ProviderWorkspaceOperationsController::class, 'markLabSampleCollected'])->middleware('throttle:sensitive-action');
+    Route::post('/lab/orders/{order}/processing', [ProviderWorkspaceOperationsController::class, 'markLabProcessing'])->middleware('throttle:sensitive-action');
+    Route::post('/lab/orders/{order}/result-ready', [ProviderWorkspaceOperationsController::class, 'markLabResultReady'])->middleware('throttle:sensitive-action');
+    Route::post('/lab/orders/{order}/complete', [ProviderWorkspaceOperationsController::class, 'completeLabOrder'])->middleware('throttle:sensitive-action');
     Route::get('/lab/catalog', [ProviderWorkspaceOperationsController::class, 'labCatalog']);
 
     Route::get('/gym/bookings', [ProviderWorkspaceOperationsController::class, 'gymBookings']);

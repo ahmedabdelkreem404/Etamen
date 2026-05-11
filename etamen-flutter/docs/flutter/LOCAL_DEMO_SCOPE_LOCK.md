@@ -471,7 +471,7 @@ Next real gate:
 
 Sprint 66 keeps the scope local-only and improves the weakest patient modules.
 
-Accepted locally after Sprint 66, pending final closeout artifacts:
+Accepted locally after Sprint 66:
 
 - pharmacy list/details/catalog/order creation.
 - pharmacy prescription metadata and manual payment proof flow.
@@ -484,6 +484,8 @@ Accepted locally after Sprint 66, pending final closeout artifacts:
 - provider pharmacy/lab order views remain scoped to own provider.
 - no raw prescription or lab result paths.
 - no diagnosis or medical interpretation.
+- decision: `LOCAL_PHARMACY_LAB_PATIENT_FLOWS_ACCEPTED`.
+- evidence: backend `265 tests / 2168 assertions`, Flutter `196 tests`, APK `I:/Etamen/.tmp/etamen-local-pharmacy-lab-hardening.apk`, screenshots `I:/Etamen/.tmp/sprint66-local-pharmacy-lab-hardening/`.
 
 Still not approved:
 
@@ -529,3 +531,37 @@ This still means:
 Next real gate:
 
 - fix Hostinger access, verify backup feasibility, then run backup-first staging recovery.
+
+## Sprint 67 Local Pharmacy/Lab Provider Actions Lock
+
+Sprint 67 is accepted for local demo scope only.
+
+Decision:
+
+```text
+LOCAL_PHARMACY_LAB_PROVIDER_ACTIONS_ACCEPTED
+```
+
+Accepted locally:
+
+- Sprint 66 docs corrected to `LOCAL_PHARMACY_LAB_PATIENT_FLOWS_ACCEPTED`.
+- pharmacy provider lifecycle actions: accept, reject with reason, preparing, ready, out_for_delivery, complete.
+- lab provider lifecycle actions: accept, reject with reason, sample_scheduled, sample_collected, processing, result_ready, complete.
+- admin payment review regression for pharmacy/lab payment proof contexts.
+- limited staff and wrong-provider blocks verified.
+- no raw prescription/result paths, no secrets, no payment config, and no medical interpretation.
+
+Evidence:
+
+- backend `267 tests / 2269 assertions`.
+- Flutter `197 tests`.
+- screenshots `I:/Etamen/.tmp/sprint67-local-pharmacy-lab-provider-actions/`.
+- APK `I:/Etamen/.tmp/etamen-local-pharmacy-lab-provider-actions.apk`.
+
+Still not approved:
+
+- production readiness.
+- public launch.
+- app-store release.
+- external users.
+- live payments or live refunds.

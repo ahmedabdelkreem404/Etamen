@@ -32,7 +32,7 @@ Sprint 61 locks Etamen for internal local demos only. This matrix summarizes the
 | Doctor dashboard/appointments | PASS | Own appointments only. |
 | Hospital dashboard/appointments/departments/doctors | PASS | Hospital-context appointments only. |
 | Radiology orders | PASS | Own orders only; no raw result path. |
-| Pharmacy/lab operations | PASS | Sprint 66 confirms own-provider order views and safe status management with hidden raw paths. |
+| Pharmacy/lab operations | PASS | Sprint 67 confirms workspace-scoped provider lifecycle actions, wrong-provider blocking, limited-staff blocking, admin payment regression, and hidden raw paths. |
 | Gym bookings/plans/classes | PASS | Own provider data only. |
 | Coach bookings/availability/session types/packages | PASS | Own provider data only. |
 | Provider support | PASS | Scoped provider tickets only. |
@@ -71,6 +71,17 @@ Sprint 66 upgrades pharmacy/lab from smoke-focused demo modules to stronger loca
 - provider pharmacy/lab order visibility remains scoped to own provider.
 - payment proof review remains admin-owned; Flutter never verifies payment.
 - no diagnosis or interpretation is added to lab results.
+
+## Sprint 67 Pharmacy/Lab Provider Action Addendum
+
+Sprint 67 closes the Sprint 66 documentation gap and adds deeper local provider QA:
+
+- pharmacy workspace actions: accept, reject with reason, preparing, ready, out_for_delivery, complete.
+- lab workspace actions: accept, reject with reason, sample_scheduled, sample_collected, processing, result_ready, complete.
+- limited staff can view allowed lists but cannot run manage actions without backend permission.
+- wrong provider cannot view or mutate another provider's pharmacy/lab order.
+- admin payment review still updates linked pharmacy/lab orders and exposes proof metadata only.
+- provider/admin responses still hide prescription/result raw paths and payment config.
 
 ## Not Approved
 

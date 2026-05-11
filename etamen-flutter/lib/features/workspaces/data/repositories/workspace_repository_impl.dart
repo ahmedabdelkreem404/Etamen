@@ -45,13 +45,15 @@ class WorkspaceRepositoryImpl implements WorkspaceRepository {
     int providerId,
     String section,
     int itemId,
-    String action,
-  ) {
+    String action, {
+    String? reason,
+  }) {
     return _remoteDataSource.runProviderOperationAction(
       providerId,
       section,
       itemId,
       action,
+      reason: reason,
     );
   }
 }

@@ -191,6 +191,18 @@ class LabOrderService
         });
     }
 
+    public function providerWorkspaceUpdateStatus(User $providerUser, Provider $provider, LabOrder $order, LabOrderStatus $to, ?string $reason = null): LabOrder
+    {
+        return DB::transaction(function () use ($providerUser, $provider, $order, $to, $reason): LabOrder {
+            abort_if($provider->type !== ProviderType::Lab, 403);
+
+            $order = LabOrder::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
+            abort_if((int) $order->lab_provider_id !== (int) $provider->id, 403);
+
+            return $this->transitionProviderOrder($providerUser, $order, $to, $reason);
+        });
+    }
+
     public function adminUpdateStatus(User $admin, LabOrder $order, LabOrderStatus $to, ?string $reason = null): LabOrder
     {
         return DB::transaction(function () use ($admin, $order, $to, $reason): LabOrder {

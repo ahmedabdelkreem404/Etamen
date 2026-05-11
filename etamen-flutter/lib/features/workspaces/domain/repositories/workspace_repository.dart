@@ -22,6 +22,7 @@ abstract class WorkspaceRepository {
     int providerId,
     String section,
     int itemId,
-    String action,
-  );
+    String action, {
+    String? reason,
+  });
 }

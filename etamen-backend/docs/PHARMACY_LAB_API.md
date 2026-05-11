@@ -24,6 +24,20 @@ Rules:
 
 ## Pharmacy Provider
 
+Workspace-scoped operations:
+
+- `GET /api/v1/provider/workspace/{provider}/pharmacy/orders`
+- `GET /api/v1/provider/workspace/{provider}/pharmacy/orders/{order}`
+- `POST /api/v1/provider/workspace/{provider}/pharmacy/orders/{order}/accept`
+- `POST /api/v1/provider/workspace/{provider}/pharmacy/orders/{order}/reject`
+- `POST /api/v1/provider/workspace/{provider}/pharmacy/orders/{order}/preparing`
+- `POST /api/v1/provider/workspace/{provider}/pharmacy/orders/{order}/ready`
+- `POST /api/v1/provider/workspace/{provider}/pharmacy/orders/{order}/out-for-delivery`
+- `POST /api/v1/provider/workspace/{provider}/pharmacy/orders/{order}/complete`
+- `GET /api/v1/provider/workspace/{provider}/pharmacy/products`
+
+Legacy provider operations:
+
 - `GET /api/v1/provider/pharmacy/products`
 - `POST /api/v1/provider/pharmacy/products`
 - `GET /api/v1/provider/pharmacy/products/{product}`
@@ -33,7 +47,7 @@ Rules:
 - `GET /api/v1/provider/pharmacy/orders/{order}`
 - `PATCH /api/v1/provider/pharmacy/orders/{order}/status`
 
-Provider access is scoped to the active pharmacy provider.
+Provider access is scoped to the active pharmacy provider. Workspace-scoped actions require `manage_pharmacy_orders`, reject requires a reason, and responses expose prescription metadata only.
 
 ## Lab Patient
 
@@ -60,6 +74,21 @@ Rules:
 
 ## Lab Provider
 
+Workspace-scoped operations:
+
+- `GET /api/v1/provider/workspace/{provider}/lab/orders`
+- `GET /api/v1/provider/workspace/{provider}/lab/orders/{order}`
+- `POST /api/v1/provider/workspace/{provider}/lab/orders/{order}/accept`
+- `POST /api/v1/provider/workspace/{provider}/lab/orders/{order}/reject`
+- `POST /api/v1/provider/workspace/{provider}/lab/orders/{order}/sample-scheduled`
+- `POST /api/v1/provider/workspace/{provider}/lab/orders/{order}/sample-collected`
+- `POST /api/v1/provider/workspace/{provider}/lab/orders/{order}/processing`
+- `POST /api/v1/provider/workspace/{provider}/lab/orders/{order}/result-ready`
+- `POST /api/v1/provider/workspace/{provider}/lab/orders/{order}/complete`
+- `GET /api/v1/provider/workspace/{provider}/lab/catalog`
+
+Legacy provider operations:
+
 - `GET /api/v1/provider/lab/tests`
 - `POST /api/v1/provider/lab/tests`
 - `GET /api/v1/provider/lab/tests/{test}`
@@ -75,4 +104,4 @@ Rules:
 - `PATCH /api/v1/provider/lab/orders/{order}/status`
 - `POST /api/v1/provider/lab/orders/{order}/results`
 
-Provider access is scoped to the active lab provider.
+Provider access is scoped to the active lab provider. Workspace-scoped actions require `manage_lab_orders`, reject requires a reason, result metadata remains safe, and no medical interpretation is returned.

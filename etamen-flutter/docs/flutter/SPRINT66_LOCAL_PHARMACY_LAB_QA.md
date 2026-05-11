@@ -47,6 +47,12 @@ I:/Etamen/.tmp/etamen-local-pharmacy-lab-hardening.apk
 C:/Users/Ahmed Abdelkareem/OneDrive/Desktop/Etamen_Android_Website_Ready/etamen-local-pharmacy-lab-hardening.apk
 ```
 
+## Tests / Build
+
+- Backend: `265 tests / 2168 assertions`.
+- Flutter: `196 tests`.
+- APK build: passed for the local Android x64 artifact above.
+
 ## Security Checks
 
 - no raw prescription path.
@@ -60,4 +66,6 @@ C:/Users/Ahmed Abdelkareem/OneDrive/Desktop/Etamen_Android_Website_Ready/etamen-
 
 ## Decision
 
-Pending final full test/build/screenshot gate in Sprint 66 closeout.
+`LOCAL_PHARMACY_LAB_PATIENT_FLOWS_ACCEPTED`
+
+Sprint 66 is closed as local-only accepted. Sprint 67 continues with provider pharmacy/lab lifecycle action QA without changing the local-only scope.
