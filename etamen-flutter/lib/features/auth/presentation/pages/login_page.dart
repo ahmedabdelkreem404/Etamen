@@ -103,7 +103,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     onPressed: () => context.go(RouteNames.register),
                     child: Text(l10n.get('register')),
                   ),
-                  if (AppConfig.environment == 'local') ...[
+                  if (AppConfig.isLocalEnvironment) ...[
                     const SizedBox(height: 16),
                     const Divider(),
                     const SizedBox(height: 8),

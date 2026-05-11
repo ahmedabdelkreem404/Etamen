@@ -5,8 +5,14 @@ class AppConfig {
 
   static const environment = String.fromEnvironment(
     'ETAMEN_ENV',
-    defaultValue: 'local',
+    defaultValue: 'unset',
   );
+
+  static bool get isLocalEnvironment => isLocalEnvironmentValue(environment);
+
+  static bool isLocalEnvironmentValue(String? value) {
+    return value?.trim().toLowerCase() == 'local';
+  }
 
   static const apiBaseUrl = String.fromEnvironment(
     'ETAMEN_API_BASE_URL',

@@ -140,15 +140,23 @@ class PilotDemoSeeder extends Seeder
             $fitnessCoachUser = $this->demoUser('pilot.fitness.coach@example.test', 'Pilot Fitness Coach', UserRole::ProviderAdmin);
             $nutritionCoachUser = $this->demoUser('pilot.nutrition.coach@example.test', 'Pilot Nutrition Coach', UserRole::ProviderAdmin);
             $limitedStaffUser = $this->demoUser('pilot.provider.staff@example.test', 'Pilot Limited Provider Staff', UserRole::ProviderAdmin);
-            $this->demoUser('a@b.co', 'QA Admin', UserRole::Admin);
-            $qaPatient = $this->demoUser('p@b.co', 'QA Patient', UserRole::Patient);
-            $qaProviderUser = $this->demoUser('d@b.co', 'QA Provider Staff', UserRole::ProviderAdmin);
+            $qaPatient = null;
+            $qaProviderUser = null;
+            if (app()->environment(['local', 'testing'])) {
+                $this->demoUser('a@b.co', 'QA Admin', UserRole::Admin);
+                $qaPatient = $this->demoUser('p@b.co', 'QA Patient', UserRole::Patient);
+                $qaProviderUser = $this->demoUser('d@b.co', 'QA Provider Staff', UserRole::ProviderAdmin);
+            }
 
             $this->seedPatientProfile($patient);
-            $this->seedPatientProfile($qaPatient);
+            if ($qaPatient) {
+                $this->seedPatientProfile($qaPatient);
+            }
             [$city, $area] = $this->seedLocation();
             [$doctorProvider, $doctorProfile, $branch] = $this->seedDoctor($doctorUser, $admin, $city, $area);
-            $this->providerStaff($doctorProvider, $qaProviderUser, ProviderStaffRole::Owner);
+            if ($qaProviderUser) {
+                $this->providerStaff($doctorProvider, $qaProviderUser, ProviderStaffRole::Owner);
+            }
             $this->providerStaff($doctorProvider, $limitedStaffUser, ProviderStaffRole::Staff, [
                 ProviderPermission::ViewAppointments->value,
                 ProviderPermission::ViewBookings->value,

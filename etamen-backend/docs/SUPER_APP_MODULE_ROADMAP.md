@@ -645,3 +645,35 @@ Not approved:
 - staging readiness
 - production/public launch
 - app-store readiness
+
+# Sprint 60 Local Pilot Operations SOP and Guardrails
+
+Sprint 60 adds local release guardrails and pilot operations SOP documentation. No product verticals, staging deployment, SSH, or server work happened.
+
+Accepted locally:
+
+- environment guardrails for local-only QA login convenience
+- backend and Flutter local release readiness checklists
+- pilot operations SOP
+- privacy/data handling SOP
+- medical safety SOP
+- admin operations runbook
+- provider operations runbook
+- patient support/refund/dispute guide
+
+Still not approved:
+
+- Hostinger
+- staging
+- production/public launch
+- app-store release
+- external users
+- live Paymob
+- live FCM
+- legal/privacy/refund/support policy approval
+- load testing
+- server backup/restore or disaster recovery
+
+Next roadmap gate:
+
+- either restore server access and run a backup-first staging recovery sprint, or continue local-only SOP/QA hardening without external users.

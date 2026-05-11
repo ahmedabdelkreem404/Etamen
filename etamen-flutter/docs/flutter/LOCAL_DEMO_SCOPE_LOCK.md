@@ -307,3 +307,32 @@ Still not approved:
 - live Paymob
 - external users
 - final legal/support/refund SOPs
+
+## Sprint 60 Local SOP Guardrails Lock
+
+Sprint 60 does not expand product scope. It locks the local demo/pilot guardrails around the already accepted local flows.
+
+Accepted locally:
+
+- QA login buttons are visible only for `ETAMEN_ENV=local`.
+- Missing/unsafe environment fallback does not expose QA buttons.
+- Short QA credentials are local/testing seed conveniences only.
+- Local release readiness checklists exist.
+- Pilot operations SOP exists.
+- Privacy/data handling SOP exists.
+- Medical safety SOP exists.
+- Admin and provider runbooks exist.
+- Patient support/refund/dispute guide exists.
+
+Still not approved:
+
+- staging
+- Hostinger
+- production/public launch
+- app store release
+- live Paymob
+- live FCM
+- external users
+- real customer data
+- server backup/restore validation
+- disaster recovery

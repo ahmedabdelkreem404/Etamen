@@ -1615,3 +1615,34 @@ I:\Etamen\.tmp\etamen-local-admin-operations-qa.apk
 ```
 
 This does not approve staging, production, public launch, real-phone staging, or app-store release.
+
+## Sprint 60 Local Pilot SOP and Release Guardrails
+
+Sprint 60 prepared the accepted local app for future supervised pilot consideration by adding guardrails and SOP documentation.
+
+Result:
+
+```text
+LOCAL_PILOT_OPERATIONS_SOP_ACCEPTED
+```
+
+Added/verified:
+
+- QA login buttons are local-only and hidden for staging, production, and missing environment fallback.
+- Short QA accounts are documented as local/testing seed conveniences only.
+- Local release readiness checklists exist for backend and Flutter.
+- Pilot operations SOP exists for backend and Flutter.
+- Privacy/data handling SOP exists.
+- Medical safety SOP exists for backend and Flutter.
+- Admin operations runbook exists.
+- Provider operations runbooks exist.
+- Patient support/refund/dispute guide exists.
+
+Still blocked:
+
+- Hostinger/staging deployment.
+- Production/public launch.
+- App-store release.
+- External users.
+- Live payment/refund gateway operation.
+- Legal/privacy/refund/support policy approval.

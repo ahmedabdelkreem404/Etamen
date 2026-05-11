@@ -33,5 +33,8 @@ void main() {
       const Locale('ar'),
     ).get('requiredField');
     expect(find.text(requiredField), findsNWidgets(2));
+    expect(find.text('Admin QA'), findsNothing);
+    expect(find.text('Patient QA'), findsNothing);
+    expect(find.text('Provider QA'), findsNothing);
   });
 }
